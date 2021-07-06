@@ -14,4 +14,5 @@ interface DeviceInteractionApi {
     fun commandSend(url: URL, command: String)
 */
     fun getUnitDataFlow(): MutableStateFlow<UnitData?>
+    fun getWSStatusFlow(): MutableStateFlow<WSConnectionStatus?>
 }

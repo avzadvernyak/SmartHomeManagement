@@ -6,16 +6,16 @@ sealed class UnitView {
     data class RelayView(
         val id: String,
         val name: String,
-        val status: Boolean,
-        val lastUpdateDate: Date,
-        val connectedStatus: Boolean
+        var status: Boolean,
+        var lastUpdateDate: Date,
+        var connectedStatus: Boolean
     ) : UnitView()
 
     data class SensorView(
         val id: String,
         val name: String,
-        val value: Float,
-        val lastUpdateDate: Date,
-        val connectedStatus: Boolean
+        var value: Float,
+        var lastUpdateDate: Date,
+        var connectedStatus: Boolean
     ) : UnitView()
 }
