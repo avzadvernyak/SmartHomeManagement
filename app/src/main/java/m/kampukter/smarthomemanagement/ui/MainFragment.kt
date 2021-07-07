@@ -1,7 +1,6 @@
 package m.kampukter.smarthomemanagement.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.main_fragment.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import m.kampukter.smarthomemanagement.R
-import m.kampukter.smarthomemanagement.data.SensorDataApiResult
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -38,13 +36,6 @@ class MainFragment : Fragment() {
         }
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
             sensorListAdapter.setList(sensors)
-        }
-        viewModel.apiData.observe(viewLifecycleOwner){
-            when(it){
-                is SensorDataApiResult.Success -> Log.w("blabla","${it.sensorValue.first().value}")
-                else -> Log.w("blabla","$it")
-            }
-
         }
     }
 

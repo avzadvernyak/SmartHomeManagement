@@ -1,7 +1,6 @@
 package m.kampukter.smarthomemanagement.data.repository
 
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope.coroutineContext
@@ -9,7 +8,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
-import m.kampukter.smarthomemanagement.data.dto.SensorIDataApi
+import m.kampukter.smarthomemanagement.data.dto.SensorsDataApi
 import retrofit2.Call
 import retrofit2.Callback
 import java.net.URL
@@ -17,7 +16,6 @@ import java.util.*
 
 class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
 
-    private val sensorDataApi = SensorIDataApi.create()
 
     // For test - BEGIN
     private val listSensorInfo = listOf(
@@ -49,23 +47,23 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
     private val sensorURLList: Flow<List<URL>> = flow { emit(listURL) }
 
     // For test - END
-    private val apiDataFlow = MutableSharedFlow<SensorDataApi?>()
+    private val sensorDataApi = SensorsDataApi.create()
+    private val apiSensorsDataFlow = MutableStateFlow<List<SensorDataApi>?>(null)
     private fun initListSensorInfo(): MutableList<UnitView> {
         val sensorInfoList = mutableListOf<UnitView>()
+        /*getSensorsLastData { apiData ->
+            CoroutineScope(Dispatchers.IO + coroutineContext).launch {
+                apiSensorsDataFlow.emit(apiData)
+            }
+        }*/
         listSensorInfo.forEach {
-            val value = 0F
-           /* getLastDataSensor1("${it.deviceId}${it.deviceSensorId}") { apiData ->
-                CoroutineScope(Dispatchers.IO + coroutineContext).launch {
-                    apiDataFlow.emit(apiData)
-                }
-            }*/
             sensorInfoList.add(
                 when (it.type) {
                     SensorType.SENSOR -> {
                         UnitView.SensorView(
                             it.id,
                             it.name,
-                            value,
+                            0F,
                             Calendar.getInstance().time,
                             false
                         )
@@ -93,16 +91,15 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
         combine(
             unitDataFlow,
             sensorInfoListFlow,
-            apiDataFlow
+            apiSensorsDataFlow
         ) { unitData, sensorInfoList, apiData ->
 
             apiData?.let {
-                Log.w("blabla", "Emit apiDataFlow ${it.unit}")
+                Log.w("blabla", "Emit apiDataFlow ${it.size}")
             }
             // Данные от учтройств по паре id устройства/id сенсора сопоставляем с id сенсора внутри проекта
             // и в случае нахождения меняем значение
             unitData?.sensorDataList?.forEach { sensorDate ->
-                Log.w("blabla", "Emit unitData ")
                 when (sensorDate) {
                     is SensorData.Sensor -> {
                         sensorInfoList.find { it.deviceId == sensorDate.deviceId && it.deviceSensorId == sensorDate.deviceSensorId }?.id?.let { foundId ->
@@ -148,85 +145,47 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
         }
     }
 
+    private suspend fun getSensorsLastData(): List<SensorDataApi> {
+        var result = listOf<SensorDataApi>()
+        val call = sensorDataApi.getLastDataSensor()
+        call.enqueue(object : Callback<List<SensorDataApi>> {
 
-    fun getLastDataSensor(sensor: String): Flow<SensorDataApiResult> {
-        val result: MutableStateFlow<SensorDataApiResult> =
-            MutableStateFlow(SensorDataApiResult.EmptyResponse)
-        val call = sensorDataApi.getLastDataSensor(sensor)
-        call.enqueue(object : Callback<SensorDataApi> {
             override fun onResponse(
-                call: Call<SensorDataApi>,
-                response: retrofit2.Response<SensorDataApi>
+                call: Call<List<SensorDataApi>>,
+                response: retrofit2.Response<List<SensorDataApi>>
             ) {
                 if (response.isSuccessful) {
                     val body = response.body()
-                    if (body?.date != 0L)
-                        body?.let {
-                            CoroutineScope(Dispatchers.IO + coroutineContext).launch {
-                                result.emit(SensorDataApiResult.Success(listOf(it)))
-                            }
-                        } else CoroutineScope(Dispatchers.IO + coroutineContext).launch {
-                        result.emit(SensorDataApiResult.EmptyResponse)
-                    }
-                } else CoroutineScope(Dispatchers.IO + coroutineContext).launch {
-                    result.emit(SensorDataApiResult.OtherError("isSuccessful is false"))
-                }
-
+                    if (body?.first()?.date != 0L) body?.let { result = it}
+                    else Log.w("blabla", "API - EmptyResponse")
+                } else Log.w("blabla", "API - isSuccessful is false")
             }
 
-            override fun onFailure(call: Call<SensorDataApi>, t: Throwable) {
-                t.message?.let {
-                    CoroutineScope(Dispatchers.IO + coroutineContext).launch {
-                        result.emit(SensorDataApiResult.OtherError(it))
-                    }
-                }
-            }
-        })
-        return result
-    }
-
-    fun lastDataSensor(sensor: String): MutableLiveData<SensorDataApiResult> {
-        val result = MutableLiveData<SensorDataApiResult>()
-        val call = sensorDataApi.getLastDataSensor(sensor)
-        call.enqueue(object : Callback<SensorDataApi> {
-
-            override fun onResponse(
-                call: Call<SensorDataApi>,
-                response: retrofit2.Response<SensorDataApi>
-            ) {
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body?.date != 0L)
-                        body?.let {
-                            result.postValue(SensorDataApiResult.Success(listOf(it)))
-                        } else result.postValue(SensorDataApiResult.EmptyResponse)
-                } else result.postValue(SensorDataApiResult.OtherError("isSuccessful is false"))
-            }
-
-            override fun onFailure(call: Call<SensorDataApi>, t: Throwable) {
-                t.message?.let { result.postValue(SensorDataApiResult.OtherError(it)) }
+            override fun onFailure(call: Call<List<SensorDataApi>>, t: Throwable) {
+                t.message?.let { Log.w("blabla", "API - OtherError- $it") }
             }
         }
         )
         return result
     }
 
-    private fun getLastDataSensor1(sensor: String, event: ((SensorDataApi) -> Unit)) {
-        val call = sensorDataApi.getLastDataSensor(sensor)
-        call.enqueue(object : Callback<SensorDataApi> {
+    private suspend fun getSensorsLastData(event: ((List<SensorDataApi>) -> Unit)) {
+        val call = sensorDataApi.getLastDataSensor()
+
+        call.enqueue(object : Callback<List<SensorDataApi>> {
 
             override fun onResponse(
-                call: Call<SensorDataApi>,
-                response: retrofit2.Response<SensorDataApi>
+                call: Call<List<SensorDataApi>>,
+                response: retrofit2.Response<List<SensorDataApi>>
             ) {
                 if (response.isSuccessful) {
                     val body = response.body()
-                    if (body?.date != 0L)
-                        body?.let { event.invoke(it) } else Log.w("blabla", "API - EmptyResponse")
+                    if (body?.first()?.date != 0L) body?.let { event.invoke(it) }
+                    else Log.w("blabla", "API - EmptyResponse")
                 } else Log.w("blabla", "API - isSuccessful is false")
             }
 
-            override fun onFailure(call: Call<SensorDataApi>, t: Throwable) {
+            override fun onFailure(call: Call<List<SensorDataApi>>, t: Throwable) {
                 t.message?.let { Log.w("blabla", "API - OtherError- $it") }
             }
         }

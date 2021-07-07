@@ -23,5 +23,4 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             sensorsRepository.disconnectToWS()
         }
     }
-    val apiData = sensorsRepository.lastDataSensor("ESP8266-12")
 }

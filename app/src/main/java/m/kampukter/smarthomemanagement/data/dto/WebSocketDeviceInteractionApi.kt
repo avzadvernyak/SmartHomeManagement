@@ -47,7 +47,7 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
             super.onFailure(webSocket, t, response)
 
             webSockets.remove(webSocket.getUrl())
-            Log.w("blabla", "Failure from ${webSocket.getUrl()}")
+            Log.w("blabla", "Failure from ${webSocket.getUrl()}>$t")
         }
 
         override fun onMessage(webSocket: WebSocket, text: String) {
@@ -62,10 +62,7 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
                     unitDataFlow.emit(unitInfo)
                 }
 
-            } else {
-                Log.i("blabla", "Get Connected string from ${webSocket.getUrl()}")
             }
-
         }
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
@@ -74,6 +71,7 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
     }
 
 
+    @DelicateCoroutinesApi
     override fun connect(url: URL) {
         if (!webSockets.containsKey(url)) {
             webSockets[url] = okHttpClient.newWebSocket(
