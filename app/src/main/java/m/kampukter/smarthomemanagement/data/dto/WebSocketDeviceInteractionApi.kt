@@ -6,9 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope.coroutineContext
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import m.kampukter.smarthomemanagement.data.UnitData
 import okhttp3.*
@@ -26,8 +24,8 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
     private val deviceJsonAdapter = DeviceJsonAdapter()
 
     private val unitDataFlow: MutableStateFlow<UnitData?> = MutableStateFlow(null)
-    private val connectionStatusFlow: MutableStateFlow<WSConnectionStatus?> = MutableStateFlow(null)
-    //private val connectionStatus = mutableMapOf<URL, MutableStateFlow<WSConnectionStatus?>>()
+    private val connectionStatusFlow: MutableStateFlow<Pair<URL, WSConnectionStatus>?> =
+        MutableStateFlow(null)
 
     @DelicateCoroutinesApi
     private val webSocketListener = object : WebSocketListener() {
@@ -35,8 +33,10 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
             super.onClosing(webSocket, code, reason)
 
+            CoroutineScope(Dispatchers.IO + coroutineContext).launch {
+                connectionStatusFlow.emit(Pair(webSocket.getUrl(), WSConnectionStatus.Disconnected))
+            }
             webSockets.remove(webSocket.getUrl())
-
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
@@ -45,7 +45,9 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             super.onFailure(webSocket, t, response)
-
+            CoroutineScope(Dispatchers.IO + coroutineContext).launch {
+                connectionStatusFlow.emit(Pair(webSocket.getUrl(), WSConnectionStatus.Disconnected))
+            }
             webSockets.remove(webSocket.getUrl())
             Log.w("blabla", "Failure from ${webSocket.getUrl()}>$t")
         }
@@ -67,6 +69,9 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
             Log.w("blabla", "onOpen from ${webSocket.getUrl()}")
+            CoroutineScope(Dispatchers.IO + coroutineContext).launch {
+                connectionStatusFlow.emit(Pair(webSocket.getUrl(), WSConnectionStatus.Connected))
+            }
         }
     }
 
@@ -88,5 +93,5 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
 
     fun WebSocket.getUrl(): URL = request().url().url()
     override fun getUnitDataFlow(): MutableStateFlow<UnitData?> = unitDataFlow
-    override fun getWSStatusFlow(): MutableStateFlow<WSConnectionStatus?> = connectionStatusFlow
+    override fun getWSStatusFlow(): MutableStateFlow<Pair<URL, WSConnectionStatus>?> = connectionStatusFlow
 }

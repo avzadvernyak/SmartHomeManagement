@@ -9,7 +9,7 @@ import retrofit2.http.GET
 
 interface SensorsDataApi {
     @GET("sensor_last_data.php?")
-    suspend fun getLastDataSensor(): Call<List<SensorDataApi>>
+    fun getLastDataSensor(): Call<List<SensorDataApi>>
 
     companion object Factory {
         private const val BASE_URL = "http://orbis.in.ua/api/"
