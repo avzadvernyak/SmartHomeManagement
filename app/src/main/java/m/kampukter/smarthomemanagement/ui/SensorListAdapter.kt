@@ -7,24 +7,26 @@ import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitView
 
 private const val TYPE_SENSOR: Int = 1
-private const val TYPE_RELAY:  Int = 2
+private const val TYPE_RELAY: Int = 2
 
-class SensorListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class SensorListAdapter(private val clickEventDelegate: ClickEventDelegate<UnitView>) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var sensorList = emptyList<UnitView>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-        when(viewType){
+        when (viewType) {
             TYPE_SENSOR -> SensorListViewHolder(
-            LayoutInflater
-                .from(parent.context)
-                .inflate(R.layout.sensor_item, parent, false)
-        )
-            else ->  RelayListViewHolder(
-            LayoutInflater
-                .from(parent.context)
-                .inflate(R.layout.relay_item, parent, false)
-        )
+                LayoutInflater
+                    .from(parent.context)
+                    .inflate(R.layout.sensor_item, parent, false),
+                clickEventDelegate
+            )
+            else -> RelayListViewHolder(
+                LayoutInflater
+                    .from(parent.context)
+                    .inflate(R.layout.relay_item, parent, false)
+            )
         }
 
     override fun getItemCount(): Int = sensorList.size
@@ -37,7 +39,7 @@ class SensorListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is SensorListViewHolder -> sensorList[position].let { item ->
-                holder.bind(item)
+                holder.bind(item as UnitView.SensorView)
             }
             is RelayListViewHolder -> sensorList[position].let { item ->
                 holder.bind(item)

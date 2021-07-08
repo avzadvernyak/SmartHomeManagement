@@ -7,15 +7,15 @@ sealed class UnitView {
         val id: String,
         val name: String,
         var status: Boolean,
-        var lastUpdateDate: Date,
-        var connectedStatus: Boolean
+        var lastUpdateDate: Date
     ) : UnitView()
 
     data class SensorView(
         val id: String,
         val name: String,
         var value: Float,
+        val dimension: String?,
         var lastUpdateDate: Date,
-        var connectedStatus: Boolean
+        val icon: Int
     ) : UnitView()
 }

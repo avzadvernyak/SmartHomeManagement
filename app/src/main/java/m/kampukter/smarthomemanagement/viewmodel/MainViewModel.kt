@@ -1,15 +1,14 @@
 package m.kampukter.smarthomemanagement.viewmodel
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.data.repository.SensorsRepository
 
 class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewModel() {
 
+    @DelicateCoroutinesApi
     val sensorListLiveData: LiveData<List<UnitView>> = sensorsRepository.sensorListFlow.asLiveData()
 
     fun connectToDevices() {
@@ -23,4 +22,23 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             sensorsRepository.disconnectToWS()
         }
     }
+
+    private val searchIdSensor = MutableLiveData<String>()
+    fun setIdSensorForSearch( id: String){
+        searchIdSensor.postValue( id )
+    }
+    val sensorInformationLiveData = Transformations.switchMap(searchIdSensor) { searchId ->
+        sensorsRepository.getSearchSensorInfo( searchId ).asLiveData()
+    }
+
+    private val searchData = MutableLiveData<Triple<String,String,String>>()
+    fun setQuestionSensorValue(setSensorRequest: Triple<String,String,String>) =
+        searchData.postValue(setSensorRequest)
+
+    val sensorLiveData: LiveData<Sensor> = MediatorLiveData<Sensor>()
+
+    data class Sensor(
+        val sensorParams: Triple<String,String,String>,
+        //val sensorData: ResultSensorValue
+    )
 }

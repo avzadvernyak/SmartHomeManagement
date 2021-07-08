@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.*
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
 import m.kampukter.smarthomemanagement.data.dto.SensorsDataApi
-import m.kampukter.smarthomemanagement.data.dto.WSConnectionStatus
 import retrofit2.Call
 import retrofit2.Callback
 import java.net.URL
@@ -58,8 +57,8 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
                                 sensor.id,
                                 sensor.name,
                                 apiSensor?.value ?: 0F,
-                                dateSensor,
-                                false
+                                sensor.dimension,
+                                dateSensor, sensor.icon
                             )
                         }
                         SensorType.RELAY -> {
@@ -67,8 +66,7 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
                                 sensor.id,
                                 sensor.name,
                                 apiSensor != null && apiSensor.value != 0F,
-                                dateSensor,
-                                false
+                                dateSensor
                             )
                         }
                     }
@@ -85,39 +83,30 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
         combine(
             initListSensorInfoFlow,
             unitDataFlow,
-            getSensorsInfo(),
-            webSocketDto.getWSStatusFlow()
-        ) { initListSensorInfo, unitData, sensorInfoList, status ->
+            getSensorsInfo()
+        ) { initListSensorInfo, unitData, sensorInfoList ->
 
-            status?.let { (url, state)->
-
-                when (state) {
-                    is WSConnectionStatus.Disconnected -> Log.w("blabla", "WS $url - Disconnected")
-                    is WSConnectionStatus.Connected -> Log.w("blabla", "WS $url - Connected")
-                    else -> Log.w("blabla", "WS$url - Else")
-                }
-            }
             // Данные от учтройств по паре id устройства/id сенсора сопоставляем с id сенсора внутри проекта
             // и в случае нахождения меняем значение
-            unitData?.sensorDataList?.forEach { sensorDate ->
-                when (sensorDate) {
+            unitData?.sensorDataList?.forEach { sensorData ->
+                when (sensorData) {
                     is SensorData.Sensor -> {
-                        sensorInfoList.find { it.deviceId == sensorDate.deviceId && it.deviceSensorId == sensorDate.deviceSensorId }?.id?.let { foundId ->
+                        sensorInfoList.find { it.deviceId == sensorData.deviceId && it.deviceSensorId == sensorData.deviceSensorId }?.id?.let { foundId ->
                             initListSensorInfo.find { sensor ->
                                 (sensor as UnitView.SensorView).id == foundId
                             }?.let {
-                                (it as UnitView.SensorView).value = sensorDate.value
+                                (it as UnitView.SensorView).value = sensorData.value
                                 it.lastUpdateDate = Calendar.getInstance().time
                             }
 
                         }
                     }
                     is SensorData.Relay -> {
-                        sensorInfoList.find { it.deviceId == sensorDate.deviceId && it.deviceSensorId == sensorDate.deviceRelayId }?.id?.let { foundId ->
+                        sensorInfoList.find { it.deviceId == sensorData.deviceId && it.deviceSensorId == sensorData.deviceRelayId }?.id?.let { foundId ->
                             initListSensorInfo.find { relay ->
                                 if (relay is UnitView.RelayView) relay.id == foundId else false
                             }?.let {
-                                (it as UnitView.RelayView).status = sensorDate.status
+                                (it as UnitView.RelayView).status = sensorData.status
                                 it.lastUpdateDate = Calendar.getInstance().time
                             }
                         }
@@ -129,28 +118,35 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
 
     // For test, а потом получение из таблицы рума
     private val sensorURLList: Flow<List<URL>> = flow { emit(listURL) }
+
+    // For test, а потом получение из таблицы рума
+    private val sensorInfo = listOf(
+        SensorInfo(
+            "1", "ESP8266-2", "1", "Thermometer", "°C",
+            SensorType.SENSOR, 1
+        ), SensorInfo(
+            "2", "ESP8266-1", "0", "Температура на улице", "°C",
+            SensorType.SENSOR, 1
+        ), SensorInfo(
+            "3", "ESP8266-1", "1", "Термометр в тамбуре", "°C",
+            SensorType.SENSOR, 1
+        ), SensorInfo(
+            "4", "ESP8266-1", "2", "Атмосферное давление", "mm Hg",
+            SensorType.SENSOR, 2
+        ), SensorInfo(
+            "5", "ESP8266-1", "3", "Влажность", "%",
+            SensorType.SENSOR, 3
+        )
+    )
+
     private fun getSensorsInfo(): Flow<List<SensorInfo>> = flow {
         // For test, а потом получение из таблицы рума
-        emit(
-            listOf(
-                SensorInfo(
-                    "1", "ESP8266-2", "1", "Thermometer", "C",
-                    SensorType.SENSOR
-                ), SensorInfo(
-                    "2", "ESP8266-1", "0", "Температура на улице", "C",
-                    SensorType.SENSOR
-                ), SensorInfo(
-                    "2", "ESP8266-1", "1", "Термометр в тамбуре", "C",
-                    SensorType.SENSOR
-                ), SensorInfo(
-                    "3", "ESP8266-1", "2", "Атмосферное давление", "мм рт.ст",
-                    SensorType.SENSOR
-                ), SensorInfo(
-                    "4", "ESP8266-1", "3", "Влажность", "%",
-                    SensorType.SENSOR
-                )
-            )
-        )
+        emit(sensorInfo)
+    }
+
+    fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> = flow {
+        // For test, а потом получение из таблицы рума
+        emit(sensorInfo.find { it.id == searchId })
     }
 
     //Connect to WS Server
@@ -191,5 +187,38 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
             }
         }
         )
+    }
+
+    fun getResultSensorDataApi(query: Triple<String, String, String>): Flow<ResultSensorDataApi> =
+        flow {
+            emit(getSensorData(query))
+        }
+
+
+    private fun getSensorData(query: Triple<String, String, String>): ResultSensorDataApi {
+        val (name, b_date, e_date) = query
+        var result: ResultSensorDataApi = ResultSensorDataApi.EmptyResponse
+        val call = sensorDataApi.getInfoSensorPeriod(name, b_date, e_date)
+        call.enqueue(object : Callback<List<SensorDataApi>> {
+
+            override fun onResponse(
+                call: Call<List<SensorDataApi>>,
+                response: retrofit2.Response<List<SensorDataApi>>
+            ) {
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.first()?.date != 0L) body?.let {
+                        result = ResultSensorDataApi.Success(it)
+                    }
+                    else result = ResultSensorDataApi.EmptyResponse
+                } else result =  ResultSensorDataApi.OtherError("isSuccessful is false")
+            }
+
+            override fun onFailure(call: Call<List<SensorDataApi>>, t: Throwable) {
+                t.message?.let { result = ResultSensorDataApi.OtherError(t.toString()) }
+            }
+        }
+        )
+        return result
     }
 }

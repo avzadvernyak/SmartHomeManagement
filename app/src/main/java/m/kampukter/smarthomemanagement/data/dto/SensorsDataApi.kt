@@ -6,10 +6,18 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 interface SensorsDataApi {
     @GET("sensor_last_data.php?")
     fun getLastDataSensor(): Call<List<SensorDataApi>>
+
+    @GET("get_info.php?")
+    fun getInfoSensorPeriod(
+        @Query("sensor") unit: String,
+        @Query("period_b") beginDate: String,
+        @Query("period_e") endDate: String
+    ): Call<List<SensorDataApi>>
 
     companion object Factory {
         private const val BASE_URL = "http://orbis.in.ua/api/"
@@ -21,4 +29,14 @@ interface SensorsDataApi {
             return retrofit.create(SensorsDataApi::class.java)
         }
     }
+    /*
+    @GET("sensor_last_data.php?")
+    suspend fun getLastDataSensor(): Call<List<SensorDataApi>>
+
+    @GET("get_info.php?")
+    suspend fun getInfoSensorPeriod(
+        @Query("sensor") unit: String,
+        @Query("period_b") beginDate: String,
+        @Query("period_e") endDate: String
+    ): Call<List<SensorDataApi>>*/
 }

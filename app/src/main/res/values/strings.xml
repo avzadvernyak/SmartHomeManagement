@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Smart Home Management</string>
+
+    <string name="temperatureValue">°C</string>
+    <string name="pressureValue">mm Hg</string>
+    <string name="humidityValue">%%</string>
+    <string name="voltageValue">V</string>
+    <string name="amperageValue">mA</string>
+
+    <string name="last_update">"на %1$s"</string>
+    <string name="menu_date_period_title">Date</string>
 </resources>
