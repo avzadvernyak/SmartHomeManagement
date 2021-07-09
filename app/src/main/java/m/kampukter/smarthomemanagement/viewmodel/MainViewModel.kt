@@ -1,7 +1,6 @@
 package m.kampukter.smarthomemanagement.viewmodel
 
 import androidx.lifecycle.*
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
 import m.kampukter.smarthomemanagement.data.UnitView
@@ -9,7 +8,6 @@ import m.kampukter.smarthomemanagement.data.repository.SensorsRepository
 
 class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewModel() {
 
-    @DelicateCoroutinesApi
     val sensorListLiveData: LiveData<List<UnitView>> = sensorsRepository.sensorListFlow.asLiveData()
 
     fun connectToDevices() {

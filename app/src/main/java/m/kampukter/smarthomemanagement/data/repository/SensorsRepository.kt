@@ -1,9 +1,13 @@
 package m.kampukter.smarthomemanagement.data.repository
 
 import android.util.Log
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import m.kampukter.smarthomemanagement.data.*
+import m.kampukter.smarthomemanagement.data.dao.SensorInfoDao
+import m.kampukter.smarthomemanagement.data.dao.UnitInfoDao
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
 import m.kampukter.smarthomemanagement.data.dto.SensorsDataApiInterface
 import retrofit2.Response
@@ -12,41 +16,36 @@ import java.net.URL
 import java.util.*
 
 class SensorsRepository(
+    private val sensorInfoDao: SensorInfoDao,
+    private val unitInfoDao: UnitInfoDao,
     private val webSocketDto: DeviceInteractionApi,
     private val sensorApiInterface: SensorsDataApiInterface
 ) {
 
     // For test - BEGIN
     private val listUnitInfo = listOf(
-        UnitInfoIp(
-            "1", "ESP8266-1", "http://192.168.0.82:81/", "LAN", null
-        ), UnitInfoIp(
-            "2", "ESP8266-1", "http://109.254.66.131:81/", "WAN", null
-        ), UnitInfoIp(
-            "3", "ESP8266-2", "http://192.168.0.83:81/", "LAN", null
-        ), UnitInfoIp(
-            "4", "ESP8266-2", "http://109.254.66.131:83/", "wAN", null
+        UnitInfo(
+            "ESP8266-1", "Name ESP8266-1", "http://192.168.0.82:81/",null
+        ), UnitInfo(
+            "ESP8266-2", "Name ESP8266-2", "http://192.168.0.83:81/",null
         )
     )
-    private val listURL = listUnitInfo.filter { it.typeIp == "LAN" }.map { URL(it.deviceIp) }
+    private val listURL = listUnitInfo.map { URL(it.deviceIp) }
     // For test - END
 
 
-    @DelicateCoroutinesApi
-    private val apiSensorsDataFlow = MutableStateFlow<List<SensorDataApi>?>(null).apply {
-        CoroutineScope(Dispatchers.IO + GlobalScope.coroutineContext).launch {
-            emit(getSensorsLastData())
-        }
+    private val apiSensorsDataFlow: Flow<List<SensorDataApi>> = flow {
+        // For test, а потом получение из таблицы рума
+        emit(getSensorsLastData())
     }
 
-    @DelicateCoroutinesApi
     private val initListSensorInfoFlow: Flow<List<UnitView>> =
         combine(getSensorsInfo(), apiSensorsDataFlow) { sensorInfo, apiSensorInfo ->
             val sensorInfoList = mutableListOf<UnitView>()
             sensorInfo.forEach { sensor ->
 
                 val apiSensor =
-                    apiSensorInfo?.find { it.unit == "${sensor.deviceId}${sensor.deviceSensorId}" }
+                    apiSensorInfo.find { it.unit == "${sensor.deviceId}${sensor.deviceSensorId}" }
                 val dateSensor =
                     if (apiSensor != null) Date(apiSensor.date * 1000L) else Calendar.getInstance().time
 
@@ -78,7 +77,6 @@ class SensorsRepository(
 
     private val unitDataFlow = webSocketDto.getUnitDataFlow()
 
-    @DelicateCoroutinesApi
     val sensorListFlow: Flow<List<UnitView>> =
         combine(
             initListSensorInfoFlow,
@@ -167,7 +165,7 @@ class SensorsRepository(
         }
     }
 
-    private suspend fun getSensorsLastData(): List<SensorDataApi>? {
+    private suspend fun getSensorsLastData(): List<SensorDataApi> {
         var response: Response<List<SensorDataApi>>? = null
         try {
             response = sensorApiInterface.getLastDataSensor()
@@ -175,20 +173,20 @@ class SensorsRepository(
             Log.e("blablabla", " Error in API $e")
         }
 
-        if (response?.code() != 200) return null
+        if (response?.code() != 200) return emptyList()
 
         val sensorDataList = response.body()
 
-        return if (sensorDataList.isNullOrEmpty()) null
+        return if (sensorDataList.isNullOrEmpty()) emptyList()
         else sensorDataList
 
     }
 
-    private suspend fun getSensorData( query: Triple<String,String,String>): ResultSensorDataApi {
+    private suspend fun getSensorData(query: Triple<String, String, String>): ResultSensorDataApi {
         val (nameSensor, b_date, e_date) = query
         var response: Response<List<SensorDataApi>>? = null
         try {
-            response = sensorApiInterface.getInfoSensorPeriod(nameSensor,b_date,e_date)
+            response = sensorApiInterface.getInfoSensorPeriod(nameSensor, b_date, e_date)
         } catch (e: IOException) {
             Log.e("blablabla", "API Unknown Error")
             ResultSensorDataApi.OtherError("API Unknown Error")
@@ -198,6 +196,7 @@ class SensorsRepository(
         return if (sensorDataList.isNullOrEmpty()) ResultSensorDataApi.EmptyResponse
         else ResultSensorDataApi.Success(sensorDataList)
     }
+
     fun getResultSensorDataApi(query: Triple<String, String, String>): Flow<ResultSensorDataApi> =
         flow {
             emit(getSensorData(query))

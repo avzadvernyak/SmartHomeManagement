@@ -1,8 +1,6 @@
 package m.kampukter.smarthomemanagement.data.dto
 
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import m.kampukter.smarthomemanagement.data.Sensor
 import m.kampukter.smarthomemanagement.data.UnitData
 import java.net.URL
 

@@ -10,7 +10,6 @@ import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.main_fragment.*
-import kotlinx.coroutines.DelicateCoroutinesApi
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
@@ -29,7 +28,6 @@ class MainFragment : Fragment() {
         return inflater.inflate(R.layout.main_fragment, container, false)
     }
 
-    @DelicateCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
