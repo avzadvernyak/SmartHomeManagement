@@ -14,4 +14,7 @@ interface SensorInfoDao {
 
     @Query("select * from sensor")
     fun getAllFlow(): Flow<List<SensorInfo>>
+
+    @Query("select * from sensor where id = :searchId")
+    fun getSensorFlow(searchId: String): Flow<SensorInfo>
 }

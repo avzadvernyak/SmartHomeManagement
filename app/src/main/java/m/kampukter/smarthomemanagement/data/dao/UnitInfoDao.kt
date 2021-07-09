@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import m.kampukter.smarthomemanagement.data.UnitInfo
+import java.net.URL
 
 @Dao
 interface UnitInfoDao {
@@ -14,4 +15,7 @@ interface UnitInfoDao {
 
     @Query("select * from unit")
     fun getAllFlow(): Flow<List<UnitInfo>>
+
+    @Query("select deviceIp from unit")
+    fun getUrlFlow(): Flow<List<String>>
 }

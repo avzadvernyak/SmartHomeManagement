@@ -22,20 +22,7 @@ class SensorsRepository(
     private val sensorApiInterface: SensorsDataApiInterface
 ) {
 
-    // For test - BEGIN
-    private val listUnitInfo = listOf(
-        UnitInfo(
-            "ESP8266-1", "Name ESP8266-1", "http://192.168.0.82:81/",null
-        ), UnitInfo(
-            "ESP8266-2", "Name ESP8266-2", "http://192.168.0.83:81/",null
-        )
-    )
-    private val listURL = listUnitInfo.map { URL(it.deviceIp) }
-    // For test - END
-
-
     private val apiSensorsDataFlow: Flow<List<SensorDataApi>> = flow {
-        // For test, а потом получение из таблицы рума
         emit(getSensorsLastData())
     }
 
@@ -71,7 +58,6 @@ class SensorsRepository(
                     }
                 )
             }
-
             sensorInfoList
         }
 
@@ -114,44 +100,17 @@ class SensorsRepository(
             initListSensorInfo
         }
 
-    // For test, а потом получение из таблицы рума
-    private val sensorURLList: Flow<List<URL>> = flow { emit(listURL) }
+    private val sensorURLList: Flow<List<String>> = unitInfoDao.getUrlFlow()
 
-    // For test, а потом получение из таблицы рума
-    private val sensorInfo = listOf(
-        SensorInfo(
-            "1", "ESP8266-2", "1", "Thermometer", "°C",
-            SensorType.SENSOR, 1
-        ), SensorInfo(
-            "2", "ESP8266-1", "0", "Температура на улице", "°C",
-            SensorType.SENSOR, 1
-        ), SensorInfo(
-            "3", "ESP8266-1", "1", "Термометр в тамбуре", "°C",
-            SensorType.SENSOR, 1
-        ), SensorInfo(
-            "4", "ESP8266-1", "2", "Атмосферное давление", "mm Hg",
-            SensorType.SENSOR, 2
-        ), SensorInfo(
-            "5", "ESP8266-1", "3", "Влажность", "%",
-            SensorType.SENSOR, 3
-        )
-    )
+    private fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllFlow()
 
-    private fun getSensorsInfo(): Flow<List<SensorInfo>> = flow {
-        // For test, а потом получение из таблицы рума
-        emit(sensorInfo)
-    }
-
-    fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> = flow {
-        // For test, а потом получение из таблицы рума
-        emit(sensorInfo.find { it.id == searchId })
-    }
+    fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> = sensorInfoDao.getSensorFlow( searchId )
 
     //Connect to WS Server
     suspend fun connectToWS() {
         sensorURLList.collect { value ->
             value.forEach { url ->
-                webSocketDto.connect(url)
+                webSocketDto.connect(URL(url))
             }
         }
     }
@@ -160,7 +119,7 @@ class SensorsRepository(
     suspend fun disconnectToWS() {
         sensorURLList.collect { value ->
             value.forEach { url ->
-                webSocketDto.disconnect(url)
+                webSocketDto.disconnect(URL(url))
             }
         }
     }
