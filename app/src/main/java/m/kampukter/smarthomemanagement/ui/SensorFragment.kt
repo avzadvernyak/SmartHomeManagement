@@ -2,6 +2,7 @@ package m.kampukter.smarthomemanagement.ui
 
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
@@ -9,9 +10,11 @@ import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.android.synthetic.main.sensor_info_fragment.*
 import m.kampukter.smarthomemanagement.R
+import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.util.*
@@ -63,7 +66,43 @@ class SensorFragment : Fragment() {
             viewModel.setIdSensorForSearch(it)
         }
         viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) { sensor ->
-            (activity as AppCompatActivity).title = "${sensor?.deviceId}${sensor?.deviceSensorId}"
+
+            val sensorFullId = "${sensor?.deviceId}${sensor?.deviceSensorId}"
+
+            (activity as AppCompatActivity).title = getString(R.string.title_history)
+
+            viewModel.setQuestionSensorsData( Triple(sensorFullId, strDateBegin, strDateEnd) )
+
+            pickerRange.addOnPositiveButtonClickListener { dateSelected ->
+                dateSelected.first?.let {
+                    strDateBegin = DateFormat.format("yyyy-MM-dd", it).toString()
+                }
+                dateSelected.second?.let {
+                    strDateEnd = DateFormat.format("yyyy-MM-dd", it).toString()
+                }
+                apiProgressBar.visibility = View.VISIBLE
+                viewModel.setQuestionSensorsData( Triple(sensorFullId, strDateBegin, strDateEnd) )
+            }
+        }
+        viewModel.sensorDataApi.observe(viewLifecycleOwner){ resultSensorData ->
+            when (resultSensorData) {
+                is ResultSensorDataApi.Success -> {
+                    apiProgressBar.visibility = View.INVISIBLE
+
+                }
+                is ResultSensorDataApi.OtherError -> {
+                    apiProgressBar.visibility = View.INVISIBLE
+                    Log.d("blablabla", "Other Error" + resultSensorData.tError)
+                }
+                is ResultSensorDataApi.EmptyResponse -> {
+                    apiProgressBar.visibility = View.INVISIBLE
+                    Snackbar.make(
+                        view,
+                        getString(R.string.noDataMessage, strDateBegin, strDateEnd),
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
         pager.adapter = object : FragmentStateAdapter(this) {
 
@@ -71,7 +110,7 @@ class SensorFragment : Fragment() {
 
             override fun createFragment(position: Int): Fragment {
                 return when (position) {
-                    0 -> SensorInfoFragment()
+                    0 -> SensorAmountFragment()
                     1 -> SensorDetailedFragment()
                     else -> SensorGraphFragment()
                 }

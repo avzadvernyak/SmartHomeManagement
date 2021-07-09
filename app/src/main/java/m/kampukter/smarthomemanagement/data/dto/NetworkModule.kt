@@ -7,7 +7,7 @@ object NetworkModule {
 
     private const val BASE_URL = "http://orbis.in.ua/api/"
 
-    private fun retrofitBuild(): Retrofit {
+    fun retrofitBuild(): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())

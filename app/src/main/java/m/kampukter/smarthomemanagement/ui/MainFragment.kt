@@ -10,7 +10,7 @@ import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.main_fragment.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.DelicateCoroutinesApi
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
@@ -29,14 +29,13 @@ class MainFragment : Fragment() {
         return inflater.inflate(R.layout.main_fragment, container, false)
     }
 
+    @DelicateCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val clickEventDelegate: ClickEventDelegate<UnitView> =
             object : ClickEventDelegate<UnitView> {
                 override fun onClick(item: UnitView) {
-
-                    Log.d("blabla", "Click ${(item as UnitView.SensorView).id}")
 
                     activity?.supportFragmentManager?.commit {
                         replace(
@@ -61,16 +60,13 @@ class MainFragment : Fragment() {
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
             sensorListAdapter.setList(sensors)
         }
-        val re = R.drawable.ic_humidity
     }
 
-    @ExperimentalCoroutinesApi
     override fun onResume() {
         super.onResume()
         viewModel.connectToDevices()
     }
 
-    @ExperimentalCoroutinesApi
     override fun onPause() {
         super.onPause()
         viewModel.disconnectToDevices()

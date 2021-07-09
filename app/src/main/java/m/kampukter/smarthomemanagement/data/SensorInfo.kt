@@ -5,7 +5,7 @@ data class SensorInfo(
     val deviceId: String,
     val deviceSensorId: String,
     val name: String,
-    val dimension: String?,
+    val measure: String?,
     val type: SensorType,
     val icon: Int
 )

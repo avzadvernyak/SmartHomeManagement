@@ -5,13 +5,16 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
-import m.kampukter.smarthomemanagement.data.dto.SensorsDataApi
-import retrofit2.Call
-import retrofit2.Callback
+import m.kampukter.smarthomemanagement.data.dto.SensorsDataApiInterface
+import retrofit2.Response
+import java.io.IOException
 import java.net.URL
 import java.util.*
 
-class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
+class SensorsRepository(
+    private val webSocketDto: DeviceInteractionApi,
+    private val sensorApiInterface: SensorsDataApiInterface
+) {
 
     // For test - BEGIN
     private val listUnitInfo = listOf(
@@ -28,14 +31,11 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
     private val listURL = listUnitInfo.filter { it.typeIp == "LAN" }.map { URL(it.deviceIp) }
     // For test - END
 
-    private val sensorDataApi = SensorsDataApi.create()
 
     @DelicateCoroutinesApi
     private val apiSensorsDataFlow = MutableStateFlow<List<SensorDataApi>?>(null).apply {
-        getSensorsLastData { apiData ->
-            CoroutineScope(Dispatchers.IO + GlobalScope.coroutineContext).launch {
-                emit(apiData)
-            }
+        CoroutineScope(Dispatchers.IO + GlobalScope.coroutineContext).launch {
+            emit(getSensorsLastData())
         }
     }
 
@@ -57,7 +57,7 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
                                 sensor.id,
                                 sensor.name,
                                 apiSensor?.value ?: 0F,
-                                sensor.dimension,
+                                sensor.measure,
                                 dateSensor, sensor.icon
                             )
                         }
@@ -167,58 +167,40 @@ class SensorsRepository(private val webSocketDto: DeviceInteractionApi) {
         }
     }
 
-    private fun getSensorsLastData(result: ((List<SensorDataApi>) -> Unit)) {
-        val call = sensorDataApi.getLastDataSensor()
-        call.enqueue(object : Callback<List<SensorDataApi>> {
-
-            override fun onResponse(
-                call: Call<List<SensorDataApi>>,
-                response: retrofit2.Response<List<SensorDataApi>>
-            ) {
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body?.first()?.date != 0L) body?.let { result.invoke(it) }
-                    else Log.w("blabla", "API - EmptyResponse")
-                } else Log.w("blabla", "API - isSuccessful is false")
-            }
-
-            override fun onFailure(call: Call<List<SensorDataApi>>, t: Throwable) {
-                t.message?.let { Log.w("blabla", "API - OtherError- $it") }
-            }
+    private suspend fun getSensorsLastData(): List<SensorDataApi>? {
+        var response: Response<List<SensorDataApi>>? = null
+        try {
+            response = sensorApiInterface.getLastDataSensor()
+        } catch (e: IOException) {
+            Log.e("blablabla", " Error in API $e")
         }
-        )
+
+        if (response?.code() != 200) return null
+
+        val sensorDataList = response.body()
+
+        return if (sensorDataList.isNullOrEmpty()) null
+        else sensorDataList
+
     }
 
+    private suspend fun getSensorData( query: Triple<String,String,String>): ResultSensorDataApi {
+        val (nameSensor, b_date, e_date) = query
+        var response: Response<List<SensorDataApi>>? = null
+        try {
+            response = sensorApiInterface.getInfoSensorPeriod(nameSensor,b_date,e_date)
+        } catch (e: IOException) {
+            Log.e("blablabla", "API Unknown Error")
+            ResultSensorDataApi.OtherError("API Unknown Error")
+        }
+        if (response?.code() != 200) return ResultSensorDataApi.OtherError("Error HTTP")
+        val sensorDataList = response.body()
+        return if (sensorDataList.isNullOrEmpty()) ResultSensorDataApi.EmptyResponse
+        else ResultSensorDataApi.Success(sensorDataList)
+    }
     fun getResultSensorDataApi(query: Triple<String, String, String>): Flow<ResultSensorDataApi> =
         flow {
             emit(getSensorData(query))
         }
 
-
-    private fun getSensorData(query: Triple<String, String, String>): ResultSensorDataApi {
-        val (name, b_date, e_date) = query
-        var result: ResultSensorDataApi = ResultSensorDataApi.EmptyResponse
-        val call = sensorDataApi.getInfoSensorPeriod(name, b_date, e_date)
-        call.enqueue(object : Callback<List<SensorDataApi>> {
-
-            override fun onResponse(
-                call: Call<List<SensorDataApi>>,
-                response: retrofit2.Response<List<SensorDataApi>>
-            ) {
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body?.first()?.date != 0L) body?.let {
-                        result = ResultSensorDataApi.Success(it)
-                    }
-                    else result = ResultSensorDataApi.EmptyResponse
-                } else result =  ResultSensorDataApi.OtherError("isSuccessful is false")
-            }
-
-            override fun onFailure(call: Call<List<SensorDataApi>>, t: Throwable) {
-                t.message?.let { result = ResultSensorDataApi.OtherError(t.toString()) }
-            }
-        }
-        )
-        return result
-    }
 }
