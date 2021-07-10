@@ -8,9 +8,8 @@ interface DeviceInteractionApi {
     fun connect(url: URL)
 
     fun disconnect(url: URL)
-/*
+
     fun commandSend(url: URL, command: String)
-*/
     fun getUnitDataFlow(): MutableStateFlow<UnitData?>
     fun getWSStatusFlow(): MutableStateFlow<Pair<URL, WSConnectionStatus>?>
 }

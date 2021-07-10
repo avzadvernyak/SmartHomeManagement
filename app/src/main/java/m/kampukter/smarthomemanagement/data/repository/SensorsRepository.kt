@@ -1,13 +1,9 @@
 package m.kampukter.smarthomemanagement.data.repository
 
 import android.util.Log
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dao.SensorInfoDao
-import m.kampukter.smarthomemanagement.data.dao.UnitInfoDao
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
 import m.kampukter.smarthomemanagement.data.dto.SensorsDataApiInterface
 import retrofit2.Response
@@ -17,7 +13,6 @@ import java.util.*
 
 class SensorsRepository(
     private val sensorInfoDao: SensorInfoDao,
-    private val unitInfoDao: UnitInfoDao,
     private val webSocketDto: DeviceInteractionApi,
     private val sensorApiInterface: SensorsDataApiInterface
 ) {
@@ -100,11 +95,12 @@ class SensorsRepository(
             initListSensorInfo
         }
 
-    private val sensorURLList: Flow<List<String>> = unitInfoDao.getUrlFlow()
+    private val sensorURLList: Flow<List<String>> = sensorInfoDao.getUrlFlow()
 
-    private fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllFlow()
+    private fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllSensorsFlow()
 
-    fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> = sensorInfoDao.getSensorFlow( searchId )
+    fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> =
+        sensorInfoDao.getSensorFlow(searchId)
 
     //Connect to WS Server
     suspend fun connectToWS() {
@@ -160,5 +156,10 @@ class SensorsRepository(
         flow {
             emit(getSensorData(query))
         }
+
+    fun getRelayById(id: String): Flow<SensorInfoWithIp> = sensorInfoDao.getRelayByIdFlow(id)
+    fun sendCommand(url: URL, sensor: String) {
+        webSocketDto.commandSend(url, sensor)
+    }
 
 }

@@ -9,8 +9,11 @@ import m.kampukter.smarthomemanagement.data.UnitView
 private const val TYPE_SENSOR: Int = 1
 private const val TYPE_RELAY: Int = 2
 
-class SensorListAdapter(private val clickEventDelegate: ClickEventDelegate<UnitView>) :
+class SensorListAdapter :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    lateinit var clickSensorEventDelegate: ClickEventDelegate<UnitView>
+    lateinit var clickRelayEventDelegate: ClickEventDelegate<UnitView>
 
     private var sensorList = emptyList<UnitView>()
 
@@ -20,12 +23,13 @@ class SensorListAdapter(private val clickEventDelegate: ClickEventDelegate<UnitV
                 LayoutInflater
                     .from(parent.context)
                     .inflate(R.layout.sensor_item, parent, false),
-                clickEventDelegate
+                clickSensorEventDelegate
             )
             else -> RelayListViewHolder(
                 LayoutInflater
                     .from(parent.context)
-                    .inflate(R.layout.relay_item, parent, false)
+                    .inflate(R.layout.relay_item, parent, false),
+                clickRelayEventDelegate
             )
         }
 
@@ -42,7 +46,7 @@ class SensorListAdapter(private val clickEventDelegate: ClickEventDelegate<UnitV
                 holder.bind(item as UnitView.SensorView)
             }
             is RelayListViewHolder -> sensorList[position].let { item ->
-                holder.bind(item)
+                holder.bind(item as UnitView.RelayView)
             }
         }
     }

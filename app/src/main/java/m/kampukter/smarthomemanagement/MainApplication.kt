@@ -1,10 +1,11 @@
 package m.kampukter.smarthomemanagement
 
 import android.app.Application
-import android.os.Build
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.facebook.stetho.Stetho
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -26,13 +27,14 @@ import retrofit2.Retrofit
 import java.util.*
 
 class MainApplication : Application() {
+    @DelicateCoroutinesApi
     private val module = module {
         single {
             Room.databaseBuilder(androidContext(), SmartHomeDatabase::class.java, "smart_home.db")
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(supportDb: SupportSQLiteDatabase) {
                         GlobalScope.launch(context = Dispatchers.IO) {
-                            get<SmartHomeDatabase>().sensorInfoDao().insertAll(
+                            get<SmartHomeDatabase>().sensorInfoDao().insertAllSensors(
                                 listOf(
                                     SensorInfo(
                                         "1", "ESP8266-2", "1", "Thermometer", "°C",
@@ -49,12 +51,15 @@ class MainApplication : Application() {
                                     ), SensorInfo(
                                         "5", "ESP8266-1", "3", "Влажность", "%",
                                         SensorType.SENSOR, 3
+                                    ), SensorInfo(
+                                        "6", "ESP8266-2", "4", "Реле", "",
+                                        SensorType.RELAY, 3
                                     )
                                 )
                             )
                         }
                         GlobalScope.launch(context = Dispatchers.IO) {
-                            get<SmartHomeDatabase>().unitInfoDao().insertAll(
+                            get<SmartHomeDatabase>().sensorInfoDao().insertAllUnit(
                                 listOf(
                                     UnitInfo(
                                         "ESP8266-1",
@@ -79,14 +84,18 @@ class MainApplication : Application() {
         single {
             SensorsRepository(
                 get<SmartHomeDatabase>().sensorInfoDao(),
-                get<SmartHomeDatabase>().unitInfoDao(), get(), get()
+                get(), get()
             )
         }
         viewModel { MainViewModel(get()) }
     }
 
+    @DelicateCoroutinesApi
     override fun onCreate() {
         super.onCreate()
+
+        Stetho.initializeWithDefaults(this)
+
         startKoin {
             androidContext(this@MainApplication)
             modules(module)

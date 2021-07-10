@@ -4,7 +4,6 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import m.kampukter.smarthomemanagement.data.dao.SensorInfoDao
-import m.kampukter.smarthomemanagement.data.dao.UnitInfoDao
 
 @Database(
     version = 1, exportSchema = false, entities = [
@@ -15,6 +14,5 @@ import m.kampukter.smarthomemanagement.data.dao.UnitInfoDao
 @TypeConverters(SensorTypeConverter::class)
 abstract class SmartHomeDatabase: RoomDatabase() {
     abstract fun sensorInfoDao(): SensorInfoDao
-    abstract fun unitInfoDao(): UnitInfoDao
 }
 

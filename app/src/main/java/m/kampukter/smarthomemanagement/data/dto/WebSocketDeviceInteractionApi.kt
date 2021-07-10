@@ -94,4 +94,7 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
     fun WebSocket.getUrl(): URL = request().url().url()
     override fun getUnitDataFlow(): MutableStateFlow<UnitData?> = unitDataFlow
     override fun getWSStatusFlow(): MutableStateFlow<Pair<URL, WSConnectionStatus>?> = connectionStatusFlow
+    override fun commandSend(url: URL, command: String) {
+        webSockets[url]?.send(command)
+    }
 }

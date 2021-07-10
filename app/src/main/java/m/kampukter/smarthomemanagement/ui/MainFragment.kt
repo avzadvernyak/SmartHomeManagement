@@ -14,6 +14,7 @@ import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.net.URL
 
 class MainFragment : Fragment() {
 
@@ -31,8 +32,8 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val clickEventDelegate: ClickEventDelegate<UnitView> =
-            object : ClickEventDelegate<UnitView> {
+        sensorListAdapter = SensorListAdapter().apply {
+            clickSensorEventDelegate = object : ClickEventDelegate<UnitView> {
                 override fun onClick(item: UnitView) {
 
                     activity?.supportFragmentManager?.commit {
@@ -49,14 +50,28 @@ class MainFragment : Fragment() {
                     Log.d("blabla", "Long click ${(item as UnitView.SensorView).id}")
                 }
             }
+            clickRelayEventDelegate = object : ClickEventDelegate<UnitView> {
+                override fun onClick(item: UnitView) {
+                    viewModel.setRelayId((item as UnitView.RelayView).id)
+                }
 
-        sensorListAdapter = SensorListAdapter(clickEventDelegate)
+                override fun onLongClick(item: UnitView) {
+                    Log.d("blabla", "Long click ${(item as UnitView.RelayView).id}")
+                }
+            }
+        }
         with(sensorRecyclerView) {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
             adapter = sensorListAdapter
         }
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
             sensorListAdapter.setList(sensors)
+        }
+        viewModel.relayInformation.observe(viewLifecycleOwner) { info ->
+            viewModel.sendCommand(
+                URL(info.deviceIp),
+                "${info.deviceId}${info.deviceSensorId}"
+            )
         }
     }
 
