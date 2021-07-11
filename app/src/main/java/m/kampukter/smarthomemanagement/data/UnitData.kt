@@ -10,7 +10,7 @@ sealed class SensorData {
     data class Relay(
         val deviceId: String,
         val deviceRelayId: String,
-        val status: Boolean,
+        val status: RelayState,
         val lastUpdateDate: Date
     ) : SensorData()
 

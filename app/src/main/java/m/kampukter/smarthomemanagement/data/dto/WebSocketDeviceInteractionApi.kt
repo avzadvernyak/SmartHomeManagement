@@ -8,9 +8,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope.coroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import m.kampukter.smarthomemanagement.data.RelayState
+import m.kampukter.smarthomemanagement.data.SensorData
+import m.kampukter.smarthomemanagement.data.SensorInfoWithIp
 import m.kampukter.smarthomemanagement.data.UnitData
 import okhttp3.*
 import java.net.URL
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class WebSocketDeviceInteractionApi : DeviceInteractionApi {
@@ -93,8 +97,24 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
 
     fun WebSocket.getUrl(): URL = request().url().url()
     override fun getUnitDataFlow(): MutableStateFlow<UnitData?> = unitDataFlow
-    override fun getWSStatusFlow(): MutableStateFlow<Pair<URL, WSConnectionStatus>?> = connectionStatusFlow
-    override fun commandSend(url: URL, command: String) {
-        webSockets[url]?.send(command)
+    override fun getWSStatusFlow(): MutableStateFlow<Pair<URL, WSConnectionStatus>?> =
+        connectionStatusFlow
+
+    override fun commandSend(sensorInfo: SensorInfoWithIp) {
+        val relay =
+            UnitData(
+                sensorDataList = listOf(
+                    SensorData.Relay(
+                        deviceId = sensorInfo.deviceId,
+                        deviceRelayId = sensorInfo.deviceSensorId,
+                        status = RelayState.OFFLINE,
+                        Calendar.getInstance().time
+                    )
+                )
+            )
+        CoroutineScope(Dispatchers.IO + coroutineContext).launch {
+            unitDataFlow.emit(relay)
+        }
+        webSockets[URL(sensorInfo.deviceIp)]?.send("${sensorInfo.deviceId}${sensorInfo.deviceSensorId}")
     }
 }

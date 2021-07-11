@@ -4,6 +4,7 @@ import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
+import m.kampukter.smarthomemanagement.data.RelayState
 import m.kampukter.smarthomemanagement.data.SensorData
 import m.kampukter.smarthomemanagement.data.UnitData
 import java.util.*
@@ -29,14 +30,14 @@ class DeviceJsonAdapter : TypeAdapter<UnitData>() {
                     var idValue = ""
                     var myField = ""
                     var myFieldValue = 0.0
-                    var myStateFieldValue = false
+                    var myStateFieldValue = RelayState.OFFLINE
 
                     while (reader.hasNext()) {
                         when (val name = reader.nextName()) {
                             "id" -> idValue = reader.nextString()
                             "state" -> {
                                 myField = name
-                                myStateFieldValue = reader.nextBoolean()
+                                myStateFieldValue = if (reader.nextBoolean()) RelayState.ON else RelayState.OFF
                             }
                             else -> {
                                 myField = name

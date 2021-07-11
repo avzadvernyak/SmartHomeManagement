@@ -14,7 +14,6 @@ import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.net.URL
 
 class MainFragment : Fragment() {
 
@@ -52,7 +51,8 @@ class MainFragment : Fragment() {
             }
             clickRelayEventDelegate = object : ClickEventDelegate<UnitView> {
                 override fun onClick(item: UnitView) {
-                    viewModel.setRelayId((item as UnitView.RelayView).id)
+                    viewModel.setRelayId((item as UnitView.RelayView))
+
                 }
 
                 override fun onLongClick(item: UnitView) {
@@ -68,10 +68,7 @@ class MainFragment : Fragment() {
             sensorListAdapter.setList(sensors)
         }
         viewModel.relayInformation.observe(viewLifecycleOwner) { info ->
-            viewModel.sendCommand(
-                URL(info.deviceIp),
-                "${info.deviceId}${info.deviceSensorId}"
-            )
+            viewModel.sendCommand( info )
         }
     }
 

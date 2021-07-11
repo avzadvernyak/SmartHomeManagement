@@ -46,7 +46,11 @@ class SensorsRepository(
                             UnitView.RelayView(
                                 sensor.id,
                                 sensor.name,
-                                apiSensor != null && apiSensor.value != 0F,
+                                when (apiSensor?.value) {
+                                    0F -> RelayState.OFF
+                                    1F -> RelayState.ON
+                                    else -> RelayState.OFFLINE
+                                },
                                 dateSensor
                             )
                         }
@@ -157,9 +161,13 @@ class SensorsRepository(
             emit(getSensorData(query))
         }
 
-    fun getRelayById(id: String): Flow<SensorInfoWithIp> = sensorInfoDao.getRelayByIdFlow(id)
-    fun sendCommand(url: URL, sensor: String) {
-        webSocketDto.commandSend(url, sensor)
+    fun getRelayById(relay: UnitView.RelayView): Flow<SensorInfoWithIp> {
+
+        return sensorInfoDao.getRelayByIdFlow(relay.id)
+    }
+
+    fun sendCommand( sensorInfo: SensorInfoWithIp) {
+        webSocketDto.commandSend( sensorInfo )
     }
 
 }

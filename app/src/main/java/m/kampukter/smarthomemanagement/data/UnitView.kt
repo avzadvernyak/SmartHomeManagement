@@ -6,7 +6,7 @@ sealed class UnitView {
     data class RelayView(
         val id: String,
         val name: String,
-        var status: Boolean,
+        var status: RelayState,
         var lastUpdateDate: Date
     ) : UnitView()
 
