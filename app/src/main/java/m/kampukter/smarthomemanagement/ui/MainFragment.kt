@@ -51,14 +51,14 @@ class MainFragment : Fragment() {
             }
             clickRelayEventDelegate = object : ClickEventDelegate<UnitView> {
                 override fun onClick(item: UnitView) {
-                    viewModel.setRelayId((item as UnitView.RelayView))
-
+                    viewModel.sendCommandToRelay((item as UnitView.RelayView))
                 }
 
                 override fun onLongClick(item: UnitView) {
                     Log.d("blabla", "Long click ${(item as UnitView.RelayView).id}")
                 }
             }
+
         }
         with(sensorRecyclerView) {
             layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
@@ -67,9 +67,11 @@ class MainFragment : Fragment() {
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
             sensorListAdapter.setList(sensors)
         }
-        viewModel.relayInformation.observe(viewLifecycleOwner) { info ->
+       /* viewModel.relayInformation.observe(viewLifecycleOwner) { info ->
+            sensorListAdapter.getRelayEventDelegate(clickRelayEventDelegate)
             viewModel.sendCommand( info )
-        }
+        }*/
+
     }
 
     override fun onResume() {

@@ -1,6 +1,8 @@
 package m.kampukter.smarthomemanagement.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.*
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
 import m.kampukter.smarthomemanagement.data.SensorInfoWithIp
@@ -37,17 +39,8 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     fun setQuestionSensorsData(setSensorRequest: Triple<String, String, String>) =
         searchData.postValue(setSensorRequest)
 
-    private val relayId = MutableLiveData<UnitView.RelayView>()
-    fun setRelayId(id: UnitView.RelayView) {
-        relayId.postValue(id)
-    }
-
-    val relayInformation: LiveData<SensorInfoWithIp> = Transformations.switchMap(relayId) { relay ->
-        sensorsRepository.getRelayById(relay).asLiveData()
-    }
-
-    fun sendCommand( sensorInfo: SensorInfoWithIp) {
-        sensorsRepository.sendCommand( sensorInfo )
+    fun sendCommandToRelay(id: UnitView.RelayView) {
+        viewModelScope.launch { sensorsRepository.sendCommand( id ) }
     }
 
     val sensorDataApi: LiveData<ResultSensorDataApi> =

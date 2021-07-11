@@ -10,7 +10,7 @@ interface DeviceInteractionApi {
 
     fun disconnect(url: URL)
 
-    fun commandSend( sensorInfo: SensorInfoWithIp)
+    suspend fun commandSend( sensorInfo: SensorInfoWithIp)
     fun getUnitDataFlow(): MutableStateFlow<UnitData?>
     fun getWSStatusFlow(): MutableStateFlow<Pair<URL, WSConnectionStatus>?>
 }

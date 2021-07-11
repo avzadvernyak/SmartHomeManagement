@@ -99,8 +99,6 @@ class SensorsRepository(
             initListSensorInfo
         }
 
-    private val sensorURLList: Flow<List<String>> = sensorInfoDao.getUrlFlow()
-
     private fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllSensorsFlow()
 
     fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> =
@@ -108,19 +106,15 @@ class SensorsRepository(
 
     //Connect to WS Server
     suspend fun connectToWS() {
-        sensorURLList.collect { value ->
-            value.forEach { url ->
-                webSocketDto.connect(URL(url))
-            }
+        sensorInfoDao.getUrl().forEach { url ->
+            webSocketDto.connect(URL(url))
         }
     }
 
     //Disconnect to WS Server
     suspend fun disconnectToWS() {
-        sensorURLList.collect { value ->
-            value.forEach { url ->
-                webSocketDto.disconnect(URL(url))
-            }
+        sensorInfoDao.getUrl().forEach { url ->
+            webSocketDto.disconnect(URL(url))
         }
     }
 
@@ -161,13 +155,7 @@ class SensorsRepository(
             emit(getSensorData(query))
         }
 
-    fun getRelayById(relay: UnitView.RelayView): Flow<SensorInfoWithIp> {
-
-        return sensorInfoDao.getRelayByIdFlow(relay.id)
+    suspend fun sendCommand(relayInfo: UnitView.RelayView) {
+        webSocketDto.commandSend(sensorInfoDao.getRelayById(relayInfo.id))
     }
-
-    fun sendCommand( sensorInfo: SensorInfoWithIp) {
-        webSocketDto.commandSend( sensorInfo )
-    }
-
 }
