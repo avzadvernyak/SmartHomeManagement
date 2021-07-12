@@ -13,11 +13,11 @@ import kotlinx.android.synthetic.main.main_fragment.*
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class MainFragment : Fragment() {
 
-    private val viewModel by viewModel<MainViewModel>()
+    private val viewModel by sharedViewModel<MainViewModel>()
     private lateinit var sensorListAdapter: SensorListAdapter
 
     override fun onCreateView(
@@ -72,16 +72,6 @@ class MainFragment : Fragment() {
             viewModel.sendCommand( info )
         }*/
 
-    }
-
-    override fun onResume() {
-        super.onResume()
-        viewModel.connectToDevices()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        viewModel.disconnectToDevices()
     }
 
     companion object {

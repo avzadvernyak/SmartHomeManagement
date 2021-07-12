@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
 import m.kampukter.smarthomemanagement.data.SensorInfoWithIp
+import m.kampukter.smarthomemanagement.data.UnitInfo
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.data.repository.SensorsRepository
 import java.net.URL
@@ -13,18 +14,7 @@ import java.net.URL
 class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewModel() {
 
     val sensorListLiveData: LiveData<List<UnitView>> = sensorsRepository.sensorListFlow.asLiveData()
-
-    fun connectToDevices() {
-        viewModelScope.launch {
-            sensorsRepository.connectToWS()
-        }
-    }
-
-    fun disconnectToDevices() {
-        viewModelScope.launch {
-            sensorsRepository.disconnectToWS()
-        }
-    }
+    val unitListLiveData: LiveData<List<UnitInfo>> = sensorsRepository.getUnitsInfo().asLiveData()
 
     private val searchIdSensor = MutableLiveData<String>()
     fun setIdSensorForSearch(id: String) {
@@ -41,6 +31,13 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
 
     fun sendCommandToRelay(id: UnitView.RelayView) {
         viewModelScope.launch { sensorsRepository.sendCommand( id ) }
+    }
+
+    fun connectToUnit(urlUnit: URL) {
+        sensorsRepository.connectToUnit(urlUnit)
+    }
+    fun disconnectToUnit(urlUnit: URL) {
+        sensorsRepository.disconnectToUnit(urlUnit)
     }
 
     val sensorDataApi: LiveData<ResultSensorDataApi> =

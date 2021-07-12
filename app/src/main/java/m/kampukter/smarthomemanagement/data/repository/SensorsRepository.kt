@@ -1,7 +1,9 @@
 package m.kampukter.smarthomemanagement.data.repository
 
 import android.util.Log
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dao.SensorInfoDao
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
@@ -100,23 +102,10 @@ class SensorsRepository(
         }
 
     private fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllSensorsFlow()
+    fun getUnitsInfo(): Flow<List<UnitInfo>> = sensorInfoDao.getAllUnitsFlow()
 
     fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> =
         sensorInfoDao.getSensorFlow(searchId)
-
-    //Connect to WS Server
-    suspend fun connectToWS() {
-        sensorInfoDao.getUrl().forEach { url ->
-            webSocketDto.connect(URL(url))
-        }
-    }
-
-    //Disconnect to WS Server
-    suspend fun disconnectToWS() {
-        sensorInfoDao.getUrl().forEach { url ->
-            webSocketDto.disconnect(URL(url))
-        }
-    }
 
     private suspend fun getSensorsLastData(): List<SensorDataApi> {
         var response: Response<List<SensorDataApi>>? = null
@@ -157,5 +146,13 @@ class SensorsRepository(
 
     suspend fun sendCommand(relayInfo: UnitView.RelayView) {
         webSocketDto.commandSend(sensorInfoDao.getRelayById(relayInfo.id))
+    }
+    //Connect to WS Server
+    fun connectToUnit(urlUnit: URL) {
+        webSocketDto.connect( urlUnit )
+    }
+    //Disconnect to WS Server
+    fun disconnectToUnit(urlUnit: URL) {
+        webSocketDto.disconnect( urlUnit )
     }
 }

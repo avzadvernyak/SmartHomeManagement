@@ -16,6 +16,8 @@ import java.util.concurrent.TimeUnit
 
 class WebSocketDeviceInteractionApi : DeviceInteractionApi {
 
+    private var isDisconnect = mutableMapOf<URL, Boolean>()
+
     private val okHttpClient = OkHttpClient.Builder()
         .readTimeout(10, TimeUnit.SECONDS)
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -79,6 +81,7 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
 
     @DelicateCoroutinesApi
     override fun connect(url: URL) {
+        isDisconnect[url] = false
         if (!webSockets.containsKey(url)) {
             webSockets[url] = okHttpClient.newWebSocket(
                 Request.Builder().url(url).build(),
@@ -87,9 +90,18 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
         }
     }
 
+    @DelicateCoroutinesApi
     override fun disconnect(url: URL) {
-        webSockets[url]?.close(1000, null)
-        webSockets.remove(url)
+        isDisconnect[url] = true
+        GlobalScope.launch(context = Dispatchers.IO) {
+            delay(10000)
+            isDisconnect[url]?.let {
+                if (it) {
+                    webSockets[url]?.close(1000, null)
+                    webSockets.remove(url)
+                }
+            }
+        }
     }
 
     fun WebSocket.getUrl(): URL = request().url().url()
@@ -110,7 +122,10 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
         )
 
         unitDataFlow.emit(relay)
-        webSockets[URL(sensorInfo.deviceIp)]?.send("${sensorInfo.deviceId}${sensorInfo.deviceSensorId}")
+        send( sensorInfo )
 
+    }
+    private fun send( sensorInfo: SensorInfoWithIp ){
+        webSockets[URL(sensorInfo.deviceIp)]?.send("${sensorInfo.deviceId}${sensorInfo.deviceSensorId}")
     }
 }

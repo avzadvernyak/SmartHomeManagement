@@ -6,8 +6,8 @@ import m.kampukter.smarthomemanagement.data.UnitData
 import java.net.URL
 
 interface DeviceInteractionApi {
-    fun connect(url: URL)
 
+    fun connect(url: URL)
     fun disconnect(url: URL)
 
     suspend fun commandSend( sensorInfo: SensorInfoWithIp)
