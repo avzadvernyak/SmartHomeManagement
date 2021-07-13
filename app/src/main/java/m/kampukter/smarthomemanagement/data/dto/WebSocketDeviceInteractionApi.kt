@@ -36,21 +36,18 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
             super.onClosing(webSocket, code, reason)
 
-            CoroutineScope(Dispatchers.IO + coroutineContext).launch {
-                connectionStatusFlow.emit(Pair(webSocket.getUrl(), WSConnectionStatus.Disconnected))
-            }
+            emitStatus( Pair(webSocket.getUrl(), WSConnectionStatus.Closing))
             webSockets.remove(webSocket.getUrl())
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-
+            emitStatus( Pair(webSocket.getUrl(), WSConnectionStatus.Disconnected))
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
             super.onFailure(webSocket, t, response)
-            CoroutineScope(Dispatchers.IO + coroutineContext).launch {
-                connectionStatusFlow.emit(Pair(webSocket.getUrl(), WSConnectionStatus.Disconnected))
-            }
+
+            emitStatus(Pair(webSocket.getUrl(), WSConnectionStatus.Failed(t.toString())))
             webSockets.remove(webSocket.getUrl())
             Log.w("blabla", "Failure from ${webSocket.getUrl()}>$t")
         }
@@ -72,17 +69,17 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
 
         override fun onOpen(webSocket: WebSocket, response: Response) {
             Log.w("blabla", "onOpen from ${webSocket.getUrl()}")
-            CoroutineScope(Dispatchers.IO + coroutineContext).launch {
-                connectionStatusFlow.emit(Pair(webSocket.getUrl(), WSConnectionStatus.Connected))
-            }
+            emitStatus(Pair(webSocket.getUrl(), WSConnectionStatus.Connected))
         }
     }
 
 
     @DelicateCoroutinesApi
     override fun connect(url: URL) {
+
         isDisconnect[url] = false
         if (!webSockets.containsKey(url)) {
+            emitStatus(Pair(url, WSConnectionStatus.Connecting))
             webSockets[url] = okHttpClient.newWebSocket(
                 Request.Builder().url(url).build(),
                 webSocketListener
@@ -99,6 +96,7 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
                 if (it) {
                     webSockets[url]?.close(1000, null)
                     webSockets.remove(url)
+                    emitStatus(Pair(url, WSConnectionStatus.Disconnected))
                 }
             }
         }
@@ -120,12 +118,19 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
                 )
             )
         )
-
         unitDataFlow.emit(relay)
-        send( sensorInfo )
+        sendToWs(sensorInfo)
 
     }
-    private fun send( sensorInfo: SensorInfoWithIp ){
+
+    private fun sendToWs(sensorInfo: SensorInfoWithIp) {
         webSockets[URL(sensorInfo.deviceIp)]?.send("${sensorInfo.deviceId}${sensorInfo.deviceSensorId}")
+    }
+
+    @DelicateCoroutinesApi
+    private fun emitStatus(status: Pair<URL, WSConnectionStatus>?) {
+        CoroutineScope(Dispatchers.IO + coroutineContext).launch {
+            connectionStatusFlow.emit(status)
+        }
     }
 }

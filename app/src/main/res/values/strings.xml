@@ -22,4 +22,7 @@
     <string name="max_value">Максимум</string>
     <string name="min_value">Минимум</string>
     <string name="avg_value">Среднее значение</string>
+    <string name="menu_unit_management_title">Устройства</string>
+    <string name="title_units">Устройства</string>
+    <string name="title_unit">Unit</string>
 </resources>

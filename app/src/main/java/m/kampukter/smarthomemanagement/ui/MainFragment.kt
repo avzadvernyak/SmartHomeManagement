@@ -2,9 +2,8 @@ package m.kampukter.smarthomemanagement.ui
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,11 +24,14 @@ class MainFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.main_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        (activity as? AppCompatActivity)?.setSupportActionBar(mainFragmentToolbar)
 
         sensorListAdapter = SensorListAdapter().apply {
             clickSensorEventDelegate = object : ClickEventDelegate<UnitView> {
@@ -67,11 +69,26 @@ class MainFragment : Fragment() {
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
             sensorListAdapter.setList(sensors)
         }
-       /* viewModel.relayInformation.observe(viewLifecycleOwner) { info ->
-            sensorListAdapter.getRelayEventDelegate(clickRelayEventDelegate)
-            viewModel.sendCommand( info )
-        }*/
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.sensor_info_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.unitManagement) {
+            activity?.supportFragmentManager?.commit {
+                replace(
+                    android.R.id.content,
+                    UnitListFragment.createInstance()
+                )
+                setReorderingAllowed(true)
+                addToBackStack("Sensors")
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     companion object {

@@ -8,6 +8,7 @@ import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dao.SensorInfoDao
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
 import m.kampukter.smarthomemanagement.data.dto.SensorsDataApiInterface
+import m.kampukter.smarthomemanagement.data.dto.WSConnectionStatus
 import retrofit2.Response
 import java.io.IOException
 import java.net.URL
@@ -70,7 +71,6 @@ class SensorsRepository(
             unitDataFlow,
             getSensorsInfo()
         ) { initListSensorInfo, unitData, sensorInfoList ->
-
             // Данные от учтройств по паре id устройства/id сенсора сопоставляем с id сенсора внутри проекта
             // и в случае нахождения меняем значение
             unitData?.sensorDataList?.forEach { sensorData ->
@@ -91,7 +91,7 @@ class SensorsRepository(
                             initListSensorInfo.find { relay ->
                                 if (relay is UnitView.RelayView) relay.id == foundId else false
                             }?.let {
-                                (it as UnitView.RelayView).status = sensorData.status
+                                (it as UnitView.RelayView).state = sensorData.status
                                 it.lastUpdateDate = Calendar.getInstance().time
                             }
                         }
@@ -102,10 +102,69 @@ class SensorsRepository(
         }
 
     private fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllSensorsFlow()
-    fun getUnitsInfo(): Flow<List<UnitInfo>> = sensorInfoDao.getAllUnitsFlow()
+
+    val unitStatusFlow: Flow<Pair<URL, WSConnectionStatus>?> =
+        webSocketDto.getWSStatusFlow()
+
+    val unitListFlow: Flow<List<UnitInfo>> = sensorInfoDao.getAllUnitsFlow()
+    /*{
+        val resultList = mutableListOf<UnitInfoView>()
+        sensorInfoDao.getAllUnits().forEach {
+            resultList.add(
+                UnitInfoView(
+                    it.deviceId,
+                    it.deviceName,
+                    it.deviceIp,
+                    it.deviceDescription,
+                    WSConnectionStatus.Disconnected
+                )
+            )
+        }
+        return flow { emit(resultList) }
+    }*/
+/*
+
+    val unitListFlow: Flow<List<UnitInfoView>> =
+        combine(
+            getUnitList(),
+            getWsStatusFlow()
+        ) { units, statusWS ->
+            statusWS?.let { status ->
+                units.find { URL(it.deviceIp) == status.first }
+                    ?.let { it.wsConnectionStatus = status.second }
+            }
+            units
+        }
+*/
+
+
+    /*val unitListFlow: Flow<List<UnitInfoView>> =
+        combine(
+            sensorInfoDao.getAllUnitsFlow(),
+            getWsStatusFlow()
+        ) { units, statusWS ->
+            Log.w("blabla", "status ->$statusWS ")
+            val resultList = mutableListOf<UnitInfoView>()
+            units.forEach {
+                resultList.add(
+                    UnitInfoView(
+                        it.deviceId,
+                        it.deviceName,
+                        it.deviceIp,
+                        it.deviceDescription,
+                        WSConnectionStatus.Disconnected
+                    )
+                )
+            }
+            *//*
+            resultList
+        }*/
+
 
     fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> =
         sensorInfoDao.getSensorFlow(searchId)
+
+    fun getSearchUnitInfo(searchId: String): Flow<UnitInfo> = sensorInfoDao.getUnitFlow(searchId)
 
     private suspend fun getSensorsLastData(): List<SensorDataApi> {
         var response: Response<List<SensorDataApi>>? = null
@@ -147,12 +206,14 @@ class SensorsRepository(
     suspend fun sendCommand(relayInfo: UnitView.RelayView) {
         webSocketDto.commandSend(sensorInfoDao.getRelayById(relayInfo.id))
     }
+
     //Connect to WS Server
     fun connectToUnit(urlUnit: URL) {
-        webSocketDto.connect( urlUnit )
+        webSocketDto.connect(urlUnit)
     }
+
     //Disconnect to WS Server
     fun disconnectToUnit(urlUnit: URL) {
-        webSocketDto.disconnect( urlUnit )
+        webSocketDto.disconnect(urlUnit)
     }
 }

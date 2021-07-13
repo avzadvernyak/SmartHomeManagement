@@ -21,7 +21,7 @@ class RelayListViewHolder(
             lightingOffImageBottom.visibility = View.INVISIBLE
             relayProgressBar.visibility = View.INVISIBLE
 
-            when (result.status) {
+            when (result.state) {
                 RelayState.ON -> {
                     lightingOnImageBottom.visibility = View.VISIBLE
                     setOnClickListener {
