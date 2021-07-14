@@ -67,7 +67,7 @@ class SensorFragment : Fragment() {
         }
         viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) { sensor ->
 
-            val sensorFullId = "${sensor?.deviceId}${sensor?.deviceSensorId}"
+            val sensorFullId = "${sensor?.unitId}${sensor?.deviceSensorId}"
 
             (activity as AppCompatActivity).title = getString(R.string.title_history)
 

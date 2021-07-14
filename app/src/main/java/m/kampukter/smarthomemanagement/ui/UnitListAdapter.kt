@@ -2,6 +2,7 @@ package m.kampukter.smarthomemanagement.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitInfoView
@@ -26,6 +27,7 @@ class UnitListAdapter :
 
         holder.bind(unitList[position])
     }
+
     fun setList(list: List<UnitInfoView>) {
         this.unitList = list
         notifyDataSetChanged()

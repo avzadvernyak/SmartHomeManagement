@@ -63,6 +63,7 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
                 CoroutineScope(Dispatchers.IO + coroutineContext).launch {
                     unitDataFlow.emit(unitInfo)
                 }
+                emitStatus(Pair(webSocket.getUrl(), WSConnectionStatus.Connected))
 
             }
         }

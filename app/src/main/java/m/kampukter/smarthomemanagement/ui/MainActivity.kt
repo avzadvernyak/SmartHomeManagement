@@ -24,7 +24,7 @@ class MainActivity: AppCompatActivity() {
         super.onResume()
 
         viewModel.unitListLiveData.observe(this){ unit->
-            unit.map { it.deviceIp }.forEach { unitIp->
+            unit.map { it.url }.forEach { unitIp->
                 viewModel.connectToUnit(URL(unitIp))
             }
         }
@@ -33,7 +33,7 @@ class MainActivity: AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         viewModel.unitListLiveData.observe(this){ unit->
-            unit.map { it.deviceIp }.forEach { unitIp->
+            unit.map { it.url }.forEach { unitIp->
                 viewModel.disconnectToUnit(URL(unitIp))
             }
         }

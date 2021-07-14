@@ -20,7 +20,7 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             var lastUnitStatus: Pair<URL, WSConnectionStatus>? = null
             fun update() {
                 lastUnitStatus?.let { status ->
-                    lastUnitListView.find { URL(it.deviceIp) == status.first }
+                    lastUnitListView.find { URL(it.url) == status.first }
                         ?.let { it.wsConnectionStatus = status.second }
                 }
                 postValue(lastUnitListView)
@@ -30,10 +30,10 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
                 it.forEach { item ->
                     lastUnitListView.add(
                         UnitInfoView(
-                            item.deviceId,
-                            item.deviceName,
-                            item.deviceIp,
-                            item.deviceDescription,
+                            item.id,
+                            item.name,
+                            item.url,
+                            item.description,
                             WSConnectionStatus.Disconnected
                         )
                     )
@@ -62,7 +62,7 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             fun update() {
                 lastUnitStatus?.let { status ->
                     lastUnitView?.let {
-                        if (URL(it.deviceIp) == status.first) it.wsConnectionStatus = status.second
+                        if (URL(it.url) == status.first) it.wsConnectionStatus = status.second
                     }
                 }
                 postValue(lastUnitView)
@@ -70,10 +70,10 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             addSource(unitInformationLiveData) {
                 lastUnitView =
                     UnitInfoView(
-                        it.deviceId,
-                        it.deviceName,
-                        it.deviceIp,
-                        it.deviceDescription,
+                        it.id,
+                        it.name,
+                        it.url,
+                        it.description,
                         WSConnectionStatus.Disconnected
                     )
 
@@ -99,6 +99,11 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     fun setQuestionSensorsData(setSensorRequest: Triple<String, String, String>) =
         searchData.postValue(setSensorRequest)
 
+    val sensorDataApi: LiveData<ResultSensorDataApi> =
+        Transformations.switchMap(searchData) { query ->
+            sensorsRepository.getResultSensorDataApi(query).asLiveData()
+        }
+
     fun sendCommandToRelay(id: UnitView.RelayView) {
         viewModelScope.launch { sensorsRepository.sendCommand(id) }
     }
@@ -111,8 +116,17 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
         sensorsRepository.disconnectToUnit(urlUnit)
     }
 
-    val sensorDataApi: LiveData<ResultSensorDataApi> =
-        Transformations.switchMap(searchData) { query ->
-            sensorsRepository.getResultSensorDataApi(query).asLiveData()
+    fun editUnitDescription(unitId: String, description: String) {
+        viewModelScope.launch {
+            sensorsRepository.editUnitDescription(unitId, description)
         }
+    }
+
+    fun editUnitName(unitId: String, name: String) {
+        viewModelScope.launch {
+            sensorsRepository.editUnitName(unitId, name)
+        }
+    }
+
+
 }

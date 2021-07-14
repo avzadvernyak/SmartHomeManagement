@@ -32,6 +32,7 @@ class MainFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         (activity as? AppCompatActivity)?.setSupportActionBar(mainFragmentToolbar)
+        (activity as AppCompatActivity).title = getString(R.string.title_main)
 
         sensorListAdapter = SensorListAdapter().apply {
             clickSensorEventDelegate = object : ClickEventDelegate<UnitView> {

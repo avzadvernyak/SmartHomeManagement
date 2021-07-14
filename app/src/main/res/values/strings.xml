@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">Smart Home Management</string>
 
+    <!-- Fragment Title -->
+    <string name="title_units">Устройства</string>
+    <string name="title_unit">Устройство</string>
+    <string name="title_main">Умный Дом</string>
+    <string name="title_history">История</string>
+
     <string name="temperatureValue">°C</string>
     <string name="pressureValue">mm Hg</string>
     <string name="humidityValue">%%</string>
@@ -17,12 +23,18 @@
     <string name="averageValuePeriod"> %1$.2f%2$s </string>
 
     <string name="formatDT">dd.MM.yyyy HH:mm</string>
-    <string name="title_history">История</string>
+
     <string name="find_records">Найдено записей</string>
     <string name="max_value">Максимум</string>
     <string name="min_value">Минимум</string>
     <string name="avg_value">Среднее значение</string>
     <string name="menu_unit_management_title">Устройства</string>
-    <string name="title_units">Устройства</string>
-    <string name="title_unit">Unit</string>
+
+    <string name="unit_name">Название устройства</string>
+    <string name="unit_Description">Описание</string>
+    <string name="unit_url">URL устройства</string>
+    <string name="unit_connect">Подключиться</string>
+    <string name="status_title">Состояние: %1$s</string>
+    <string name="unit_id_title">Код устройства: %1$s</string>
+
 </resources>

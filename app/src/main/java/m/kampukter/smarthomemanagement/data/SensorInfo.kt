@@ -6,14 +6,14 @@ import androidx.room.*
     tableName = "sensor",
     foreignKeys = [ForeignKey(
         entity = UnitInfo::class,
-        parentColumns = arrayOf("device_id"),
-        childColumns = arrayOf("device_id"),
+        parentColumns = arrayOf("id"),
+        childColumns = arrayOf("unit_id"),
     )])
 data class SensorInfo(
     @PrimaryKey
     val id: String,
-    @ColumnInfo(name = "device_id")
-    val deviceId: String,
+    @ColumnInfo(name = "unit_id")
+    val unitId: String,
     val deviceSensorId: String,
     val name: String,
     val measure: String?,

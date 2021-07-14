@@ -50,7 +50,7 @@ class UnitListFragment : Fragment() {
                     activity?.supportFragmentManager?.commit {
                         replace(
                             android.R.id.content,
-                            UnitInfoFragment.createInstance(item.deviceId)
+                            UnitInfoFragment.createInstance(item.id)
                         )
                         setReorderingAllowed(true)
                         addToBackStack("Unitss")

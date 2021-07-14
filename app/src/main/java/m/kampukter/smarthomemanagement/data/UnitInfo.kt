@@ -6,13 +6,13 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "unit",
-    indices = [(androidx.room.Index(value = ["device_id"], name = "idx_device_id"))]
+    indices = [(androidx.room.Index(value = ["id"], name = "idx_id"))]
 )
 data class UnitInfo(
     @PrimaryKey
-    @ColumnInfo(name = "device_id")
-    val deviceId: String,
-    val deviceName: String?,
-    val deviceIp: String,
-    val deviceDescription: String?
+    @ColumnInfo(name = "id")
+    val id: String,
+    val name: String?,
+    val url: String,
+    val description: String?
 )

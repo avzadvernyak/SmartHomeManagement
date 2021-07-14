@@ -20,7 +20,7 @@ interface SensorInfoDao {
     @Query("select * from sensor where id = :searchId")
     fun getSensorFlow(searchId: String): Flow<SensorInfo>
 
-    @Query("select sensor.device_id as deviceId,sensor.deviceSensorId as deviceSensorId,unit.deviceIp as deviceIp from sensor JOIN unit ON unit.device_id = sensor.device_id where sensor.id = :searchId ")
+    @Query("select sensor.unit_id as deviceId,sensor.deviceSensorId as deviceSensorId,unit.url as deviceIp from sensor JOIN unit ON unit.id = sensor.unit_id where sensor.id = :searchId ")
     suspend fun getRelayById(searchId: String): SensorInfoWithIp
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -29,6 +29,12 @@ interface SensorInfoDao {
     @Query("select * from unit")
     fun getAllUnitsFlow(): Flow<List<UnitInfo>>
 
-    @Query("select * from unit where device_id = :searchId")
+    @Query("select * from unit where id = :searchId")
     fun getUnitFlow(searchId: String): Flow<UnitInfo>
+
+    @Query("update unit set description = :description where id = :unitId")
+    suspend fun editUnitDescription(unitId: String, description: String)
+
+    @Query("update unit set name = :name where id = :unitId")
+    suspend fun editUnitName(unitId: String, name: String)
 }

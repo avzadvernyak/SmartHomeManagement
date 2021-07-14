@@ -14,11 +14,15 @@ class UnitListViewHolder(
     fun bind(result: UnitInfoView) {
 
         with(itemView) {
-            unitNameTextView.text = result.deviceName
-            unitDescriptionTextView.text = result.deviceDescription
+            unitIdTextView.text = result.name
+            unitDescriptionTextView.text = result.description
             linkOnImageView.visibility = View.INVISIBLE
             linkOffImageView.visibility = View.INVISIBLE
+            linkErrorImageView.visibility = View.INVISIBLE
+            linkProgressBar.visibility = View.INVISIBLE
             when (result.wsConnectionStatus) {
+                is WSConnectionStatus.Connecting -> linkProgressBar.visibility = View.VISIBLE
+                is WSConnectionStatus.Failed -> linkErrorImageView.visibility = View.VISIBLE
                 is WSConnectionStatus.Connected -> linkOnImageView.visibility = View.VISIBLE
                 else -> linkOffImageView.visibility = View.VISIBLE
             }

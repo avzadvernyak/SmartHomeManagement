@@ -30,7 +30,7 @@ class SensorsRepository(
             sensorInfo.forEach { sensor ->
 
                 val apiSensor =
-                    apiSensorInfo.find { it.unit == "${sensor.deviceId}${sensor.deviceSensorId}" }
+                    apiSensorInfo.find { it.unit == "${sensor.unitId}${sensor.deviceSensorId}" }
                 val dateSensor =
                     if (apiSensor != null) Date(apiSensor.date * 1000L) else Calendar.getInstance().time
 
@@ -76,7 +76,7 @@ class SensorsRepository(
             unitData?.sensorDataList?.forEach { sensorData ->
                 when (sensorData) {
                     is SensorData.Sensor -> {
-                        sensorInfoList.find { it.deviceId == sensorData.deviceId && it.deviceSensorId == sensorData.deviceSensorId }?.id?.let { foundId ->
+                        sensorInfoList.find { it.unitId == sensorData.deviceId && it.deviceSensorId == sensorData.deviceSensorId }?.id?.let { foundId ->
                             initListSensorInfo.find { sensor ->
                                 (sensor as UnitView.SensorView).id == foundId
                             }?.let {
@@ -87,7 +87,7 @@ class SensorsRepository(
                         }
                     }
                     is SensorData.Relay -> {
-                        sensorInfoList.find { it.deviceId == sensorData.deviceId && it.deviceSensorId == sensorData.deviceRelayId }?.id?.let { foundId ->
+                        sensorInfoList.find { it.unitId == sensorData.deviceId && it.deviceSensorId == sensorData.deviceRelayId }?.id?.let { foundId ->
                             initListSensorInfo.find { relay ->
                                 if (relay is UnitView.RelayView) relay.id == foundId else false
                             }?.let {
@@ -215,5 +215,13 @@ class SensorsRepository(
     //Disconnect to WS Server
     fun disconnectToUnit(urlUnit: URL) {
         webSocketDto.disconnect(urlUnit)
+    }
+
+    suspend fun editUnitDescription(unitId: String, description: String) {
+        sensorInfoDao.editUnitDescription(unitId, description)
+    }
+
+    suspend fun editUnitName(unitId: String, name: String) {
+        sensorInfoDao.editUnitName(unitId, name)
     }
 }

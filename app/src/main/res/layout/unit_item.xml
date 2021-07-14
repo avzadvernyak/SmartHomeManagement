@@ -8,15 +8,15 @@
     android:padding="8dp">
 
     <TextView
-        android:id="@+id/unitNameTextView"
+        android:id="@+id/unitIdTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="2dp"
         android:textSize="16sp"
+        app:layout_constraintEnd_toStartOf="@id/linkOnImageView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/linkOnImageView"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/unitDescriptionTextView"
@@ -24,35 +24,50 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@id/unitNameTextView"
-        app:layout_constraintTop_toBottomOf="@id/unitNameTextView" />
+        app:layout_constraintStart_toStartOf="@id/unitIdTextView"
+        app:layout_constraintTop_toBottomOf="@id/unitIdTextView" />
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:id="@+id/linkOnImageView"
-        android:src="@drawable/ic_link_24"
-        android:visibility="invisible"
-        app:layout_constraintStart_toEndOf="@id/unitNameTextView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/unitNameTextView"
-        android:contentDescription="@null" />
-    <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/linkOffImageView"
-        android:src="@drawable/ic_link_24"
-        android:visibility="invisible"
         android:contentDescription="@null"
-        app:layout_constraintStart_toEndOf="@id/unitNameTextView"
+        android:src="@drawable/ic_link_24"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/unitNameTextView"/>
-  <!--  <TextView
-        android:id="@+id/unitStatusTextView"
+        app:layout_constraintStart_toEndOf="@id/unitIdTextView"
+        app:layout_constraintTop_toTopOf="@id/unitIdTextView" />
+
+    <ImageView
+        android:id="@+id/linkOffImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@id/unitNameTextView"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_link_off_24"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/unitNameTextView"/>-->
+        app:layout_constraintStart_toEndOf="@id/unitIdTextView"
+        app:layout_constraintTop_toTopOf="@id/unitIdTextView" />
+
+    <ImageView
+        android:id="@+id/linkErrorImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_error_outline_24"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/unitIdTextView"
+        app:layout_constraintTop_toTopOf="@id/unitIdTextView" />
+
+    <ProgressBar
+        android:id="@+id/linkProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/unitIdTextView"
+        app:layout_constraintTop_toTopOf="@id/unitIdTextView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

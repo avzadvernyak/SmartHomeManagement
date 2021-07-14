@@ -34,6 +34,23 @@ class MainApplication : Application() {
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(supportDb: SupportSQLiteDatabase) {
                         GlobalScope.launch(context = Dispatchers.IO) {
+                            get<SmartHomeDatabase>().sensorInfoDao().insertAllUnit(
+                                listOf(
+                                    UnitInfo(
+                                        "ESP8266-1",
+                                        "Name ESP8266-1",
+                                        "http://192.168.0.82:81/",
+                                        null
+                                    ), UnitInfo(
+                                        "ESP8266-2",
+                                        "Name ESP8266-2",
+                                        "http://192.168.0.83:81/",
+                                        null
+                                    )
+                                )
+                            )
+                        }
+                        GlobalScope.launch(context = Dispatchers.IO) {
                             get<SmartHomeDatabase>().sensorInfoDao().insertAllSensors(
                                 listOf(
                                     SensorInfo(
@@ -54,23 +71,6 @@ class MainApplication : Application() {
                                     ), SensorInfo(
                                         "6", "ESP8266-2", "4", "Реле", "",
                                         SensorType.RELAY, 3
-                                    )
-                                )
-                            )
-                        }
-                        GlobalScope.launch(context = Dispatchers.IO) {
-                            get<SmartHomeDatabase>().sensorInfoDao().insertAllUnit(
-                                listOf(
-                                    UnitInfo(
-                                        "ESP8266-1",
-                                        "Name ESP8266-1",
-                                        "http://192.168.0.82:81/",
-                                        null
-                                    ), UnitInfo(
-                                        "ESP8266-2",
-                                        "Name ESP8266-2",
-                                        "http://192.168.0.83:81/",
-                                        null
                                     )
                                 )
                             )
