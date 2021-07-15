@@ -21,7 +21,7 @@ interface SensorInfoDao {
     fun getSensorFlow(searchId: String): Flow<SensorInfo>
 
     @Query("select sensor.unit_id as deviceId,sensor.deviceSensorId as deviceSensorId,unit.url as deviceIp from sensor JOIN unit ON unit.id = sensor.unit_id where sensor.id = :searchId ")
-    suspend fun getRelayById(searchId: String): SensorInfoWithIp
+    suspend fun getSensorById(searchId: String): SensorInfoWithIp
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllUnit(units: List<UnitInfo>)

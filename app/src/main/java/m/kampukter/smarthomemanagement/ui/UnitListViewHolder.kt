@@ -24,7 +24,8 @@ class UnitListViewHolder(
                 is WSConnectionStatus.Connecting -> linkProgressBar.visibility = View.VISIBLE
                 is WSConnectionStatus.Failed -> linkErrorImageView.visibility = View.VISIBLE
                 is WSConnectionStatus.Connected -> linkOnImageView.visibility = View.VISIBLE
-                else -> linkOffImageView.visibility = View.VISIBLE
+                is WSConnectionStatus.Disconnected -> linkOffImageView.visibility = View.VISIBLE
+                else -> linkProgressBar.visibility = View.VISIBLE
             }
             setOnClickListener {
                 clickUnitEventDelegate.onClick(result)

@@ -31,6 +31,10 @@ class SensorListViewHolder(
             setOnClickListener {
                 clickEventDelegate.onClick(result)
             }
+            setOnLongClickListener {
+                clickEventDelegate.onLongClick(result)
+                true
+            }
 
         }
     }

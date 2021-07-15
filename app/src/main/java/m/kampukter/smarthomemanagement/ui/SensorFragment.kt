@@ -12,7 +12,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.sensor_info_fragment.*
+import kotlinx.android.synthetic.main.sensor_fragment.*
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
@@ -37,7 +37,7 @@ class SensorFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         setHasOptionsMenu(true)
-        return inflater.inflate(R.layout.sensor_info_fragment, container, false)
+        return inflater.inflate(R.layout.sensor_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

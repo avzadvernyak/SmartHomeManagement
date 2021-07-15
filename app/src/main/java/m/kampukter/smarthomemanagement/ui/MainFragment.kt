@@ -37,7 +37,19 @@ class MainFragment : Fragment() {
         sensorListAdapter = SensorListAdapter().apply {
             clickSensorEventDelegate = object : ClickEventDelegate<UnitView> {
                 override fun onClick(item: UnitView) {
+                    activity?.supportFragmentManager?.commit {
+                        replace(
+                            android.R.id.content,
+                            SensorInfoFragment.createInstance((item as UnitView.SensorView).id)
+                        )
+                        setReorderingAllowed(true)
+                        addToBackStack("Sensors")
+                    }
 
+                }
+
+                override fun onLongClick(item: UnitView) {
+                    Log.d("blabla", "Long click ${(item as UnitView.SensorView).id}")
                     activity?.supportFragmentManager?.commit {
                         replace(
                             android.R.id.content,
@@ -46,10 +58,6 @@ class MainFragment : Fragment() {
                         setReorderingAllowed(true)
                         addToBackStack("Sensors")
                     }
-                }
-
-                override fun onLongClick(item: UnitView) {
-                    Log.d("blabla", "Long click ${(item as UnitView.SensorView).id}")
                 }
             }
             clickRelayEventDelegate = object : ClickEventDelegate<UnitView> {

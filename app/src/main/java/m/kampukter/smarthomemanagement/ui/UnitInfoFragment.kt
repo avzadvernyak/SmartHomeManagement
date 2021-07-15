@@ -69,9 +69,12 @@ class UnitInfoFragment : Fragment() {
                             unitConnectButton.visibility = View.VISIBLE
                             "Ошибка подключения ${(unitInfo.wsConnectionStatus as WSConnectionStatus.Failed).reason}"
                         }
-                        else -> {
+                        is WSConnectionStatus.Disconnected -> {
                             unitConnectButton.visibility = View.VISIBLE
                             "Устройство отключено"
+                        }
+                        else -> {
+                            "Ожидаются данные..."
                         }
                     }
                     unitStatusTextView.text =

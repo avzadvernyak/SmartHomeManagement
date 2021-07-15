@@ -204,7 +204,7 @@ class SensorsRepository(
         }
 
     suspend fun sendCommand(relayInfo: UnitView.RelayView) {
-        webSocketDto.commandSend(sensorInfoDao.getRelayById(relayInfo.id))
+        webSocketDto.commandSend(sensorInfoDao.getSensorById(relayInfo.id))
     }
 
     //Connect to WS Server

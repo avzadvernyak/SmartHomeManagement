@@ -34,7 +34,7 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
                             item.name,
                             item.url,
                             item.description,
-                            WSConnectionStatus.Disconnected
+                            null
                         )
                     )
                 }
@@ -74,7 +74,7 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
                         it.name,
                         it.url,
                         it.description,
-                        WSConnectionStatus.Disconnected
+                        null
                     )
 
 
