@@ -59,4 +59,8 @@ class SensorGraphFragment : Fragment() {
             }
         }
     }
+
+    companion object {
+        fun createInstance() = SensorGraphFragment()
+    }
 }

@@ -1,5 +1,6 @@
 package m.kampukter.smarthomemanagement.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import com.jjoe64.graphview.GridLabelRenderer
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
@@ -17,6 +19,7 @@ import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.util.*
+
 
 class SensorInfoFragment : Fragment() {
     private val viewModel by sharedViewModel<MainViewModel>()
@@ -39,6 +42,8 @@ class SensorInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        previewGraphView.removeAllSeries()
 
         val series: LineGraphSeries<DataPoint> = LineGraphSeries()
 
@@ -66,35 +71,108 @@ class SensorInfoFragment : Fragment() {
             val sensorFullId = "${sensor?.unitId}${sensor?.deviceSensorId}"
             viewModel.setQuestionSensorsData(Triple(sensorFullId, strDateBegin, strDateEnd))
         }
+        var measure = ""
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
 
             sensorId?.let { id ->
                 val currentSensor =
                     sensors?.find { (it as UnitView.SensorView).id == id } as UnitView.SensorView
-                valueTextView.text = "${currentSensor.value}${currentSensor.dimension}"
+                valueTextView.text = currentSensor.value.toString()
+                dimensionTextView.text = currentSensor.dimension
+                currentSensor.dimension?.let { measure = it }
             }
         }
         viewModel.sensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
-            with(graphSensorInfoFS) {
-                addSeries(series)
-                gridLabelRenderer.gridStyle = GridLabelRenderer.GridStyle.NONE
-                gridLabelRenderer.isHorizontalLabelsVisible = false
-                gridLabelRenderer.isVerticalLabelsVisible = false
-                viewport.isXAxisBoundsManual = true
-                viewport.isYAxisBoundsManual = true
-            }
+
             if (resultSensorData is ResultSensorDataApi.Success) {
                 val value = resultSensorData.sensorValue
                 val graphValue = Array(value.size) { i ->
                     DataPoint(Date(value[i].date * 1000L), value[i].value.toDouble())
                 }
+
                 series.resetData(graphValue)
                 value.map { it.value }.minOrNull()
-                    ?.let { graphSensorInfoFS.viewport.setMinY((it - (it / 20)).toDouble()) }
+                    ?.let { previewGraphView.viewport.setMinY((it - (it / 20)).toDouble()) }
                 value.map { it.value }.maxOrNull()
-                    ?.let { graphSensorInfoFS.viewport.setMaxY((it + (it / 20)).toDouble()) }
-                graphSensorInfoFS.viewport.setMinX(value.first().date * 1000L.toDouble())
-                graphSensorInfoFS.viewport.setMaxX(value.last().date * 1000L.toDouble())
+                    ?.let { previewGraphView.viewport.setMaxY((it + (it / 20)).toDouble()) }
+                previewGraphView.viewport.setMinX(value.first().date * 1000L.toDouble())
+                previewGraphView.viewport.setMaxX(value.last().date * 1000L.toDouble())
+
+
+
+                with(previewGraphView) {
+                    series.color = Color.GRAY
+                    series.thickness = 8
+                    gridLabelRenderer.gridStyle = GridLabelRenderer.GridStyle.NONE
+                    gridLabelRenderer.isHorizontalLabelsVisible = false
+                    gridLabelRenderer.isVerticalLabelsVisible = false
+                    viewport.isXAxisBoundsManual = true
+                    viewport.isYAxisBoundsManual = true
+
+                    addSeries(series)
+                }
+
+                val begTime =
+                    DateFormat.format(
+                        getString(R.string.formatDT),
+                        resultSensorData.sensorValue.first().date * 1000L
+                    )
+                val endTime =
+                    DateFormat.format(
+                        getString(R.string.formatDT),
+                        resultSensorData.sensorValue.last().date * 1000L
+                    )
+
+                intervalTextView.text =
+                    getString(R.string.dateInfoView, begTime.toString(), endTime.toString())
+
+                //countButton.text = getString(R.string.countButtonTitle, resultSensorData.sensorValue.count())
+                val dateMax =
+                    resultSensorData.sensorValue.maxByOrNull { it.value }?.date?.let { time ->
+                        DateFormat.format("dd/MM/yy HH:mm", time * 1000L)
+                    }
+                maxTextView.text = getString(
+                    R.string.maxValuePeriod,
+                    resultSensorData.sensorValue.maxByOrNull { it.value }?.value.toString(),
+                    measure,
+                    dateMax.toString()
+                )
+
+                val dateMin =
+                    resultSensorData.sensorValue.minByOrNull { it.value }?.date?.let { time ->
+                        DateFormat.format("dd/MM/yy HH:mm", time * 1000L)
+                    }
+                minTextView.text = getString(
+                    R.string.minValuePeriod,
+                    resultSensorData.sensorValue.minByOrNull { it.value }?.value.toString(),
+                    measure,
+                    dateMin.toString()
+                )
+                averageTextView.text = getString(
+                    R.string.averageValuePeriod,
+                    resultSensorData.sensorValue.map { it.value }.average(),
+                    measure
+                )
+            }
+        }
+        graphImageButton.setOnClickListener {
+            activity?.supportFragmentManager?.commit {
+                replace(
+                    android.R.id.content,
+                    SensorGraphFragment.createInstance()
+                )
+                setReorderingAllowed(true)
+                addToBackStack("SensorInfo")
+            }
+        }
+        listImageButton.setOnClickListener {
+            activity?.supportFragmentManager?.commit {
+                replace(
+                    android.R.id.content,
+                    SensorDetailedFragment.createInstance()
+                )
+                setReorderingAllowed(true)
+                addToBackStack("SensorInfo")
             }
         }
     }

@@ -42,4 +42,7 @@ class SensorDetailedFragment : Fragment() {
 
         }
     }
+    companion object {
+        fun createInstance() = SensorDetailedFragment()
+    }
 }
