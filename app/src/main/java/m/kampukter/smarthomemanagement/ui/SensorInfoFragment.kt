@@ -7,8 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.snackbar.Snackbar
 import com.jjoe64.graphview.GridLabelRenderer
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
@@ -30,6 +33,7 @@ class SensorInfoFragment : Fragment() {
         DateFormat.format("yyyy-MM-dd", Date(Date().time - (1000 * 60 * 60 * 24))).toString()
     private var strDateEnd: String = DateFormat.format("yyyy-MM-dd", Date()).toString()
 
+    private lateinit var pickerRange: MaterialDatePicker<Pair<Long, Long>>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,9 +47,15 @@ class SensorInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        previewGraphView.removeAllSeries()
-
+        var measure = ""
         val series: LineGraphSeries<DataPoint> = LineGraphSeries()
+
+        @Suppress("UNCHECKED_CAST")
+        pickerRange =
+            parentFragmentManager.findFragmentByTag("Picker") as? MaterialDatePicker<Pair<Long, Long>>
+                ?: MaterialDatePicker.Builder.dateRangePicker().build()
+
+        previewGraphView.removeAllSeries()
 
         (activity as? AppCompatActivity)?.setSupportActionBar(sensorInfoToolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
@@ -67,11 +77,24 @@ class SensorInfoFragment : Fragment() {
             viewModel.setIdSensorForSearch(it)
         }
         viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) { sensor ->
+
             (activity as AppCompatActivity).title = sensor?.name
+
             val sensorFullId = "${sensor?.unitId}${sensor?.deviceSensorId}"
             viewModel.setQuestionSensorsData(Triple(sensorFullId, strDateBegin, strDateEnd))
+
+            pickerRange.addOnPositiveButtonClickListener { dateSelected ->
+                dateSelected.first?.let {
+                    strDateBegin = DateFormat.format("yyyy-MM-dd", it).toString()
+                }
+                dateSelected.second?.let {
+                    strDateEnd = DateFormat.format("yyyy-MM-dd", it).toString()
+                }
+                viewModel.setQuestionSensorsData(Triple(sensorFullId, strDateBegin, strDateEnd))
+            }
+
         }
-        var measure = ""
+
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
 
             sensorId?.let { id ->
@@ -148,11 +171,17 @@ class SensorInfoFragment : Fragment() {
                     measure,
                     dateMin.toString()
                 )
-                averageTextView.text = getString(
-                    R.string.averageValuePeriod,
+                avgTextView.text = getString(
+                    R.string.averageValue,
                     resultSensorData.sensorValue.map { it.value }.average(),
-                    measure
+                    measure, resultSensorData.sensorValue.count()
                 )
+            } else if (resultSensorData is ResultSensorDataApi.EmptyResponse) {
+                Snackbar.make(
+                    view,
+                    getString(R.string.noDataMessage, strDateBegin, strDateEnd),
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
         graphImageButton.setOnClickListener {
@@ -173,6 +202,14 @@ class SensorInfoFragment : Fragment() {
                 )
                 setReorderingAllowed(true)
                 addToBackStack("SensorInfo")
+            }
+        }
+        intervalImageButton.setOnClickListener {
+            parentFragmentManager.let {
+                pickerRange.show(
+                    it,
+                    "Picker"
+                )
             }
         }
     }

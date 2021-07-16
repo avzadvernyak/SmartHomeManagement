@@ -17,11 +17,11 @@
     <string name="menu_date_period_title">Date</string>
 
     <string name="noDataMessage">No data for %1$s - %2$s</string>
-    <string name="countButtonTitle">Найдено записей %1$d</string>
     <string name="dateInfoView">%1$s-%2$s </string>
     <string name="maxValuePeriod"> %1$s%2$s (%3$s)</string>
     <string name="minValuePeriod"> %1$s%2$s (%3$s)</string>
     <string name="averageValuePeriod"> %1$.2f%2$s </string>
+    <string name="averageValue">Среднее %1$.2f%2$s по %3$d записям</string>
 
     <string name="formatDT">dd.MM.yyyy HH:mm</string>
     <string name="formatDTYY">dd.MM.yy HH:mm</string>
@@ -39,5 +39,6 @@
     <string name="unit_connect">Подключиться</string>
     <string name="status_title">Состояние: %1$s</string>
     <string name="unit_id_title">Код устройства: %1$s</string>
+
 
 </resources>
