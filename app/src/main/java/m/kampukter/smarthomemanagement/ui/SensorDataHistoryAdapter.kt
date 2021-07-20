@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.SensorDataApi
+import m.kampukter.smarthomemanagement.databinding.SensorDataHistoryItemBinding
 
 class SensorDataHistoryAdapter : RecyclerView.Adapter<SensorDataHistoryViewHolder>() {
 
@@ -12,15 +13,13 @@ class SensorDataHistoryAdapter : RecyclerView.Adapter<SensorDataHistoryViewHolde
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SensorDataHistoryViewHolder {
         return SensorDataHistoryViewHolder(
-            LayoutInflater
-                .from(parent.context)
-                .inflate(R.layout.sensor_data_history_item, parent, false)
+            SensorDataHistoryItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         )
     }
 
     override fun getItemCount(): Int = sensorValue?.size ?: 0
 
-    override fun onBindViewHolder(holder:SensorDataHistoryViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: SensorDataHistoryViewHolder, position: Int) {
         sensorValue?.get(position)?.let { item ->
             holder.bind(item)
         }

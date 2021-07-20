@@ -1,14 +1,14 @@
 package m.kampukter.smarthomemanagement.ui
 
 import android.text.format.DateFormat
-import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.sensor_data_history_item.view.*
 import m.kampukter.smarthomemanagement.data.SensorDataApi
+import m.kampukter.smarthomemanagement.databinding.SensorDataHistoryItemBinding
 
-class SensorDataHistoryViewHolder (itemView: View) : RecyclerView.ViewHolder(itemView) {
+class SensorDataHistoryViewHolder(private val sensorDataView: SensorDataHistoryItemBinding) :
+    RecyclerView.ViewHolder(sensorDataView.root) {
     fun bind(result: SensorDataApi) {
-        with(itemView) {
+        with(sensorDataView) {
             dateTimeTextView.text = DateFormat.format("dd/MM/yyyy HH:mm", result.date * 1000L)
             valueTextView.text = result.value.toString()
         }

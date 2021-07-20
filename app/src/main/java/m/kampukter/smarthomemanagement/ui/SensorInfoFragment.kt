@@ -15,16 +15,19 @@ import com.google.android.material.snackbar.Snackbar
 import com.jjoe64.graphview.GridLabelRenderer
 import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
-import kotlinx.android.synthetic.main.sensor_info_fragment.*
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
 import m.kampukter.smarthomemanagement.data.UnitView
+import m.kampukter.smarthomemanagement.databinding.SensorInfoFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.util.*
 
 
 class SensorInfoFragment : Fragment() {
+
+    private var binding: SensorInfoFragmentBinding? = null
+
     private val viewModel by sharedViewModel<MainViewModel>()
 
     private var sensorId: String? = null
@@ -41,7 +44,13 @@ class SensorInfoFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         setHasOptionsMenu(true)
-        return inflater.inflate(R.layout.sensor_info_fragment, container, false)
+        binding = SensorInfoFragmentBinding.inflate(inflater, container, false)
+        return binding?.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,14 +64,14 @@ class SensorInfoFragment : Fragment() {
             parentFragmentManager.findFragmentByTag("Picker") as? MaterialDatePicker<Pair<Long, Long>>
                 ?: MaterialDatePicker.Builder.dateRangePicker().build()
 
-        previewGraphView.removeAllSeries()
+        binding?.previewGraphView?.removeAllSeries()
 
-        (activity as? AppCompatActivity)?.setSupportActionBar(sensorInfoToolbar)
+        (activity as? AppCompatActivity)?.setSupportActionBar(binding?.sensorInfoToolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
-        sensorInfoToolbar.setNavigationOnClickListener {
+        binding?.sensorInfoToolbar?.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
         savedInstanceState?.let { bundle ->
@@ -80,7 +89,7 @@ class SensorInfoFragment : Fragment() {
 
             (activity as AppCompatActivity).title = sensor?.name
 
-            val sensorFullId = "${sensor?.unitId}${sensor?.deviceSensorId}"
+            val sensorFullId = "${sensor?.unitId}${sensor?.unitSensorId}"
             viewModel.setQuestionSensorsData(Triple(sensorFullId, strDateBegin, strDateEnd))
 
             pickerRange.addOnPositiveButtonClickListener { dateSelected ->
@@ -100,8 +109,15 @@ class SensorInfoFragment : Fragment() {
             sensorId?.let { id ->
                 val currentSensor =
                     sensors?.find { (it as UnitView.SensorView).id == id } as UnitView.SensorView
-                valueTextView.text = currentSensor.value.toString()
-                dimensionTextView.text = currentSensor.dimension
+                binding?.valueTextView?.text = currentSensor.value.toString()
+
+                binding?.lastUpdateTextView?.text = getString(
+                    R.string.last_value_title,
+                    DateFormat.format("hh:mm dd-MM-yyyy", currentSensor.lastUpdateDate)
+                )
+
+
+                binding?.dimensionTextView?.text = currentSensor.dimension
                 currentSensor.dimension?.let { measure = it }
             }
         }
@@ -114,27 +130,27 @@ class SensorInfoFragment : Fragment() {
                 }
 
                 series.resetData(graphValue)
-                value.map { it.value }.minOrNull()
-                    ?.let { previewGraphView.viewport.setMinY((it - (it / 20)).toDouble()) }
-                value.map { it.value }.maxOrNull()
-                    ?.let { previewGraphView.viewport.setMaxY((it + (it / 20)).toDouble()) }
-                previewGraphView.viewport.setMinX(value.first().date * 1000L.toDouble())
-                previewGraphView.viewport.setMaxX(value.last().date * 1000L.toDouble())
+                binding?.let { _binding ->
+                    with(_binding.previewGraphView) {
+                        value.map { it.value }.minOrNull()
+                            ?.let { viewport.setMinY((it - (it / 20)).toDouble()) }
+                        value.map { it.value }.maxOrNull()
+                            ?.let { viewport.setMaxY((it + (it / 20)).toDouble()) }
+                        viewport.setMinX(value.first().date * 1000L.toDouble())
+                        viewport.setMaxX(value.last().date * 1000L.toDouble())
 
+                        series.color = Color.GRAY
+                        series.thickness = 8
+                        gridLabelRenderer.gridStyle = GridLabelRenderer.GridStyle.NONE
+                        gridLabelRenderer.isHorizontalLabelsVisible = false
+                        gridLabelRenderer.isVerticalLabelsVisible = false
+                        viewport.isXAxisBoundsManual = true
+                        viewport.isYAxisBoundsManual = true
 
+                        addSeries(series)
 
-                with(previewGraphView) {
-                    series.color = Color.GRAY
-                    series.thickness = 8
-                    gridLabelRenderer.gridStyle = GridLabelRenderer.GridStyle.NONE
-                    gridLabelRenderer.isHorizontalLabelsVisible = false
-                    gridLabelRenderer.isVerticalLabelsVisible = false
-                    viewport.isXAxisBoundsManual = true
-                    viewport.isYAxisBoundsManual = true
-
-                    addSeries(series)
+                    }
                 }
-
                 val begTime =
                     DateFormat.format(
                         getString(R.string.formatDT),
@@ -146,15 +162,14 @@ class SensorInfoFragment : Fragment() {
                         resultSensorData.sensorValue.last().date * 1000L
                     )
 
-                intervalTextView.text =
+                binding?.intervalTextView?.text =
                     getString(R.string.dateInfoView, begTime.toString(), endTime.toString())
 
-                //countButton.text = getString(R.string.countButtonTitle, resultSensorData.sensorValue.count())
                 val dateMax =
                     resultSensorData.sensorValue.maxByOrNull { it.value }?.date?.let { time ->
                         DateFormat.format("dd/MM/yy HH:mm", time * 1000L)
                     }
-                maxTextView.text = getString(
+                binding?.maxTextView?.text = getString(
                     R.string.maxValuePeriod,
                     resultSensorData.sensorValue.maxByOrNull { it.value }?.value.toString(),
                     measure,
@@ -165,13 +180,13 @@ class SensorInfoFragment : Fragment() {
                     resultSensorData.sensorValue.minByOrNull { it.value }?.date?.let { time ->
                         DateFormat.format("dd/MM/yy HH:mm", time * 1000L)
                     }
-                minTextView.text = getString(
+                binding?.minTextView?.text = getString(
                     R.string.minValuePeriod,
                     resultSensorData.sensorValue.minByOrNull { it.value }?.value.toString(),
                     measure,
                     dateMin.toString()
                 )
-                avgTextView.text = getString(
+                binding?.avgTextView?.text = getString(
                     R.string.averageValue,
                     resultSensorData.sensorValue.map { it.value }.average(),
                     measure, resultSensorData.sensorValue.count()
@@ -184,7 +199,7 @@ class SensorInfoFragment : Fragment() {
                 ).show()
             }
         }
-        graphImageButton.setOnClickListener {
+        binding?.graphImageButton?.setOnClickListener {
             activity?.supportFragmentManager?.commit {
                 replace(
                     android.R.id.content,
@@ -194,7 +209,7 @@ class SensorInfoFragment : Fragment() {
                 addToBackStack("SensorInfo")
             }
         }
-        listImageButton.setOnClickListener {
+        binding?.listImageButton?.setOnClickListener {
             activity?.supportFragmentManager?.commit {
                 replace(
                     android.R.id.content,
@@ -204,7 +219,7 @@ class SensorInfoFragment : Fragment() {
                 addToBackStack("SensorInfo")
             }
         }
-        intervalImageButton.setOnClickListener {
+        binding?.intervalImageButton?.setOnClickListener {
             parentFragmentManager.let {
                 pickerRange.show(
                     it,
@@ -217,6 +232,20 @@ class SensorInfoFragment : Fragment() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putStringArray(KEY_SELECTED_PERIOD, arrayOf(strDateBegin, strDateEnd))
         super.onSaveInstanceState(outState)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        sensorId?.let {
+            viewModel.connectToUnit(it)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        sensorId?.let {
+            viewModel.disconnectToUnit(it)
+        }
     }
 
     companion object {

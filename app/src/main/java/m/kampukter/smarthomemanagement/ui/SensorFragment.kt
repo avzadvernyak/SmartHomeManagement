@@ -12,9 +12,9 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.android.synthetic.main.sensor_fragment.*
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
+import m.kampukter.smarthomemanagement.databinding.SensorFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.util.*
@@ -22,6 +22,8 @@ import java.util.*
 private const val KEY_SELECTED_PERIOD = "KEY_SELECTED_PERIOD"
 
 class SensorFragment : Fragment() {
+
+    private var binding: SensorFragmentBinding? = null
 
     private val viewModel by sharedViewModel<MainViewModel>()
 
@@ -37,7 +39,12 @@ class SensorFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         setHasOptionsMenu(true)
-        return inflater.inflate(R.layout.sensor_fragment, container, false)
+        binding = SensorFragmentBinding.inflate(inflater, container, false)
+        return binding?.root
+    }
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -48,12 +55,12 @@ class SensorFragment : Fragment() {
             parentFragmentManager.findFragmentByTag("Picker") as? MaterialDatePicker<Pair<Long, Long>>
                 ?: MaterialDatePicker.Builder.dateRangePicker().build()
 
-        (activity as? AppCompatActivity)?.setSupportActionBar(toolbar)
+        (activity as? AppCompatActivity)?.setSupportActionBar(binding?.toolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
-        toolbar.setNavigationOnClickListener {
+        binding?.toolbar?.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
         savedInstanceState?.let { bundle ->
@@ -67,11 +74,11 @@ class SensorFragment : Fragment() {
         }
         viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) { sensor ->
 
-            val sensorFullId = "${sensor?.unitId}${sensor?.deviceSensorId}"
+            val sensorFullId = "${sensor?.unitId}${sensor?.unitSensorId}"
 
             (activity as AppCompatActivity).title = getString(R.string.title_history)
 
-            viewModel.setQuestionSensorsData( Triple(sensorFullId, strDateBegin, strDateEnd) )
+            viewModel.setQuestionSensorsData(Triple(sensorFullId, strDateBegin, strDateEnd))
 
             pickerRange.addOnPositiveButtonClickListener { dateSelected ->
                 dateSelected.first?.let {
@@ -80,22 +87,22 @@ class SensorFragment : Fragment() {
                 dateSelected.second?.let {
                     strDateEnd = DateFormat.format("yyyy-MM-dd", it).toString()
                 }
-                apiProgressBar.visibility = View.VISIBLE
-                viewModel.setQuestionSensorsData( Triple(sensorFullId, strDateBegin, strDateEnd) )
+                binding?.apiProgressBar?.visibility = View.VISIBLE
+                viewModel.setQuestionSensorsData(Triple(sensorFullId, strDateBegin, strDateEnd))
             }
         }
-        viewModel.sensorDataApi.observe(viewLifecycleOwner){ resultSensorData ->
+        viewModel.sensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
             when (resultSensorData) {
                 is ResultSensorDataApi.Success -> {
-                    apiProgressBar.visibility = View.INVISIBLE
+                    binding?.apiProgressBar?.visibility = View.INVISIBLE
 
                 }
                 is ResultSensorDataApi.OtherError -> {
-                    apiProgressBar.visibility = View.INVISIBLE
+                    binding?.apiProgressBar?.visibility = View.INVISIBLE
                     Log.d("blablabla", "Other Error" + resultSensorData.tError)
                 }
                 is ResultSensorDataApi.EmptyResponse -> {
-                    apiProgressBar.visibility = View.INVISIBLE
+                    binding?.apiProgressBar?.visibility = View.INVISIBLE
                     Snackbar.make(
                         view,
                         getString(R.string.noDataMessage, strDateBegin, strDateEnd),
@@ -104,7 +111,7 @@ class SensorFragment : Fragment() {
                 }
             }
         }
-        pager.adapter = object : FragmentStateAdapter(this) {
+        binding?.pager?.adapter = object : FragmentStateAdapter(this) {
 
             override fun getItemCount(): Int = 3
 
@@ -116,16 +123,18 @@ class SensorFragment : Fragment() {
                 }
             }
         }
-        view.context.let { context ->
-            TabLayoutMediator(tab_layout, pager) { tab, position ->
-                tab.icon = when (position) {
-                    0 -> AppCompatResources.getDrawable(context, R.drawable.ic_info)
-                    1 -> AppCompatResources.getDrawable(context, R.drawable.ic_list)
-                    else -> AppCompatResources.getDrawable(context, R.drawable.ic_bar_chart)
-                }
-            }.attach()
+        binding?.let {
+            view.context.let { context ->
+                TabLayoutMediator(it.tabLayout, it.pager) { tab, position ->
+                    tab.icon = when (position) {
+                        0 -> AppCompatResources.getDrawable(context, R.drawable.ic_info)
+                        1 -> AppCompatResources.getDrawable(context, R.drawable.ic_list)
+                        else -> AppCompatResources.getDrawable(context, R.drawable.ic_bar_chart)
+                    }
+                }.attach()
+            }
         }
-        apiProgressBar.visibility = View.VISIBLE
+        binding?.apiProgressBar?.visibility = View.VISIBLE
 
     }
 

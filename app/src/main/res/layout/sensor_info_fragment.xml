@@ -4,7 +4,9 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.SensorInfoFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/sensorInfoToolbar"
@@ -16,14 +18,21 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/valueTextView"
+        android:id="@+id/lastUpdateTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:textSize="64sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/sensorInfoToolbar" />
+    <TextView
+        android:id="@+id/valueTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:textSize="64sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lastUpdateTextView" />
     <TextView
         android:id="@+id/dimensionTextView"
         android:layout_width="wrap_content"
@@ -106,7 +115,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="8dp"
         android:elevation="4dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="4dp"
         app:cardBackgroundColor="#EBEDED"
         app:cardCornerRadius="12dp"
         app:cardUseCompatPadding="true"

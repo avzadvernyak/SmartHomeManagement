@@ -9,14 +9,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.unit_list_fragment.*
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitInfoView
+import m.kampukter.smarthomemanagement.databinding.UnitListFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class UnitListFragment : Fragment() {
 
+    private var binding: UnitListFragmentBinding? = null
     private val viewModel by sharedViewModel<MainViewModel>()
 
     private lateinit var unitListAdapter: UnitListAdapter
@@ -26,20 +27,24 @@ class UnitListFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.unit_list_fragment, container, false)
+        binding = UnitListFragmentBinding.inflate(inflater, container, false)
+        return binding?.root
     }
-
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        (activity as? AppCompatActivity)?.setSupportActionBar(unitListToolbar)
+        (activity as? AppCompatActivity)?.setSupportActionBar(binding?.unitListToolbar)
         (activity as AppCompatActivity).title = getString(R.string.title_units)
         (activity as AppCompatActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)
         }
-        unitListToolbar.setNavigationOnClickListener {
+        binding?.unitListToolbar?.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
 
@@ -61,9 +66,11 @@ class UnitListFragment : Fragment() {
                 }
             }
         }
-        with(unitRecyclerView) {
-            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
-            adapter = unitListAdapter
+        binding?.let {
+            with(it.unitRecyclerView) {
+                layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                adapter = unitListAdapter
+            }
         }
         viewModel.unitListLiveData.observe(viewLifecycleOwner) { unit ->
             unitListAdapter.setList(unit)

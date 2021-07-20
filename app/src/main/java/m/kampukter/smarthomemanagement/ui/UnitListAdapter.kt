@@ -2,10 +2,9 @@ package m.kampukter.smarthomemanagement.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitInfoView
+import m.kampukter.smarthomemanagement.databinding.UnitItemBinding
 
 class UnitListAdapter :
     RecyclerView.Adapter<UnitListViewHolder>() {
@@ -15,9 +14,10 @@ class UnitListAdapter :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UnitListViewHolder =
         UnitListViewHolder(
-            LayoutInflater
-                .from(parent.context)
-                .inflate(R.layout.unit_item, parent, false),
+            UnitItemBinding.inflate(
+                LayoutInflater
+                    .from(parent.context), parent, false
+            ),
             clickUnitEventDelegate
         )
 

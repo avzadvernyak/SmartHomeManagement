@@ -112,8 +112,8 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
         val relay = UnitData(
             sensorDataList = listOf(
                 SensorData.Relay(
-                    deviceId = sensorInfo.deviceId,
-                    deviceRelayId = sensorInfo.deviceSensorId,
+                    deviceId = sensorInfo.unitId,
+                    deviceRelayId = sensorInfo.unitSensorId,
                     status = RelayState.OFFLINE,
                     Calendar.getInstance().time
                 )
@@ -125,7 +125,7 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
     }
 
     private fun sendToWs(sensorInfo: SensorInfoWithIp) {
-        webSockets[URL(sensorInfo.deviceIp)]?.send("${sensorInfo.deviceId}${sensorInfo.deviceSensorId}")
+        webSockets[URL(sensorInfo.unitIp)]?.send("${sensorInfo.unitId}${sensorInfo.unitSensorId}")
     }
 
     @DelicateCoroutinesApi

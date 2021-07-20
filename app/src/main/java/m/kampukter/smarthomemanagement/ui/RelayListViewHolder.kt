@@ -2,18 +2,18 @@ package m.kampukter.smarthomemanagement.ui
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.relay_item.view.*
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.RelayState
 import m.kampukter.smarthomemanagement.data.UnitView
+import m.kampukter.smarthomemanagement.databinding.RelayItemBinding
 
 class RelayListViewHolder(
-    itemView: View,
+    private val relayItemView: RelayItemBinding,
     private val clickEventDelegate: ClickEventDelegate<UnitView>
-) : RecyclerView.ViewHolder(itemView) {
+) : RecyclerView.ViewHolder(relayItemView.root) {
     fun bind(result: UnitView.RelayView) {
 
-        with(itemView) {
+        with(relayItemView) {
             relayNameTextView.text = result.name
             imageItemImageView.setImageResource(R.drawable.ic_switch_24dp)
 
@@ -24,19 +24,19 @@ class RelayListViewHolder(
             when (result.state) {
                 RelayState.ON -> {
                     lightingOnImageBottom.visibility = View.VISIBLE
-                    setOnClickListener {
+                    relayItemView.root.setOnClickListener {
                         clickEventDelegate.onClick(result)
                     }
                 }
                 RelayState.OFF -> {
                     lightingOffImageBottom.visibility = View.VISIBLE
-                    setOnClickListener {
+                    relayItemView.root.setOnClickListener {
                         clickEventDelegate.onClick(result)
                     }
                 }
                 else -> {
-                    relayProgressBar?.visibility = View.VISIBLE
-                    setOnClickListener(null)
+                    relayProgressBar.visibility = View.VISIBLE
+                    relayItemView.root.setOnClickListener(null)
                 }
             }
 

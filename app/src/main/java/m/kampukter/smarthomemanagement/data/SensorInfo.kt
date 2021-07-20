@@ -14,7 +14,7 @@ data class SensorInfo(
     val id: String,
     @ColumnInfo(name = "unit_id")
     val unitId: String,
-    val deviceSensorId: String,
+    val unitSensorId: String,
     val name: String,
     val measure: String?,
     @TypeConverters(SensorTypeConverter::class)

@@ -39,6 +39,7 @@
     <string name="unit_connect">Подключиться</string>
     <string name="status_title">Состояние: %1$s</string>
     <string name="unit_id_title">Код устройства: %1$s</string>
+    <string name="last_value_title">На %1$s</string>
 
 
 </resources>

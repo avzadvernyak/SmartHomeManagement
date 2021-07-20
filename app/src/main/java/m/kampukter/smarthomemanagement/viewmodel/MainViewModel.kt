@@ -112,6 +112,17 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
         sensorsRepository.connectToUnit(urlUnit)
     }
 
+    fun connectToUnit(sensorId: String) {
+        viewModelScope.launch {
+            sensorsRepository.connectToUnit(sensorId)
+        }
+    }
+    fun disconnectToUnit(sensorId: String) {
+        viewModelScope.launch {
+            sensorsRepository.disconnectToUnit(sensorId)
+        }
+    }
+
     fun disconnectToUnit(urlUnit: URL) {
         sensorsRepository.disconnectToUnit(urlUnit)
     }

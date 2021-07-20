@@ -5,11 +5,15 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitView
+import m.kampukter.smarthomemanagement.databinding.MainFragmentBinding
+import m.kampukter.smarthomemanagement.databinding.RelayItemBinding
+import m.kampukter.smarthomemanagement.databinding.SensorItemBinding
 
 private const val TYPE_SENSOR: Int = 1
 private const val TYPE_RELAY: Int = 2
 
 class SensorListAdapter :
+
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     lateinit var clickSensorEventDelegate: ClickEventDelegate<UnitView>
@@ -18,20 +22,20 @@ class SensorListAdapter :
     private var sensorList = emptyList<UnitView>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+
         when (viewType) {
-            TYPE_SENSOR -> SensorListViewHolder(
-                LayoutInflater
-                    .from(parent.context)
-                    .inflate(R.layout.sensor_item, parent, false),
-                clickSensorEventDelegate
-            )
+            TYPE_SENSOR ->
+                SensorListViewHolder(
+                    SensorItemBinding.inflate(LayoutInflater.from(parent.context), parent, false),
+                    clickSensorEventDelegate
+                )
+
             else -> RelayListViewHolder(
-                LayoutInflater
-                    .from(parent.context)
-                    .inflate(R.layout.relay_item, parent, false),
+                RelayItemBinding.inflate(LayoutInflater.from(parent.context), parent, false),
                 clickRelayEventDelegate
             )
         }
+
 
     override fun getItemCount(): Int = sensorList.size
 

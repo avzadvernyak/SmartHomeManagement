@@ -30,7 +30,7 @@ class SensorsRepository(
             sensorInfo.forEach { sensor ->
 
                 val apiSensor =
-                    apiSensorInfo.find { it.unit == "${sensor.unitId}${sensor.deviceSensorId}" }
+                    apiSensorInfo.find { it.unit == "${sensor.unitId}${sensor.unitSensorId}" }
                 val dateSensor =
                     if (apiSensor != null) Date(apiSensor.date * 1000L) else Calendar.getInstance().time
 
@@ -76,7 +76,7 @@ class SensorsRepository(
             unitData?.sensorDataList?.forEach { sensorData ->
                 when (sensorData) {
                     is SensorData.Sensor -> {
-                        sensorInfoList.find { it.unitId == sensorData.deviceId && it.deviceSensorId == sensorData.deviceSensorId }?.id?.let { foundId ->
+                        sensorInfoList.find { it.unitId == sensorData.deviceId && it.unitSensorId == sensorData.deviceSensorId }?.id?.let { foundId ->
                             initListSensorInfo.find { sensor ->
                                 (sensor as UnitView.SensorView).id == foundId
                             }?.let {
@@ -87,7 +87,7 @@ class SensorsRepository(
                         }
                     }
                     is SensorData.Relay -> {
-                        sensorInfoList.find { it.unitId == sensorData.deviceId && it.deviceSensorId == sensorData.deviceRelayId }?.id?.let { foundId ->
+                        sensorInfoList.find { it.unitId == sensorData.deviceId && it.unitSensorId == sensorData.deviceRelayId }?.id?.let { foundId ->
                             initListSensorInfo.find { relay ->
                                 if (relay is UnitView.RelayView) relay.id == foundId else false
                             }?.let {
@@ -208,6 +208,14 @@ class SensorsRepository(
     }
 
     //Connect to WS Server
+    suspend fun connectToUnit(sensorId: String) {
+        webSocketDto.connect(URL(sensorInfoDao.getSensorById(sensorId).unitIp))
+    }
+
+    suspend fun disconnectToUnit(sensorId: String) {
+        webSocketDto.disconnect(URL(sensorInfoDao.getSensorById(sensorId).unitIp))
+    }
+
     fun connectToUnit(urlUnit: URL) {
         webSocketDto.connect(urlUnit)
     }
