@@ -1,5 +1,6 @@
 package m.kampukter.smarthomemanagement.ui
 
+import android.text.format.DateFormat
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.R
@@ -15,6 +16,10 @@ class RelayListViewHolder(
 
         with(relayItemView) {
             relayNameTextView.text = result.name
+            lastDateTextView.text = relayItemView.root.context.getString(
+                R.string.last_update,
+                DateFormat.format("dd/MM/yyyy HH:mm", result.lastUpdateDate)
+            )
             imageItemImageView.setImageResource(R.drawable.ic_switch_24dp)
 
             lightingOnImageBottom.visibility = View.INVISIBLE

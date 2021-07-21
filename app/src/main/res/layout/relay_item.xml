@@ -24,6 +24,14 @@
         android:layout_marginTop="2dp"
         app:layout_constraintStart_toEndOf="@+id/imageItemImageView"
         app:layout_constraintTop_toTopOf="@+id/imageItemImageView" />
+    <TextView
+        android:id="@+id/lastDateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@+id/imageItemImageView"
+        app:layout_constraintTop_toBottomOf="@id/relayNameTextView" />
     <ProgressBar
         android:id="@+id/relayProgressBar"
         style="?android:attr/progressBarStyle"
@@ -34,11 +42,10 @@
         app:layout_constraintBottom_toBottomOf="parent"/>
     <ImageButton
         android:id="@+id/lightingOffImageBottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:contentDescription="@null"
-        android:src="@drawable/ic_lamp_off_24dp"
-        android:background="@android:color/transparent"
+        android:background="@drawable/ic_lamp_off_24dp"
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -46,11 +53,11 @@
 
     <ImageButton
         android:id="@+id/lightingOnImageBottom"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:contentDescription="@null"
-        android:src="@drawable/ic_lamp_on_24dp"
-        android:background="@android:color/transparent"
+        android:background="@drawable/ic_lamp_on_24dp"
+
         android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"

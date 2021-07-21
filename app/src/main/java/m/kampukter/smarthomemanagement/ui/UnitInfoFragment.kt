@@ -13,7 +13,6 @@ import m.kampukter.smarthomemanagement.data.dto.WSConnectionStatus
 import m.kampukter.smarthomemanagement.databinding.UnitInfoFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import java.net.URL
 
 class UnitInfoFragment : Fragment() {
 
@@ -29,6 +28,7 @@ class UnitInfoFragment : Fragment() {
         binding = UnitInfoFragmentBinding.inflate(inflater, container, false)
         return binding?.root
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
@@ -85,7 +85,9 @@ class UnitInfoFragment : Fragment() {
                     }
                     binding?.unitStatusTextView?.text =
                         getString(R.string.status_title, stringStatus)
-                    binding?.unitConnectButton?.setOnClickListener { viewModel.connectToUnit(URL(unitInfo.url)) }
+                    binding?.unitConnectButton?.setOnClickListener {
+                        viewModel.connectByIdUnit(unitInfo.id)
+                    }
                 }
             }
         }
@@ -124,6 +126,21 @@ class UnitInfoFragment : Fragment() {
             })
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+
+        currentUnitId?.let {
+            viewModel.connectByIdUnit(it)
+        }
+    }
+    override fun onPause() {
+        super.onPause()
+        currentUnitId?.let {
+            viewModel.disconnectByIdUnit(it)
+        }
+    }
+
 
     companion object {
         private const val ARG_ID_UNIT = "ARG_ID_UNIT"

@@ -108,7 +108,7 @@ class SensorInfoFragment : Fragment() {
 
             sensorId?.let { id ->
                 val currentSensor =
-                    sensors?.find { (it as UnitView.SensorView).id == id } as UnitView.SensorView
+                    sensors?.find { it is UnitView.SensorView && it.id == id } as UnitView.SensorView
                 binding?.valueTextView?.text = currentSensor.value.toString()
 
                 binding?.lastUpdateTextView?.text = getString(

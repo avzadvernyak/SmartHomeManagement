@@ -209,20 +209,18 @@ class SensorsRepository(
 
     //Connect to WS Server
     suspend fun connectToUnit(sensorId: String) {
-        webSocketDto.connect(URL(sensorInfoDao.getSensorById(sensorId).unitIp))
+        webSocketDto.connect(sensorInfoDao.getSensorById(sensorId).unitIp)
     }
 
     suspend fun disconnectToUnit(sensorId: String) {
-        webSocketDto.disconnect(URL(sensorInfoDao.getSensorById(sensorId).unitIp))
+        webSocketDto.disconnect(sensorInfoDao.getSensorById(sensorId).unitIp)
     }
 
-    fun connectToUnit(urlUnit: URL) {
-        webSocketDto.connect(urlUnit)
+    suspend fun connectByIdUnit(unitId: String) {
+        webSocketDto.connect(sensorInfoDao.getUnitById(unitId).url)
     }
-
-    //Disconnect to WS Server
-    fun disconnectToUnit(urlUnit: URL) {
-        webSocketDto.disconnect(urlUnit)
+    suspend fun disconnectByIdUnit(unitId: String) {
+        webSocketDto.disconnect(sensorInfoDao.getUnitById(unitId).url)
     }
 
     suspend fun editUnitDescription(unitId: String, description: String) {

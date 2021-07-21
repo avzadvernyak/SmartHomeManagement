@@ -69,7 +69,14 @@ class MainFragment : Fragment() {
             }
             clickRelayEventDelegate = object : ClickEventDelegate<UnitView> {
                 override fun onClick(item: UnitView) {
-                    viewModel.sendCommandToRelay((item as UnitView.RelayView))
+                    activity?.supportFragmentManager?.commit {
+                        replace(
+                            android.R.id.content,
+                            RelayInfoFragment.createInstance((item as UnitView.RelayView).id)
+                        )
+                        setReorderingAllowed(true)
+                        addToBackStack("Sensors")
+                    }
                 }
 
                 override fun onLongClick(item: UnitView) {

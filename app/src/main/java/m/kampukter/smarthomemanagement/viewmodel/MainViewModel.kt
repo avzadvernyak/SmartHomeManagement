@@ -108,10 +108,6 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
         viewModelScope.launch { sensorsRepository.sendCommand(id) }
     }
 
-    fun connectToUnit(urlUnit: URL) {
-        sensorsRepository.connectToUnit(urlUnit)
-    }
-
     fun connectToUnit(sensorId: String) {
         viewModelScope.launch {
             sensorsRepository.connectToUnit(sensorId)
@@ -122,10 +118,17 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             sensorsRepository.disconnectToUnit(sensorId)
         }
     }
-
-    fun disconnectToUnit(urlUnit: URL) {
-        sensorsRepository.disconnectToUnit(urlUnit)
+    fun connectByIdUnit(unitId: String) {
+        viewModelScope.launch {
+            sensorsRepository.connectByIdUnit(unitId)
+        }
     }
+    fun disconnectByIdUnit(unitId: String) {
+        viewModelScope.launch {
+            sensorsRepository.connectByIdUnit(unitId)
+        }
+    }
+
 
     fun editUnitDescription(unitId: String, description: String) {
         viewModelScope.launch {

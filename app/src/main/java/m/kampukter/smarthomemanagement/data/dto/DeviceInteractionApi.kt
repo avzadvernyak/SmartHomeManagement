@@ -7,10 +7,10 @@ import java.net.URL
 
 interface DeviceInteractionApi {
 
-    fun connect(url: URL)
-    fun disconnect(url: URL)
+    fun connect(urlUnit: String)
+    fun disconnect(urlUnit: String)
 
-    suspend fun commandSend( sensorInfo: SensorInfoWithIp)
+    suspend fun commandSend(sensorInfo: SensorInfoWithIp)
     fun getUnitDataFlow(): MutableStateFlow<UnitData?>
     fun getWSStatusFlow(): MutableStateFlow<Pair<URL, WSConnectionStatus>?>
 }

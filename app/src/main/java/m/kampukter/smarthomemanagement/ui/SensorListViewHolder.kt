@@ -7,16 +7,16 @@ import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.databinding.SensorItemBinding
 
 class SensorListViewHolder(
-    private val myItemView: SensorItemBinding,
+    private val sensorItemView: SensorItemBinding,
     private val clickEventDelegate: ClickEventDelegate<UnitView>
-) : RecyclerView.ViewHolder(myItemView.root) {
+) : RecyclerView.ViewHolder(sensorItemView.root) {
     fun bind(result: UnitView.SensorView) {
 
-        with(myItemView) {
-            val valueString = "${result.value} ${result.dimension}"
-            sensorValueTextView.text = valueString
+        with(sensorItemView) {
+            sensorValueTextView.text = result.value.toString()
+            sensorDimensionTextView.text = result.dimension
             sensorNameTextView.text = result.name
-            lastDateTextView.text = myItemView.root.context.getString(
+            lastDateTextView.text = sensorItemView.root.context.getString(
                     R.string.last_update,
                     DateFormat.format("dd/MM/yyyy HH:mm", result.lastUpdateDate)
                 )
@@ -26,10 +26,10 @@ class SensorListViewHolder(
                 3 -> imageItemImageView.setImageResource(R.drawable.ic_humidity)
                 else -> imageItemImageView.setImageResource(R.drawable.ic_info_black)
             }
-            myItemView.root.setOnClickListener {
+            sensorItemView.root.setOnClickListener {
                 clickEventDelegate.onClick(result)
             }
-            myItemView.root.setOnLongClickListener {
+            sensorItemView.root.setOnLongClickListener {
                 clickEventDelegate.onLongClick(result)
                 true
             }

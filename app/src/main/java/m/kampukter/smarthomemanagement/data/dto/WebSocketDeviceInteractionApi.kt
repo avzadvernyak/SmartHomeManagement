@@ -36,12 +36,12 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
         override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
             super.onClosing(webSocket, code, reason)
 
-            emitStatus( Pair(webSocket.getUrl(), WSConnectionStatus.Closing))
+            emitStatus(Pair(webSocket.getUrl(), WSConnectionStatus.Closing))
             webSockets.remove(webSocket.getUrl())
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-            emitStatus( Pair(webSocket.getUrl(), WSConnectionStatus.Disconnected))
+            emitStatus(Pair(webSocket.getUrl(), WSConnectionStatus.Disconnected))
         }
 
         override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
@@ -76,8 +76,8 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
 
 
     @DelicateCoroutinesApi
-    override fun connect(url: URL) {
-
+    override fun connect(urlUnit: String) {
+        val url = URL(urlUnit)
         isDisconnect[url] = false
         if (!webSockets.containsKey(url)) {
             emitStatus(Pair(url, WSConnectionStatus.Connecting))
@@ -89,7 +89,8 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
     }
 
     @DelicateCoroutinesApi
-    override fun disconnect(url: URL) {
+    override fun disconnect(urlUnit: String) {
+        val url = URL(urlUnit)
         isDisconnect[url] = true
         GlobalScope.launch(context = Dispatchers.IO) {
             delay(10000)

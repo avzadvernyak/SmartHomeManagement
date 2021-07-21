@@ -26,6 +26,9 @@ interface SensorInfoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllUnit(units: List<UnitInfo>)
 
+    @Query("select * from unit where id == :id")
+    suspend fun getUnitById( id: String): UnitInfo
+
     @Query("select * from unit")
     fun getAllUnitsFlow(): Flow<List<UnitInfo>>
 
