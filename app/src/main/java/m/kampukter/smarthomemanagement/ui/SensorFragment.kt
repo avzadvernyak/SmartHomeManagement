@@ -91,7 +91,7 @@ class SensorFragment : Fragment() {
                 viewModel.setQuestionSensorsData(Triple(sensorFullId, strDateBegin, strDateEnd))
             }
         }
-        viewModel.sensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
+        viewModel.resultSensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
             when (resultSensorData) {
                 is ResultSensorDataApi.Success -> {
                     binding?.apiProgressBar?.visibility = View.INVISIBLE

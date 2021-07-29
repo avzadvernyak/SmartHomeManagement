@@ -107,59 +107,6 @@ class SensorsRepository(
         webSocketDto.getWSStatusFlow()
 
     val unitListFlow: Flow<List<UnitInfo>> = sensorInfoDao.getAllUnitsFlow()
-    /*{
-        val resultList = mutableListOf<UnitInfoView>()
-        sensorInfoDao.getAllUnits().forEach {
-            resultList.add(
-                UnitInfoView(
-                    it.deviceId,
-                    it.deviceName,
-                    it.deviceIp,
-                    it.deviceDescription,
-                    WSConnectionStatus.Disconnected
-                )
-            )
-        }
-        return flow { emit(resultList) }
-    }*/
-/*
-
-    val unitListFlow: Flow<List<UnitInfoView>> =
-        combine(
-            getUnitList(),
-            getWsStatusFlow()
-        ) { units, statusWS ->
-            statusWS?.let { status ->
-                units.find { URL(it.deviceIp) == status.first }
-                    ?.let { it.wsConnectionStatus = status.second }
-            }
-            units
-        }
-*/
-
-
-    /*val unitListFlow: Flow<List<UnitInfoView>> =
-        combine(
-            sensorInfoDao.getAllUnitsFlow(),
-            getWsStatusFlow()
-        ) { units, statusWS ->
-            Log.w("blabla", "status ->$statusWS ")
-            val resultList = mutableListOf<UnitInfoView>()
-            units.forEach {
-                resultList.add(
-                    UnitInfoView(
-                        it.deviceId,
-                        it.deviceName,
-                        it.deviceIp,
-                        it.deviceDescription,
-                        WSConnectionStatus.Disconnected
-                    )
-                )
-            }
-            *//*
-            resultList
-        }*/
-
 
     fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> =
         sensorInfoDao.getSensorFlow(searchId)
@@ -192,10 +139,19 @@ class SensorsRepository(
             Log.e("blablabla", "API Unknown Error")
             ResultSensorDataApi.OtherError("API Unknown Error")
         }
+        if (response?.code() == 204) return ResultSensorDataApi.EmptyResponse
         if (response?.code() != 200) return ResultSensorDataApi.OtherError("Error HTTP")
         val sensorDataList = response.body()
+        return if (sensorDataList != null) ResultSensorDataApi.Success(sensorDataList)
+        else ResultSensorDataApi.OtherError("Response is null")
+
+        /*
+        val sensorDataList = response.body()
+        Log.w("blabla","***$sensorDataList")
+        Log.d("blabla","***$sensorDataList")
+        Log.i("blabla","***$sensorDataList")
         return if (sensorDataList.isNullOrEmpty()) ResultSensorDataApi.EmptyResponse
-        else ResultSensorDataApi.Success(sensorDataList)
+        else ResultSensorDataApi.Success(sensorDataList)*/
     }
 
     fun getResultSensorDataApi(query: Triple<String, String, String>): Flow<ResultSensorDataApi> =
@@ -203,8 +159,8 @@ class SensorsRepository(
             emit(getSensorData(query))
         }
 
-    suspend fun sendCommand(relayInfo: UnitView.RelayView) {
-        webSocketDto.commandSend(sensorInfoDao.getSensorById(relayInfo.id))
+    suspend fun sendCommand(relayId: String) {
+        webSocketDto.commandSend(sensorInfoDao.getSensorById(relayId))
     }
 
     //Connect to WS Server
@@ -218,9 +174,6 @@ class SensorsRepository(
 
     suspend fun connectByIdUnit(unitId: String) {
         webSocketDto.connect(sensorInfoDao.getUnitById(unitId).url)
-    }
-    suspend fun disconnectByIdUnit(unitId: String) {
-        webSocketDto.disconnect(sensorInfoDao.getUnitById(unitId).url)
     }
 
     suspend fun editUnitDescription(unitId: String, description: String) {

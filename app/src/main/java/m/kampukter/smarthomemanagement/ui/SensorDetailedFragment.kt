@@ -42,7 +42,7 @@ class SensorDetailedFragment : Fragment() {
                 adapter = listSensorInfoAdapter
             }
         }
-        viewModel.sensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
+        viewModel.resultSensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
             if (resultSensorData is ResultSensorDataApi.Success) listSensorInfoAdapter.setList(
                 resultSensorData.sensorValue.sortedByDescending { it.date })
             else listSensorInfoAdapter.setList(emptyList())

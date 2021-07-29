@@ -8,10 +8,15 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.snackbar.Snackbar
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.RelayState
+import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
 import m.kampukter.smarthomemanagement.data.UnitView
+import m.kampukter.smarthomemanagement.data.dto.WSConnectionStatus
 import m.kampukter.smarthomemanagement.databinding.RelayInfoFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -30,6 +35,8 @@ class RelayInfoFragment : Fragment() {
     private var strDateEnd: String = DateFormat.format("yyyy-MM-dd", Date()).toString()
 
     private lateinit var pickerRange: MaterialDatePicker<Pair<Long, Long>>
+
+    private lateinit var listRelayStateAdapter: RelayHistoryStateAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,28 +76,98 @@ class RelayInfoFragment : Fragment() {
             relayId = it
             viewModel.setIdSensorForSearch(it)
         }
-        viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) { relay ->
 
-            (activity as AppCompatActivity).title = relay?.name
-            binding?.relaySwitchMaterial?.text = relay?.name
+        listRelayStateAdapter = RelayHistoryStateAdapter()
+        binding?.let {
+            with(it.relayHistoryRecyclerView) {
+                layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+                adapter = listRelayStateAdapter
+            }
         }
+
+        visibilityRelayState(RelayState.OFFLINE)
+        viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) { relay ->
+            (activity as AppCompatActivity).title = relay?.name
+            relay?.unitId?.let { viewModel.setIdUnitForSearch(it) }
+            val relayFullId = "${relay?.unitId}${relay?.unitSensorId}"
+            viewModel.setQuestionSensorsData(Triple(relayFullId, strDateBegin, strDateEnd))
+        }
+
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
+            visibilityRelayState(RelayState.OFFLINE)
             relayId?.let { id ->
                 val currentRelay =
                     sensors?.find {
                         (it is UnitView.RelayView) && it.id == id
                     } as UnitView.RelayView
-                binding?.relaySwitchMaterial?.isChecked = (currentRelay.state == RelayState.ON)
+
 
                 binding?.lastUpdateTextView?.text = getString(
                     R.string.last_value_title,
-                    DateFormat.format("hh:mm dd-MM-yyyy", currentRelay.lastUpdateDate)
+                    DateFormat.format("HH:mm dd-MM-yyyy", currentRelay.lastUpdateDate)
                 )
-                binding?.relaySwitchMaterial?.setOnCheckedChangeListener{_,_->
-                    viewModel.sendCommandToRelay( currentRelay )
-                }
+                visibilityRelayState(currentRelay.state)
             }
         }
+
+        viewModel.resultSensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
+
+            var begTime = DateFormat.format(
+                getString(R.string.formatDT),
+                Date().time - (1000 * 60 * 60 * 24)
+            )
+            var endTime = DateFormat.format(
+                getString(R.string.formatDT),
+                Date().time
+            )
+
+            if (resultSensorData is ResultSensorDataApi.Success) {
+                val value = resultSensorData.sensorValue
+                listRelayStateAdapter.setList(value.sortedByDescending { it.date })
+
+                begTime =
+                    DateFormat.format(
+                        getString(R.string.formatDT),
+                        resultSensorData.sensorValue.first().date * 1000L
+                    )
+                endTime =
+                    DateFormat.format(
+                        getString(R.string.formatDT),
+                        resultSensorData.sensorValue.last().date * 1000L
+                    )
+            } else if (resultSensorData is ResultSensorDataApi.EmptyResponse) {
+                listRelayStateAdapter.setList(emptyList())
+
+                Snackbar.make(
+                    view,
+                    getString(R.string.noDataMessage, strDateBegin, strDateEnd),
+                    Snackbar.LENGTH_LONG
+                ).show()
+            }
+
+            binding?.intervalTextView?.text =
+                getString(R.string.dateInfoView, begTime.toString(), endTime.toString())
+
+        }
+
+        viewModel.unitLiveData.observe(viewLifecycleOwner) {
+            if (it?.wsConnectionStatus is WSConnectionStatus.Connected) {
+                binding?.lightingOnImageBottom?.setOnClickListener {
+                    relayId?.let { id -> viewModel.sendCommandToRelay(id) }
+                    visibilityRelayState(RelayState.OFFLINE)
+                }
+                binding?.lightingOffImageBottom?.setOnClickListener {
+                    relayId?.let { id -> viewModel.sendCommandToRelay(id) }
+                    visibilityRelayState(RelayState.OFFLINE)
+                }
+                binding?.relayStateTextView?.text = "ONLINE"
+            } else {
+                binding?.lightingOnImageBottom?.setOnClickListener(null)
+                binding?.lightingOffImageBottom?.setOnClickListener(null)
+                binding?.relayStateTextView?.text = "OFFLINE"
+            }
+        }
+
 
     }
 
@@ -115,6 +192,26 @@ class RelayInfoFragment : Fragment() {
         super.onPause()
         relayId?.let {
             viewModel.disconnectToUnit(it)
+        }
+    }
+
+    private fun visibilityRelayState(state: RelayState) {
+        when (state) {
+            RelayState.ON -> {
+                binding?.lightingOnImageBottom?.visibility = View.VISIBLE
+                binding?.lightingOffImageBottom?.visibility = View.INVISIBLE
+                binding?.relayProgressBar?.visibility = View.INVISIBLE
+            }
+            RelayState.OFF -> {
+                binding?.lightingOnImageBottom?.visibility = View.INVISIBLE
+                binding?.lightingOffImageBottom?.visibility = View.VISIBLE
+                binding?.relayProgressBar?.visibility = View.INVISIBLE
+            }
+            RelayState.OFFLINE -> {
+                binding?.lightingOnImageBottom?.visibility = View.INVISIBLE
+                binding?.lightingOffImageBottom?.visibility = View.INVISIBLE
+                binding?.relayProgressBar?.visibility = View.VISIBLE
+            }
         }
     }
 

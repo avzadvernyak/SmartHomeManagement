@@ -39,7 +39,7 @@ class SensorAmountFragment : Fragment() {
             sensor?.measure?.let { measure = it }
             binding?.sensorNameTextView?.text = sensor?.name
         }
-        viewModel.sensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
+        viewModel.resultSensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
             if (resultSensorData is ResultSensorDataApi.Success) {
                 val begTime =
                     DateFormat.format(

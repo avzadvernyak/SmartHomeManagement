@@ -113,7 +113,7 @@ class SensorInfoFragment : Fragment() {
 
                 binding?.lastUpdateTextView?.text = getString(
                     R.string.last_value_title,
-                    DateFormat.format("hh:mm dd-MM-yyyy", currentSensor.lastUpdateDate)
+                    DateFormat.format("HH:mm dd-MM-yyyy", currentSensor.lastUpdateDate)
                 )
 
 
@@ -121,7 +121,7 @@ class SensorInfoFragment : Fragment() {
                 currentSensor.dimension?.let { measure = it }
             }
         }
-        viewModel.sensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
+        viewModel.resultSensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
 
             if (resultSensorData is ResultSensorDataApi.Success) {
                 val value = resultSensorData.sensorValue

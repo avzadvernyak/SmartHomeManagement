@@ -110,18 +110,23 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
         connectionStatusFlow
 
     override suspend fun commandSend(sensorInfo: SensorInfoWithIp) {
-        val relay = UnitData(
-            sensorDataList = listOf(
-                SensorData.Relay(
-                    deviceId = sensorInfo.unitId,
-                    deviceRelayId = sensorInfo.unitSensorId,
-                    status = RelayState.OFFLINE,
-                    Calendar.getInstance().time
+        val url = URL(sensorInfo.unitIp)
+        webSockets[url]
+
+        if (webSockets.containsKey(url)) {
+            val relay = UnitData(
+                sensorDataList = listOf(
+                    SensorData.Relay(
+                        deviceId = sensorInfo.unitId,
+                        deviceRelayId = sensorInfo.unitSensorId,
+                        status = RelayState.OFFLINE,
+                        Calendar.getInstance().time
+                    )
                 )
             )
-        )
-        unitDataFlow.emit(relay)
-        sendToWs(sensorInfo)
+            unitDataFlow.emit(relay)
+            sendToWs(sensorInfo)
+        }
 
     }
 

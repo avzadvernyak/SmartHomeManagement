@@ -99,12 +99,43 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     fun setQuestionSensorsData(setSensorRequest: Triple<String, String, String>) =
         searchData.postValue(setSensorRequest)
 
-    val sensorDataApi: LiveData<ResultSensorDataApi> =
+    val resultSensorDataApi: LiveData<ResultSensorDataApi> =
         Transformations.switchMap(searchData) { query ->
             sensorsRepository.getResultSensorDataApi(query).asLiveData()
         }
 
-    fun sendCommandToRelay(id: UnitView.RelayView) {
+    /*private val sensorDataApi: LiveData<ResultSensorDataApi> =
+        Transformations.switchMap(searchData) { query ->
+            sensorsRepository.getResultSensorDataApi(query).asLiveData()
+        }
+
+    val resultSensorDataApi: LiveData<ResultSensorDataApi> =
+        MediatorLiveData<ResultSensorDataApi>().apply {
+            var lastSensorDataApi: ResultSensorDataApi? = null
+            var lastSearchData: Triple<String, String, String>? = null
+            fun update() {
+                lastSensorDataApi?.let { dataApi ->
+                    if (dataApi is ResultSensorDataApi.Success) {
+                        val unit = dataApi.sensorValue.first().unit
+                        if (unit == lastSearchData?.first) postValue(dataApi)
+                    } else postValue(dataApi)
+                }
+            }
+            addSource(sensorDataApi) {
+                if (it != null) {
+                    lastSensorDataApi = it
+                    update()
+                }
+            }
+            addSource(searchData) {
+                if (it != null) {
+                    lastSearchData = it
+                    update()
+                }
+            }
+        }*/
+
+    fun sendCommandToRelay(id: String) {
         viewModelScope.launch { sensorsRepository.sendCommand(id) }
     }
 
@@ -113,16 +144,19 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             sensorsRepository.connectToUnit(sensorId)
         }
     }
+
     fun disconnectToUnit(sensorId: String) {
         viewModelScope.launch {
             sensorsRepository.disconnectToUnit(sensorId)
         }
     }
+
     fun connectByIdUnit(unitId: String) {
         viewModelScope.launch {
             sensorsRepository.connectByIdUnit(unitId)
         }
     }
+
     fun disconnectByIdUnit(unitId: String) {
         viewModelScope.launch {
             sensorsRepository.connectByIdUnit(unitId)

@@ -41,7 +41,7 @@ class SensorGraphFragment : Fragment() {
             sensor?.measure?.let { measure = it }
             sensor?.name?.let { nameSensor = it }
         }
-        viewModel.sensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
+        viewModel.resultSensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
             binding?.let { _binding ->
                 with(_binding.graphSensorFS) {
                     addSeries(series)
