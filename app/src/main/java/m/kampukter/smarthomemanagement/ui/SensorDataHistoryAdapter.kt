@@ -3,7 +3,6 @@ package m.kampukter.smarthomemanagement.ui
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.SensorDataApi
 import m.kampukter.smarthomemanagement.databinding.SensorDataHistoryItemBinding
 
