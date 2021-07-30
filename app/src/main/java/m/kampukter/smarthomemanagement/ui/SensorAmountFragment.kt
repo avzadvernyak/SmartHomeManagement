@@ -11,6 +11,7 @@ import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
 import m.kampukter.smarthomemanagement.databinding.SensorAmountFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import java.util.*
 
 class SensorAmountFragment : Fragment() {
 
@@ -40,25 +41,29 @@ class SensorAmountFragment : Fragment() {
             binding?.sensorNameTextView?.text = sensor?.name
         }
         viewModel.resultSensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
+
+            var begTime = DateFormat.format(
+                getString(R.string.formatDT),
+                Date().time - (1000 * 60 * 60 * 24)
+            )
+            var endTime = DateFormat.format(
+                getString(R.string.formatDT),
+                Date().time
+            )
+
             if (resultSensorData is ResultSensorDataApi.Success) {
-                val begTime =
+                begTime =
                     DateFormat.format(
                         getString(R.string.formatDT),
                         resultSensorData.sensorValue.first().date * 1000L
                     )
-                val endTime =
+                endTime =
                     DateFormat.format(
                         getString(R.string.formatDT),
                         resultSensorData.sensorValue.last().date * 1000L
                     )
                 binding?.let { _binding ->
                     with(_binding) {
-                        intervalTextView.text =
-                            getString(
-                                R.string.dateInfoView,
-                                begTime.toString(),
-                                endTime.toString()
-                            )
                         countTextView.text = resultSensorData.sensorValue.count().toString()
                         val dateMax =
                             resultSensorData.sensorValue.maxByOrNull { it.value }?.date?.let { time ->
@@ -95,6 +100,12 @@ class SensorAmountFragment : Fragment() {
                 binding?.averageTextView?.text = ""
 
             }
+            binding?.intervalTextView?.text =
+                getString(
+                    R.string.dateInfoView,
+                    begTime.toString(),
+                    endTime.toString()
+                )
         }
     }
 }

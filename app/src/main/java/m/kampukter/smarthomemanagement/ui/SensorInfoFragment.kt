@@ -123,6 +123,15 @@ class SensorInfoFragment : Fragment() {
         }
         viewModel.resultSensorDataApi.observe(viewLifecycleOwner) { resultSensorData ->
 
+            var begTime = DateFormat.format(
+                getString(R.string.formatDT),
+                Date().time - (1000 * 60 * 60 * 24)
+            )
+            var endTime = DateFormat.format(
+                getString(R.string.formatDT),
+                Date().time
+            )
+
             if (resultSensorData is ResultSensorDataApi.Success) {
                 val value = resultSensorData.sensorValue
                 val graphValue = Array(value.size) { i ->
@@ -151,19 +160,18 @@ class SensorInfoFragment : Fragment() {
 
                     }
                 }
-                val begTime =
+                begTime =
                     DateFormat.format(
                         getString(R.string.formatDT),
                         resultSensorData.sensorValue.first().date * 1000L
                     )
-                val endTime =
+                endTime =
                     DateFormat.format(
                         getString(R.string.formatDT),
                         resultSensorData.sensorValue.last().date * 1000L
                     )
 
-                binding?.intervalTextView?.text =
-                    getString(R.string.dateInfoView, begTime.toString(), endTime.toString())
+
 
                 val dateMax =
                     resultSensorData.sensorValue.maxByOrNull { it.value }?.date?.let { time ->
@@ -198,6 +206,8 @@ class SensorInfoFragment : Fragment() {
                     Snackbar.LENGTH_LONG
                 ).show()
             }
+            binding?.intervalTextView?.text =
+                getString(R.string.dateInfoView, begTime.toString(), endTime.toString())
         }
         binding?.graphImageButton?.setOnClickListener {
             activity?.supportFragmentManager?.commit {
