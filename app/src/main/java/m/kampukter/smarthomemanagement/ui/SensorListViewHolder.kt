@@ -3,6 +3,7 @@ package m.kampukter.smarthomemanagement.ui
 import android.text.format.DateFormat
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.R
+import m.kampukter.smarthomemanagement.data.SensorView
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.databinding.SensorItemBinding
 
@@ -10,7 +11,7 @@ class SensorListViewHolder(
     private val sensorItemView: SensorItemBinding,
     private val clickEventDelegate: ClickEventDelegate<UnitView>
 ) : RecyclerView.ViewHolder(sensorItemView.root) {
-    fun bind(result: UnitView.SensorView) {
+    fun bind(result: SensorView) {
 
         with(sensorItemView) {
             sensorValueTextView.text = result.value.toString()

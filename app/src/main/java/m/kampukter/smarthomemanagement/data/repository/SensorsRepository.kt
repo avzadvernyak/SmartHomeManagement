@@ -37,7 +37,7 @@ class SensorsRepository(
                 sensorInfoList.add(
                     when (sensor.type) {
                         SensorType.SENSOR -> {
-                            UnitView.SensorView(
+                            SensorView(
                                 sensor.id,
                                 sensor.name,
                                 apiSensor?.value ?: 0F,
@@ -46,7 +46,7 @@ class SensorsRepository(
                             )
                         }
                         SensorType.RELAY -> {
-                            UnitView.RelayView(
+                             RelayView(
                                 sensor.id,
                                 sensor.name,
                                 when (apiSensor?.value) {
@@ -78,9 +78,9 @@ class SensorsRepository(
                     is SensorData.Sensor -> {
                         sensorInfoList.find { it.unitId == sensorData.deviceId && it.unitSensorId == sensorData.deviceSensorId }?.id?.let { foundId ->
                             initListSensorInfo.find { sensor ->
-                                (sensor as UnitView.SensorView).id == foundId
+                                sensor .id == foundId
                             }?.let {
-                                (it as UnitView.SensorView).value = sensorData.value
+                                (it as SensorView).value = sensorData.value
                                 it.lastUpdateDate = Calendar.getInstance().time
                             }
 
@@ -89,9 +89,9 @@ class SensorsRepository(
                     is SensorData.Relay -> {
                         sensorInfoList.find { it.unitId == sensorData.deviceId && it.unitSensorId == sensorData.deviceRelayId }?.id?.let { foundId ->
                             initListSensorInfo.find { relay ->
-                                if (relay is UnitView.RelayView) relay.id == foundId else false
+                                relay.id == foundId
                             }?.let {
-                                (it as UnitView.RelayView).state = sensorData.status
+                                (it as RelayView).state = sensorData.status
                                 it.lastUpdateDate = Calendar.getInstance().time
                             }
                         }
@@ -145,13 +145,6 @@ class SensorsRepository(
         return if (sensorDataList != null) ResultSensorDataApi.Success(sensorDataList)
         else ResultSensorDataApi.OtherError("Response is null")
 
-        /*
-        val sensorDataList = response.body()
-        Log.w("blabla","***$sensorDataList")
-        Log.d("blabla","***$sensorDataList")
-        Log.i("blabla","***$sensorDataList")
-        return if (sensorDataList.isNullOrEmpty()) ResultSensorDataApi.EmptyResponse
-        else ResultSensorDataApi.Success(sensorDataList)*/
     }
 
     fun getResultSensorDataApi(query: Triple<String, String, String>): Flow<ResultSensorDataApi> =

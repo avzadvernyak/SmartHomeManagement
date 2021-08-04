@@ -14,8 +14,8 @@ import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.snackbar.Snackbar
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.RelayState
+import m.kampukter.smarthomemanagement.data.RelayView
 import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
-import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.data.dto.WSConnectionStatus
 import m.kampukter.smarthomemanagement.databinding.RelayInfoFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
@@ -97,9 +97,7 @@ class RelayInfoFragment : Fragment() {
             visibilityRelayState(RelayState.OFFLINE)
             relayId?.let { id ->
                 val currentRelay =
-                    sensors?.find {
-                        (it is UnitView.RelayView) && it.id == id
-                    } as UnitView.RelayView
+                    sensors?.find { it.id == id } as RelayView
 
 
                 binding?.lastUpdateTextView?.text = getString(

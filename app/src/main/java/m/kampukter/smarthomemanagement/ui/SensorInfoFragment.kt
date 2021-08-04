@@ -17,7 +17,7 @@ import com.jjoe64.graphview.series.DataPoint
 import com.jjoe64.graphview.series.LineGraphSeries
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
-import m.kampukter.smarthomemanagement.data.UnitView
+import m.kampukter.smarthomemanagement.data.SensorView
 import m.kampukter.smarthomemanagement.databinding.SensorInfoFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -108,7 +108,7 @@ class SensorInfoFragment : Fragment() {
 
             sensorId?.let { id ->
                 val currentSensor =
-                    sensors?.find { it is UnitView.SensorView && it.id == id } as UnitView.SensorView
+                    sensors?.find { it.id == id } as SensorView
                 binding?.valueTextView?.text = currentSensor.value.toString()
 
                 binding?.lastUpdateTextView?.text = getString(

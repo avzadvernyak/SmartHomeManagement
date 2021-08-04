@@ -5,6 +5,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.RelayState
+import m.kampukter.smarthomemanagement.data.RelayView
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.databinding.RelayItemBinding
 
@@ -12,7 +13,7 @@ class RelayListViewHolder(
     private val relayItemView: RelayItemBinding,
     private val clickEventDelegate: ClickEventDelegate<UnitView>
 ) : RecyclerView.ViewHolder(relayItemView.root) {
-    fun bind(result: UnitView.RelayView) {
+    fun bind(result: RelayView) {
 
         with(relayItemView) {
             relayNameTextView.text = result.name

@@ -47,7 +47,7 @@ class MainFragment : Fragment() {
                     activity?.supportFragmentManager?.commit {
                         replace(
                             android.R.id.content,
-                            SensorInfoFragment.createInstance((item as UnitView.SensorView).id)
+                            SensorInfoFragment.createInstance(item.id)
                         )
                         setReorderingAllowed(true)
                         addToBackStack("Sensors")
@@ -56,7 +56,6 @@ class MainFragment : Fragment() {
                 }
 
                 override fun onLongClick(item: UnitView) {
-                    Log.d("blabla", "Long click ${(item as UnitView.SensorView).id}")
                     activity?.supportFragmentManager?.commit {
                         replace(
                             android.R.id.content,
@@ -72,7 +71,7 @@ class MainFragment : Fragment() {
                     activity?.supportFragmentManager?.commit {
                         replace(
                             android.R.id.content,
-                            RelayInfoFragment.createInstance((item as UnitView.RelayView).id)
+                            RelayInfoFragment.createInstance(item.id)
                         )
                         setReorderingAllowed(true)
                         addToBackStack("Sensors")
@@ -80,7 +79,7 @@ class MainFragment : Fragment() {
                 }
 
                 override fun onLongClick(item: UnitView) {
-                    Log.d("blabla", "Long click ${(item as UnitView.RelayView).id}")
+                    Log.d("blabla", "Long click ${item.id}")
                 }
             }
 

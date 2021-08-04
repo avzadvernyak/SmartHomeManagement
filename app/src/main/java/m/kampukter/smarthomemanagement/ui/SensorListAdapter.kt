@@ -3,6 +3,8 @@ package m.kampukter.smarthomemanagement.ui
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import m.kampukter.smarthomemanagement.data.RelayView
+import m.kampukter.smarthomemanagement.data.SensorView
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.databinding.RelayItemBinding
 import m.kampukter.smarthomemanagement.databinding.SensorItemBinding
@@ -38,18 +40,17 @@ class SensorListAdapter :
     override fun getItemCount(): Int = sensorList.size
 
     override fun getItemViewType(position: Int): Int = when (sensorList[position]) {
-        is UnitView.SensorView -> TYPE_SENSOR
-        is UnitView.RelayView -> TYPE_RELAY
-        else -> TYPE_RELAY
+        is SensorView -> TYPE_SENSOR
+        is RelayView -> TYPE_RELAY
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is SensorListViewHolder -> sensorList[position].let { item ->
-                holder.bind(item as UnitView.SensorView)
+                holder.bind(item as SensorView)
             }
             is RelayListViewHolder -> sensorList[position].let { item ->
-                holder.bind(item as UnitView.RelayView)
+                holder.bind(item as RelayView)
             }
         }
     }
