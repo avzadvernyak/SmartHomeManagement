@@ -40,6 +40,7 @@ class SensorListAdapter :
     override fun getItemViewType(position: Int): Int = when (sensorList[position]) {
         is UnitView.SensorView -> TYPE_SENSOR
         is UnitView.RelayView -> TYPE_RELAY
+        else -> TYPE_RELAY
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
