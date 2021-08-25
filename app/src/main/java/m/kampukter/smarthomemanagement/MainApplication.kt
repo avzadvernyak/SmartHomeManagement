@@ -9,10 +9,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import m.kampukter.smarthomemanagement.data.SensorInfo
-import m.kampukter.smarthomemanagement.data.SensorType
-import m.kampukter.smarthomemanagement.data.SmartHomeDatabase
-import m.kampukter.smarthomemanagement.data.UnitInfo
+import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
 import m.kampukter.smarthomemanagement.data.dto.NetworkModule
 import m.kampukter.smarthomemanagement.data.dto.SensorsDataApiInterface
@@ -34,14 +31,14 @@ class MainApplication : Application() {
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(supportDb: SupportSQLiteDatabase) {
                         GlobalScope.launch(context = Dispatchers.IO) {
-                            get<SmartHomeDatabase>().sensorInfoDao().insertAllUnit(
+                            get<SmartHomeDatabase>().sensorRemoteDao().insertAllUnit(
                                 listOf(
-                                    UnitInfo(
+                                    UnitInfoRemote(
                                         "ESP8266-1",
                                         "Name ESP8266-1",
                                         "http://192.168.0.82:81/",
                                         null
-                                    ), UnitInfo(
+                                    ), UnitInfoRemote(
                                         "ESP8266-2",
                                         "Name ESP8266-2",
                                         "http://192.168.0.83:81/",
@@ -51,26 +48,26 @@ class MainApplication : Application() {
                             )
                         }
                         GlobalScope.launch(context = Dispatchers.IO) {
-                            get<SmartHomeDatabase>().sensorInfoDao().insertAllSensors(
+                            get<SmartHomeDatabase>().sensorRemoteDao().insertAllSensors(
                                 listOf(
-                                    SensorInfo(
+                                    SensorInfoRemote(
                                         "1", "ESP8266-2", "1", "Thermometer", "°C",
-                                        SensorType.SENSOR, 1
-                                    ), SensorInfo(
+                                        DeviceType.Device, true
+                                    ), SensorInfoRemote(
                                         "2", "ESP8266-1", "0", "Температура на улице", "°C",
-                                        SensorType.SENSOR, 1
-                                    ), SensorInfo(
+                                        DeviceType.Device, true
+                                    ), SensorInfoRemote(
                                         "3", "ESP8266-1", "1", "Термометр в тамбуре", "°C",
-                                        SensorType.SENSOR, 1
-                                    ), SensorInfo(
+                                        DeviceType.Device, true
+                                    ), SensorInfoRemote(
                                         "4", "ESP8266-1", "2", "Атмосферное давление", "mm Hg",
-                                        SensorType.SENSOR, 2
-                                    ), SensorInfo(
+                                        DeviceType.Device, true
+                                    ), SensorInfoRemote(
                                         "5", "ESP8266-1", "3", "Влажность", "%",
-                                        SensorType.SENSOR, 3
-                                    ), SensorInfo(
+                                        DeviceType.Device, true
+                                    ), SensorInfoRemote(
                                         "6", "ESP8266-2", "4", "Реле", "",
-                                        SensorType.RELAY, 3
+                                        DeviceType.RELAY, true
                                     )
                                 )
                             )
@@ -84,6 +81,7 @@ class MainApplication : Application() {
         single {
             SensorsRepository(
                 get<SmartHomeDatabase>().sensorInfoDao(),
+                get<SmartHomeDatabase>().sensorRemoteDao(),
                 get(), get()
             )
         }

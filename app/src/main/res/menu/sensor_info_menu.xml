@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/unitManagement"
-        android:title="@string/menu_unit_management_title" />
+        android:id="@+id/deleteSensorFromList"
+        android:icon="@drawable/ic_delete"
+        android:title="@string/menu_delete"
+        app:showAsAction="always" />
 </menu>

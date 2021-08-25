@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.databinding.MainFragmentBinding
+import m.kampukter.smarthomemanagement.ui.remotedata.UnitRemoteListFragment
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -89,30 +90,40 @@ class MainFragment : Fragment() {
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
                 adapter = sensorListAdapter
             }
+            // Manager FAB
+            it.sensorRecyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE
+                        && !it.addRemoteSensorExtendedFab.isExtended
+                        && recyclerView.computeVerticalScrollOffset() == 0
+                    ) {
+                        it.addRemoteSensorExtendedFab.extend()
+                    }
+                    super.onScrollStateChanged(recyclerView, newState)
+                }
+
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    if (dy != 0 && it.addRemoteSensorExtendedFab.isExtended) {
+                        it.addRemoteSensorExtendedFab.shrink()
+                    }
+                    super.onScrolled(recyclerView, dx + 16, dy + 16)
+                }
+            })
+            it.addRemoteSensorExtendedFab.setOnClickListener {
+                activity?.supportFragmentManager?.commit {
+                    replace(
+                        android.R.id.content,
+                        UnitRemoteListFragment.createInstance()
+                    )
+                    setReorderingAllowed(true)
+                    addToBackStack("RemoteUnits")
+                }
+            }
         }
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
             sensorListAdapter.setList(sensors)
         }
-    }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.sensor_info_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.unitManagement) {
-            activity?.supportFragmentManager?.commit {
-                replace(
-                    android.R.id.content,
-                    UnitListFragment.createInstance()
-                )
-                setReorderingAllowed(true)
-                addToBackStack("Sensors")
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
     }
 
     companion object {

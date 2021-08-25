@@ -17,5 +17,5 @@ data class SensorView(
     var value: Float,
     val dimension: String?,
     var lastUpdateDate: Date,
-    val icon: Int
+    val icon: SensorType
 ) : UnitView(id, name)

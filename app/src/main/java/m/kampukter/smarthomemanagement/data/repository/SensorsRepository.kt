@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dao.SensorInfoDao
+import m.kampukter.smarthomemanagement.data.dao.SensorRemoteDao
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
 import m.kampukter.smarthomemanagement.data.dto.SensorsDataApiInterface
 import m.kampukter.smarthomemanagement.data.dto.WSConnectionStatus
@@ -16,6 +17,7 @@ import java.util.*
 
 class SensorsRepository(
     private val sensorInfoDao: SensorInfoDao,
+    private val sensorRemoteDao: SensorRemoteDao,
     private val webSocketDto: DeviceInteractionApi,
     private val sensorApiInterface: SensorsDataApiInterface
 ) {
@@ -35,8 +37,8 @@ class SensorsRepository(
                     if (apiSensor != null) Date(apiSensor.date * 1000L) else Calendar.getInstance().time
 
                 sensorInfoList.add(
-                    when (sensor.type) {
-                        SensorType.SENSOR -> {
+                    when (sensor.deviceType) {
+                        DeviceType.Device -> {
                             SensorView(
                                 sensor.id,
                                 sensor.name,
@@ -45,8 +47,8 @@ class SensorsRepository(
                                 dateSensor, sensor.icon
                             )
                         }
-                        SensorType.RELAY -> {
-                             RelayView(
+                        DeviceType.RELAY -> {
+                            RelayView(
                                 sensor.id,
                                 sensor.name,
                                 when (apiSensor?.value) {
@@ -78,7 +80,7 @@ class SensorsRepository(
                     is SensorData.Sensor -> {
                         sensorInfoList.find { it.unitId == sensorData.deviceId && it.unitSensorId == sensorData.deviceSensorId }?.id?.let { foundId ->
                             initListSensorInfo.find { sensor ->
-                                sensor .id == foundId
+                                sensor.id == foundId
                             }?.let {
                                 (it as SensorView).value = sensorData.value
                                 it.lastUpdateDate = Calendar.getInstance().time
@@ -107,6 +109,7 @@ class SensorsRepository(
         webSocketDto.getWSStatusFlow()
 
     val unitListFlow: Flow<List<UnitInfo>> = sensorInfoDao.getAllUnitsFlow()
+    val unitRemoteListFlow: Flow<List<UnitInfoRemote>> = sensorRemoteDao.getAllUnitsFlow()
 
     fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> =
         sensorInfoDao.getSensorFlow(searchId)
@@ -175,5 +178,29 @@ class SensorsRepository(
 
     suspend fun editUnitName(unitId: String, name: String) {
         sensorInfoDao.editUnitName(unitId, name)
+    }
+
+    fun getSensorRemoteListById(searchId: String): Flow<List<SensorInfoRemote>> =
+        sensorRemoteDao.getSensorRemoteListById(searchId)
+
+
+    suspend fun insertUnit(unit: UnitInfo){
+        sensorInfoDao.insertUnit( unit )
+    }
+
+    suspend fun insertSensor(sensor: SensorInfo){
+        sensorInfoDao.insertSensor( sensor )
+    }
+
+    suspend fun deleteSensorById(sensorId: String){
+        sensorInfoDao.deleteSensorById( sensorId )
+    }
+
+    suspend fun changeCandidateStatus(sensorId: String, status: Boolean){
+        sensorRemoteDao.changeCandidateStatus( sensorId, status )
+    }
+
+    suspend fun changeUnitDescription(unitId: String, description: String){
+        sensorRemoteDao.changeUnitDescription(unitId,description)
     }
 }

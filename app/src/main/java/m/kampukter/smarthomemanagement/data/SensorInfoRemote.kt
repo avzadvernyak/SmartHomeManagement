@@ -3,13 +3,13 @@ package m.kampukter.smarthomemanagement.data
 import androidx.room.*
 
 @Entity(
-    tableName = "sensor",
+    tableName = "sensor_remote",
     foreignKeys = [ForeignKey(
-        entity = UnitInfo::class,
+        entity = UnitInfoRemote::class,
         parentColumns = arrayOf("id"),
         childColumns = arrayOf("unit_id"),
     )])
-data class SensorInfo(
+data class SensorInfoRemote(
     @PrimaryKey
     val id: String,
     @ColumnInfo(name = "unit_id")
@@ -18,6 +18,5 @@ data class SensorInfo(
     val name: String,
     val measure: String?,
     val deviceType: DeviceType,
-    val icon: SensorType
+    val isCandidate: Boolean
 )
-enum class DeviceType(val value: Int) { Device(0), RELAY(1) }

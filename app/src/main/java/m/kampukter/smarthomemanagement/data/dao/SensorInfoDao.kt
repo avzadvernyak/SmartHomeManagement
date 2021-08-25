@@ -14,6 +14,12 @@ interface SensorInfoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllSensors(sensors: List<SensorInfo>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUnit(unit: UnitInfo)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertSensor(sensor: SensorInfo)
+
     @Query("select * from sensor")
     fun getAllSensorsFlow(): Flow<List<SensorInfo>>
 
@@ -40,4 +46,7 @@ interface SensorInfoDao {
 
     @Query("update unit set name = :name where id = :unitId")
     suspend fun editUnitName(unitId: String, name: String)
+
+    @Query("DELETE FROM sensor WHERE id = :id")
+    suspend fun deleteSensorById(id: String)
 }

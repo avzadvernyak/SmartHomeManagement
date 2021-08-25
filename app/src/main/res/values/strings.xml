@@ -31,7 +31,6 @@
     <string name="max_value">Максимум</string>
     <string name="min_value">Минимум</string>
     <string name="avg_value">Среднее значение</string>
-    <string name="menu_unit_management_title">Устройства</string>
 
     <string name="unit_name">Название устройства</string>
     <string name="unit_Description">Описание</string>
@@ -40,6 +39,8 @@
     <string name="status_title">Состояние: %1$s</string>
     <string name="unit_id_title">Код устройства: %1$s</string>
     <string name="last_value_title">На %1$s</string>
+    <string name="new_record">Add Sensor</string>
+    <string name="menu_delete">Delete</string>
 
 
 </resources>

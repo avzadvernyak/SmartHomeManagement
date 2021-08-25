@@ -3,9 +3,7 @@ package m.kampukter.smarthomemanagement.ui
 import android.graphics.Color
 import android.os.Bundle
 import android.text.format.DateFormat
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
@@ -256,6 +254,23 @@ class SensorInfoFragment : Fragment() {
         sensorId?.let {
             viewModel.disconnectToUnit(it)
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.sensor_info_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.deleteSensorFromList) {
+            sensorId?.let {
+                viewModel.deleteSensorById( it )
+                viewModel.changeCandidateStatus(it, true)
+            }
+            activity?.supportFragmentManager?.popBackStack()
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     companion object {
