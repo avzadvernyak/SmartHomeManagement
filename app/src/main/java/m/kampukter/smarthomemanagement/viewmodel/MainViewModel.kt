@@ -1,5 +1,6 @@
 package m.kampukter.smarthomemanagement.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 import m.kampukter.smarthomemanagement.data.*
@@ -37,21 +38,43 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
         unitDescriptionMutableLiveData.postValue(description)
     }
 
-    val selectedSensorInfoLiveData: LiveData<Pair<UnitInfoRemote, SensorInfoRemote>> =
-        MediatorLiveData<Pair<UnitInfoRemote, SensorInfoRemote>>().apply {
+    private val sensorTypeMutableLiveData = MutableLiveData<SensorType>()
+    fun setSensorType(sensorType: SensorType) {
+        sensorTypeMutableLiveData.postValue(sensorType)
+    }
+
+    val selectedSensorInfoLiveData: LiveData<SensorFullInfo> =
+        MediatorLiveData<SensorFullInfo>().apply {
             var lastUnitRemote: UnitInfoRemote? = null
             var lastSensorRemote: SensorInfoRemote? = null
+            var lastSensorInfo: SensorFullInfo? = null
+            var lastSensorType: SensorType = SensorType.DEFAULT
+
             fun update() {
                 lastUnitRemote?.let { unitRemote ->
                     lastSensorRemote?.let { sensorRemote ->
-                        if (unitRemote.id == sensorRemote.unitId) postValue(
-                            Pair(
-                                unitRemote,
-                                sensorRemote
-                            )
+                        Log.d("blabla","****${unitRemote.description}")
+                        lastSensorInfo = SensorFullInfo(
+                            id = sensorRemote.id,
+                            unitId = sensorRemote.unitId,
+                            unitSensorId = sensorRemote.unitSensorId,
+                            unitName = unitRemote.name,
+                            unitUrl = unitRemote.url,
+                            unitDescription = unitRemote.description,
+                            sensorName = sensorRemote.name,
+                            sensorMeasure = sensorRemote.measure,
+                            sensorDeviceType = sensorRemote.deviceType,
+                            sensorType = lastSensorType
                         )
                     }
+                }
+                if (lastSensorInfo != null) postValue(lastSensorInfo)
+            }
 
+            addSource(selectedSensorRemote) {
+                if (it != null) {
+                    lastSensorRemote = it
+                    update()
                 }
             }
             addSource(selectedUnitRemote) {
@@ -60,25 +83,22 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
                     update()
                 }
             }
-            addSource(selectedSensorRemote) {
-                if (it != null) {
-                    lastSensorRemote = it
+            addSource(sensorTypeMutableLiveData) { sensorType ->
+                if (sensorType != null) {
+                    lastSensorType = sensorType
                     update()
                 }
             }
-            addSource(unitDescriptionMutableLiveData) { description ->
-                lastUnitRemote?.let {
-                    if (description != null) {
-                        lastUnitRemote?.description = description
-                        update()
-                        viewModelScope.launch {
-                            sensorsRepository.changeUnitDescription(it.id, description)
-                        }
-                    }
+            addSource(unitDescriptionMutableLiveData) { unitDescription ->
+                if (lastUnitRemote != null) {
+                    val ref = lastUnitRemote?.copy(description = unitDescription)
+                    lastUnitRemote = ref
+                    Log.d("blabla","****$ref")
+                    update()
+
                 }
             }
         }
-
 
     val sensorListLiveData: LiveData<List<UnitView>> = sensorsRepository.sensorListFlow.asLiveData()
 
@@ -217,6 +237,7 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
         viewModelScope.launch {
             sensorsRepository.insertUnit(unit)
             sensorsRepository.insertSensor(sensor)
+            sensorsRepository.changeUnitDescription(unit.id, unit.description)
         }
     }
 

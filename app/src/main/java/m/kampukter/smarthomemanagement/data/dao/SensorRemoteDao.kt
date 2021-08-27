@@ -6,7 +6,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 import m.kampukter.smarthomemanagement.data.SensorInfoRemote
-import m.kampukter.smarthomemanagement.data.UnitInfo
 import m.kampukter.smarthomemanagement.data.UnitInfoRemote
 
 @Dao
@@ -28,5 +27,5 @@ interface SensorRemoteDao {
     suspend fun changeCandidateStatus(sensorId: String, status: Boolean)
 
     @Query("update unit_remote set description = :value where id = :unitId")
-    suspend fun changeUnitDescription(unitId: String, value: String)
+    suspend fun changeUnitDescription(unitId: String, value: String?)
 }

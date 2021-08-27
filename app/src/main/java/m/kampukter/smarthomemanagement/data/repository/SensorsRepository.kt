@@ -200,7 +200,7 @@ class SensorsRepository(
         sensorRemoteDao.changeCandidateStatus( sensorId, status )
     }
 
-    suspend fun changeUnitDescription(unitId: String, description: String){
+    suspend fun changeUnitDescription(unitId: String, description: String?){
         sensorRemoteDao.changeUnitDescription(unitId,description)
     }
 }

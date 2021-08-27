@@ -1,11 +1,11 @@
 package m.kampukter.smarthomemanagement.data
 
-enum class SensorType (val url: String) {
+enum class SensorType (val uri: String) {
     DEFAULT("@drawable/ic_info_black"),
-    SWITCH("@drawable/ic_switch24dp"),
+    SWITCH("@drawable/ic_switch_24dp"),
     THERMOMETER("@drawable/ic_temperature"),
-    HYGROMETER("@drawable/ic_pressure"),
-    BAROMETER("@drawable/ic_humidity"),
+    BAROMETER("@drawable/ic_pressure"),
+    HYGROMETER("@drawable/ic_humidity"),
     AMMETER("@drawable/ic_ammeter"),
-    VOLTMETER("@drawable/voltmeter")
+    VOLTMETER("@drawable/ic_voltmeter")
 }

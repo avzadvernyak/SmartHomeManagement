@@ -18,6 +18,6 @@ data class SensorInfo(
     val name: String,
     val measure: String?,
     val deviceType: DeviceType,
-    val icon: SensorType
+    var icon: SensorType
 )
 enum class DeviceType(val value: Int) { Device(0), RELAY(1) }

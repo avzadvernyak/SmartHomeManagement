@@ -3,15 +3,15 @@ package m.kampukter.smarthomemanagement.ui.remotedata
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
-import m.kampukter.smarthomemanagement.data.SensorInfo
+import androidx.fragment.app.commit
 import m.kampukter.smarthomemanagement.data.DeviceType
-import m.kampukter.smarthomemanagement.data.SensorType
+import m.kampukter.smarthomemanagement.data.SensorInfo
 import m.kampukter.smarthomemanagement.data.UnitInfo
 import m.kampukter.smarthomemanagement.databinding.AddRemoteSensorFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
@@ -48,38 +48,60 @@ class AddRemoteSensorFragment : Fragment() {
             activity?.onBackPressed()
         }
 
-        viewModel.selectedSensorInfoLiveData.observe(viewLifecycleOwner) { (unit, sensor) ->
+        viewModel.selectedSensorInfoLiveData.observe(viewLifecycleOwner) { sensor ->
 
-            if (unit.description != binding?.unitDescriptionInputEditText?.text.toString()) {
-                binding?.unitDescriptionInputEditText?.setText(unit.description)
+            if (sensor.unitDescription != binding?.unitDescriptionInputEditText?.text.toString()) {
+                binding?.unitDescriptionInputEditText?.setText(sensor.unitDescription)
             }
-            (activity as AppCompatActivity).title = sensor.name
+            (activity as AppCompatActivity).title = sensor.sensorName
 
-            binding?.sensorNameTextView?.text = sensor.name
-            when (sensor.deviceType) {
+            binding?.sensorNameTextView?.text = sensor.sensorName
+            when (sensor.sensorDeviceType) {
                 DeviceType.RELAY -> binding?.sensorTypeTextView?.text = "Реле"
                 DeviceType.Device -> binding?.sensorTypeTextView?.text = "Сенсор"
             }
-            binding?.sensorMeasureTextView?.text = sensor.measure
-            binding?.unitNameTextView?.text = unit.name
-            binding?.unitUrlTextView?.text = unit.url
+            binding?.sensorMeasureTextView?.text = sensor.sensorMeasure
+            binding?.unitNameTextView?.text = sensor.unitName
+            binding?.unitUrlTextView?.text = sensor.unitUrl
+
+            context?.let { context ->
+                val imageResource =
+                    context.resources.getIdentifier(
+                        sensor.sensorType.uri,
+                        null,
+                        context.packageName
+                    )
+                ResourcesCompat.getDrawable(context.resources, imageResource, null)?.let {
+                    binding?.imageItemImageView?.setImageDrawable(it)
+                }
+            }
 
             binding?.saveButton?.setOnClickListener {
-                val unitInfo = UnitInfo(unit.id, unit.name, unit.url, unit.description)
+                val unitInfo = UnitInfo(sensor.unitId, sensor.unitName, sensor.unitUrl, sensor.unitDescription)
                 val sensorInfo = SensorInfo(
                     id = sensor.id,
                     unitId = sensor.unitId,
                     unitSensorId = sensor.unitSensorId,
-                    name = sensor.name,
-                    measure = sensor.measure,
-                    deviceType = sensor.deviceType,
-                    icon = SensorType.THERMOMETER
+                    name = sensor.sensorName,
+                    measure = sensor.sensorMeasure,
+                    deviceType = sensor.sensorDeviceType,
+                    icon = sensor.sensorType
                 )
                 viewModel.addNewSensor(unitInfo, sensorInfo)
                 viewModel.changeCandidateStatus(sensor.id, false)
                 activity?.supportFragmentManager?.popBackStack("MainFragment", 0)
                 //activity?.supportFragmentManager?.popBackStack("RemoteUnits", POP_BACK_STACK_INCLUSIVE)
 
+            }
+        }
+        binding?.changeSensorImageButton?.setOnClickListener {
+            activity?.supportFragmentManager?.commit {
+                replace(
+                    android.R.id.content,
+                    ChangeSensorImageFragment.createInstance()
+                )
+                setReorderingAllowed(true)
+                addToBackStack("ChangeSensorImage")
             }
         }
         binding?.unitDescriptionInputEditText?.addTextChangedListener(object : TextWatcher {
@@ -90,7 +112,6 @@ class AddRemoteSensorFragment : Fragment() {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
             override fun afterTextChanged(p0: Editable?) {}
         })
-        //for(type in SensorType.values()) Log.d("blabla","type - ${type.name} / ${type.url}")
     }
 
     companion object {
