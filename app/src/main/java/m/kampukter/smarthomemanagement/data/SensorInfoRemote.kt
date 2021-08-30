@@ -15,7 +15,7 @@ data class SensorInfoRemote(
     @ColumnInfo(name = "unit_id")
     val unitId: String,
     val unitSensorId: String,
-    val name: String,
+    var name: String,
     val measure: String?,
     val deviceType: DeviceType,
     val isCandidate: Boolean

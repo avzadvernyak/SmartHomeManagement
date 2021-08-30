@@ -53,14 +53,25 @@ class AddRemoteSensorFragment : Fragment() {
             if (sensor.unitDescription != binding?.unitDescriptionInputEditText?.text.toString()) {
                 binding?.unitDescriptionInputEditText?.setText(sensor.unitDescription)
             }
+
+            if (sensor.sensorName != binding?.sensorNameInputEditText?.text.toString())
+                binding?.sensorNameInputEditText?.setText(sensor.sensorName)
+
             (activity as AppCompatActivity).title = sensor.sensorName
 
-            binding?.sensorNameTextView?.text = sensor.sensorName
             when (sensor.sensorDeviceType) {
-                DeviceType.RELAY -> binding?.sensorTypeTextView?.text = "Реле"
-                DeviceType.Device -> binding?.sensorTypeTextView?.text = "Сенсор"
+                DeviceType.RELAY -> {
+                    binding?.sensorTypeTextView?.text = "Тип: Реле"
+                    binding?.sensorMeasureTextView?.visibility = View.INVISIBLE
+                }
+                DeviceType.Device -> {
+                    binding?.sensorTypeTextView?.text = "Тип: Измеритель"
+                    binding?.sensorMeasureTextView?.visibility = View.VISIBLE
+                    binding?.sensorMeasureTextView?.text =
+                        "Единица измерения ${sensor.sensorMeasure}"
+                }
             }
-            binding?.sensorMeasureTextView?.text = sensor.sensorMeasure
+
             binding?.unitNameTextView?.text = sensor.unitName
             binding?.unitUrlTextView?.text = sensor.unitUrl
 
@@ -77,7 +88,8 @@ class AddRemoteSensorFragment : Fragment() {
             }
 
             binding?.saveButton?.setOnClickListener {
-                val unitInfo = UnitInfo(sensor.unitId, sensor.unitName, sensor.unitUrl, sensor.unitDescription)
+                val unitInfo =
+                    UnitInfo(sensor.unitId, sensor.unitName, sensor.unitUrl, sensor.unitDescription)
                 val sensorInfo = SensorInfo(
                     id = sensor.id,
                     unitId = sensor.unitId,
@@ -104,6 +116,15 @@ class AddRemoteSensorFragment : Fragment() {
                 addToBackStack("ChangeSensorImage")
             }
         }
+        binding?.sensorNameInputEditText?.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                viewModel.setSensorName(p0.toString())
+            }
+
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+            override fun afterTextChanged(p0: Editable?) {}
+        })
+
         binding?.unitDescriptionInputEditText?.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 viewModel.setUnitDescription(p0.toString())

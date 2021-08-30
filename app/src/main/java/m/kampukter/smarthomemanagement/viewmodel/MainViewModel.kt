@@ -33,6 +33,11 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
         selectedSensorRemote.postValue(sensor)
     }
 
+    private val sensorNameMutableLiveData = MutableLiveData<String>()
+    fun setSensorName(name: String) {
+        sensorNameMutableLiveData.postValue(name)
+    }
+
     private val unitDescriptionMutableLiveData = MutableLiveData<String>()
     fun setUnitDescription(description: String) {
         unitDescriptionMutableLiveData.postValue(description)
@@ -53,7 +58,6 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             fun update() {
                 lastUnitRemote?.let { unitRemote ->
                     lastSensorRemote?.let { sensorRemote ->
-                        Log.d("blabla","****${unitRemote.description}")
                         lastSensorInfo = SensorFullInfo(
                             id = sensorRemote.id,
                             unitId = sensorRemote.unitId,
@@ -93,14 +97,22 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
                 if (lastUnitRemote != null) {
                     val ref = lastUnitRemote?.copy(description = unitDescription)
                     lastUnitRemote = ref
-                    Log.d("blabla","****$ref")
                     update()
 
                 }
             }
+            addSource(sensorNameMutableLiveData) { sensorName ->
+                sensorName?.let {
+                    if (lastSensorRemote != null) {
+                        lastSensorRemote?.name = sensorName
+                        update()
+                    }
+                }
+            }
         }
 
-    val sensorListLiveData: LiveData<List<UnitView>> = sensorsRepository.sensorListFlow.asLiveData()
+    val sensorListLiveData: LiveData<List<UnitView>> =
+        sensorsRepository.sensorListFlow.asLiveData()
 
     val unitListLiveData: LiveData<List<UnitInfoView>> =
         MediatorLiveData<List<UnitInfoView>>().apply {
@@ -150,7 +162,8 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             fun update() {
                 lastUnitStatus?.let { status ->
                     lastUnitView?.let {
-                        if (URL(it.url) == status.first) it.wsConnectionStatus = status.second
+                        if (URL(it.url) == status.first) it.wsConnectionStatus =
+                            status.second
                     }
                 }
                 postValue(lastUnitView)

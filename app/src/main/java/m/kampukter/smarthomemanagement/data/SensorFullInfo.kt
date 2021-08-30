@@ -7,7 +7,7 @@ data class SensorFullInfo(
     val unitName: String?,
     val unitUrl: String,
     val unitDescription: String?,
-    val sensorName: String,
+    var sensorName: String,
     val sensorMeasure: String?,
     val sensorDeviceType: DeviceType,
     var sensorType: SensorType
