@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.work.*
 import com.facebook.stetho.Stetho
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -98,5 +99,22 @@ class MainApplication : Application() {
             androidContext(this@MainApplication)
             modules(module)
         }
+        getUnitInfoApi()
+
     }
+
+    private fun getUnitInfoApi() {
+        val downloadWorkRequest: WorkRequest =
+            OneTimeWorkRequestBuilder<GetUnitInfoApiCoroutineWorker>()
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                )
+                .build()
+        WorkManager
+            .getInstance(this@MainApplication)
+            .enqueue(downloadWorkRequest)
+    }
+
 }

@@ -265,5 +265,4 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             sensorsRepository.changeCandidateStatus(sensorId, status)
         }
     }
-
 }
