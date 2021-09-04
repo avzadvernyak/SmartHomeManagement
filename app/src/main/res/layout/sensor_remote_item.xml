@@ -14,7 +14,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="2dp"
         android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/addSensorImageView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -24,13 +24,16 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         app:layout_constraintStart_toStartOf="@id/sensorRemoteNameTextView"
-        app:layout_constraintTop_toBottomOf="@id/sensorRemoteNameTextView" />
-    <TextView
-        android:id="@+id/testTextView"
+        app:layout_constraintTop_toBottomOf="@id/sensorRemoteNameTextView"
+        app:layout_constraintEnd_toStartOf="@id/addSensorImageView"/>
+    <ImageView
+        android:id="@+id/addSensorImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
-        app:layout_constraintStart_toStartOf="@id/sensorRemoteNameTextView"
-        app:layout_constraintTop_toBottomOf="@id/sensorRemoteDescriptionTextView" />
+        android:src="@drawable/ic_note_add"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:contentDescription="@null" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

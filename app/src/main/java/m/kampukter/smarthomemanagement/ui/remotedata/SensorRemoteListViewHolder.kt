@@ -1,5 +1,6 @@
 package m.kampukter.smarthomemanagement.ui.remotedata
 
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.data.SensorInfoRemote
 import m.kampukter.smarthomemanagement.databinding.SensorRemoteItemBinding
@@ -19,8 +20,8 @@ class SensorRemoteListViewHolder(
                 sensorRemoteItemView.root.setOnClickListener {
                     clickUnitEventDelegate.onClick(result)
                 }
-                testTextView.text = "Candidate"
-            } else testTextView.text = "In view"
+                addSensorImageView.visibility = View.VISIBLE
+            } else addSensorImageView.visibility = View.INVISIBLE
         }
 
     }
