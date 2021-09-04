@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import m.kampukter.smarthomemanagement.NetworkLiveData
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.databinding.MainFragmentBinding
@@ -31,6 +32,7 @@ class MainFragment : Fragment() {
         binding = MainFragmentBinding.inflate(inflater, container, false)
         return binding?.root
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
@@ -108,6 +110,10 @@ class MainFragment : Fragment() {
                     }
                     super.onScrolled(recyclerView, dx + 16, dy + 16)
                 }
+            })
+            NetworkLiveData.observe(viewLifecycleOwner, { isNetwork ->
+                it.addRemoteSensorExtendedFab.visibility =
+                    if (isNetwork) View.VISIBLE else View.INVISIBLE
             })
             it.addRemoteSensorExtendedFab.setOnClickListener {
                 activity?.supportFragmentManager?.commit {

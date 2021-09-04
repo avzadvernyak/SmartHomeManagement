@@ -265,7 +265,6 @@ class SensorInfoFragment : Fragment() {
         if (item.itemId == R.id.deleteSensorFromList) {
             sensorId?.let {
                 viewModel.deleteSensorById( it )
-                viewModel.changeCandidateStatus(it, true)
             }
             activity?.supportFragmentManager?.popBackStack()
         }

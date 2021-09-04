@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.data.ResultUnitsInfoApi
 import m.kampukter.smarthomemanagement.data.SensorInfoRemote
-import m.kampukter.smarthomemanagement.data.UnitInfoRemote
 import m.kampukter.smarthomemanagement.databinding.SensorRemoteListFragmentBinding
 import m.kampukter.smarthomemanagement.ui.ClickEventDelegate
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
@@ -74,29 +73,7 @@ class SensorsRemoteListFragment : Fragment() {
                 }
             }
         }
-        /*sensorRemoteListAdapter = SensorRemoteListAdapter()
-        viewModel.sensorInfoListLiveData.observe(viewLifecycleOwner) { sensors ->
-            sensorRemoteListAdapter.clickSensorEventDelegate =
-                object : ClickEventDelegate<SensorInfoRemote> {
-                    override fun onClick(item: SensorInfoRemote) {
-                        if (sensors.find { item.unitId != it.unitId && item.unitSensorId == it.unitSensorId } != null) {
-                            viewModel.setSelectedSensorRemote(item)
-                            activity?.supportFragmentManager?.commit {
-                                replace(
-                                    android.R.id.content,
-                                    AddRemoteSensorFragment.createInstance()
-                                )
-                                setReorderingAllowed(true)
-                                addToBackStack("AddRemoteSensor")
-                            }
-                        }
-                    }
 
-                    override fun onLongClick(item: SensorInfoRemote) {
-                    }
-                }
-
-        }*/
         binding?.let {
             with(it.sensorRemoteRecyclerView) {
                 layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)

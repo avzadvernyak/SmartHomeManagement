@@ -1,6 +1,5 @@
 package m.kampukter.smarthomemanagement.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.launch
 import m.kampukter.smarthomemanagement.data.*
@@ -10,13 +9,10 @@ import java.net.URL
 
 class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewModel() {
 
-    val unitRemoteListLiveData: LiveData<List<UnitInfoRemote>> =
-        sensorsRepository.unitRemoteListFlow.asLiveData()
-
     val unitInfoApiLiveData: LiveData<ResultUnitsInfoApi> =
         sensorsRepository.unitInfoApiFlow.asLiveData()
 
-    val sensorInfoListLiveData: LiveData<List<SensorInfo>> =
+    private val sensorInfoListLiveData: LiveData<List<SensorInfo>> =
         sensorsRepository.getSensorsInfo().asLiveData()
 
     val sensorInfoApiLiveData: LiveData<Pair<ResultUnitsInfoApi, List<SensorInfo>>> =
@@ -40,16 +36,6 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             }
         }
 
-    private val searchIdUnitRemote = MutableLiveData<String>()
-    fun setIdSensorRemoteForSearch(idUnit: String) {
-        searchIdUnitRemote.postValue(idUnit)
-    }
-
-    val sensorRemoteListLiveData: LiveData<List<SensorInfoRemote>> =
-        Transformations.switchMap(searchIdUnitRemote) { searchId ->
-            sensorsRepository.getSensorRemoteListById(searchId).asLiveData()
-        }
-
     private val selectedUnitRemote = MutableLiveData<UnitInfoRemote>()
     fun setSelectedUnitRemote(unit: UnitInfoRemote) {
         selectedUnitRemote.postValue(unit)
@@ -58,6 +44,13 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     private val selectedSensorRemote = MutableLiveData<SensorInfoRemote>()
     fun setSelectedSensorRemote(sensor: SensorInfoRemote) {
         selectedSensorRemote.postValue(sensor)
+    }
+
+    fun addNewSensor(unit: UnitInfo, sensor: SensorInfo) {
+        viewModelScope.launch {
+            sensorsRepository.insertUnit(unit)
+            sensorsRepository.insertSensor(sensor)
+        }
     }
 
     private val sensorNameMutableLiveData = MutableLiveData<String>()
@@ -273,23 +266,9 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
         }
     }
 
-    fun addNewSensor(unit: UnitInfo, sensor: SensorInfo) {
-        viewModelScope.launch {
-            sensorsRepository.insertUnit(unit)
-            sensorsRepository.insertSensor(sensor)
-            sensorsRepository.changeUnitDescription(unit.id, unit.description)
-        }
-    }
-
     fun deleteSensorById(sensorId: String) {
         viewModelScope.launch {
             sensorsRepository.deleteSensorById(sensorId)
-        }
-    }
-
-    fun changeCandidateStatus(sensorId: String, status: Boolean) {
-        viewModelScope.launch {
-            sensorsRepository.changeCandidateStatus(sensorId, status)
         }
     }
 }

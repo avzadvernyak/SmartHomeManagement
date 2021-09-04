@@ -76,9 +76,6 @@ class UnitRemoteListFragment : Fragment() {
                 adapter = unitRemoteListAdapter
             }
         }
-        viewModel.unitRemoteListLiveData.observe(viewLifecycleOwner) { unit ->
-            //unitRemoteListAdapter.setList(unit)
-        }
         viewModel.unitInfoApiLiveData.observe(viewLifecycleOwner) { resultUnitInfo ->
             when (resultUnitInfo) {
                 is ResultUnitsInfoApi.Success -> {

@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dao.SensorInfoDao
-import m.kampukter.smarthomemanagement.data.dao.SensorRemoteDao
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
 import m.kampukter.smarthomemanagement.data.dto.SensorsDataApiInterface
 import m.kampukter.smarthomemanagement.data.dto.WSConnectionStatus
@@ -17,7 +16,6 @@ import java.util.*
 
 class SensorsRepository(
     private val sensorInfoDao: SensorInfoDao,
-    private val sensorRemoteDao: SensorRemoteDao,
     private val webSocketDto: DeviceInteractionApi,
     private val sensorApiInterface: SensorsDataApiInterface
 ) {
@@ -109,7 +107,6 @@ class SensorsRepository(
         webSocketDto.getWSStatusFlow()
 
     val unitListFlow: Flow<List<UnitInfo>> = sensorInfoDao.getAllUnitsFlow()
-    val unitRemoteListFlow: Flow<List<UnitInfoRemote>> = sensorRemoteDao.getAllUnitsFlow()
 
     val unitInfoApiFlow: Flow<ResultUnitsInfoApi> = flow {
         emit(getResultUnitInfoApi())
@@ -119,95 +116,6 @@ class SensorsRepository(
         sensorInfoDao.getSensorFlow(searchId)
 
     fun getSearchUnitInfo(searchId: String): Flow<UnitInfo> = sensorInfoDao.getUnitFlow(searchId)
-
-    suspend fun compareUnitInfoApi() {
-        val getDataApi = getUnitInfoApi()
-        if (getDataApi != null) {
-            val updatedDataApi = getDataApi.updated
-            val unitsDataApi = getDataApi.units
-            Log.d(
-                "blabla",
-                "-> $unitsDataApi"
-            )
-            unitsDataApi.forEach { unit ->
-                val unitRemote = sensorRemoteDao.getUnitRemoteByName(unit.name)
-                if (unitRemote == null) Log.d(
-                    "blabla",
-                    "Появилось новое устройство -> ${unit.name}"
-                )
-                else {
-                    if (unit.url != unitRemote.url) Log.d(
-                        "blabla",
-                        "Изменился URL у устройства -> ${unit.name}"
-                    )
-                }
-                unit.sensors.forEach { sensor ->
-                    val sensorRemote =
-                        sensorRemoteDao.getSensorRemoteByName(unit.name, sensor.unitSensorId)
-                    if (sensorRemote == null) Log.d(
-                        "blabla",
-                        "Появилось новый сенсор -> ${unit.name}${sensor.unitSensorId} (${sensor.name})"
-                    )
-                    else {
-                        /*Log.d("blabla","${unit.name}${sensor.unitSensorId} ${sensor.name}  ${sensorRemote.measure} ${sensor.measure}")
-                        Log.d("blabla","${sensorRemote.measure != sensor.measure}")*/
-                        if (sensorRemote.measure != sensor.measure) Log.d(
-                            "blabla",
-                            "У сенсор изменилась размерность -> ${unit.name}${sensor.unitSensorId} (было ${sensorRemote.measure}стало ${sensor.measure})"
-                        )
-                        if (sensorRemote.deviceType != sensor.deviceType) Log.d(
-                            "blabla",
-                            "Тип сенсора изменился -> ${unit.name}${sensor.unitSensorId} (было ${sensorRemote.deviceType}стало ${sensor.deviceType})"
-                        )
-                    }
-                }
-            }
-
-            val allLocalUnit = sensorRemoteDao.getAllUnits()
-            allLocalUnit.forEach { localUnit ->
-                if (unitsDataApi.find { localUnit.id == it.name } == null) {
-                    Log.d(
-                        "blabla", "Устройство удалено из системы -> ${localUnit.name}"
-                    )
-                }
-            }
-            val allLocalSensor = sensorRemoteDao.getAllSensors()
-            allLocalSensor.forEach { sensorLocal ->
-                var isSensorFound = false
-                unitsDataApi.forEach { unitApi ->
-                    if (sensorLocal.unitId == unitApi.name) {
-                        for (sensorApi in unitApi.sensors) {
-                            if (sensorApi.unitSensorId == sensorLocal.unitSensorId && unitApi.name == sensorLocal.unitId) {
-                                isSensorFound = true
-                                break
-                            }
-                        }
-                    }
-                }
-                if (!isSensorFound) {
-                    Log.d(
-                        "blabla",
-                        "Сенсор удален из системы ->${sensorLocal.unitId} ${sensorLocal.unitSensorId}"
-                    )
-                }
-            }
-        }
-
-    }
-
-    private suspend fun getUnitInfoApi(): UnitInfoApi? {
-        var response: Response<UnitInfoApi>? = null
-        try {
-            response = sensorApiInterface.getUnitInfoApi()
-        } catch (e: IOException) {
-            Log.e("blablabla", " Error in API $e")
-        }
-
-        if (response?.code() != 200) return null
-
-        return response.body()
-
-    }
 
     private suspend fun getResultUnitInfoApi(): ResultUnitsInfoApi {
         var response: Response<UnitInfoApi>? = null
@@ -290,9 +198,6 @@ class SensorsRepository(
         sensorInfoDao.editUnitName(unitId, name)
     }
 
-    fun getSensorRemoteListById(searchId: String): Flow<List<SensorInfoRemote>> =
-        sensorRemoteDao.getSensorRemoteListById(searchId)
-
 
     suspend fun insertUnit(unit: UnitInfo) {
         sensorInfoDao.insertUnit(unit)
@@ -304,13 +209,5 @@ class SensorsRepository(
 
     suspend fun deleteSensorById(sensorId: String) {
         sensorInfoDao.deleteSensorById(sensorId)
-    }
-
-    suspend fun changeCandidateStatus(sensorId: String, status: Boolean) {
-        sensorRemoteDao.changeCandidateStatus(sensorId, status)
-    }
-
-    suspend fun changeUnitDescription(unitId: String, description: String?) {
-        sensorRemoteDao.changeUnitDescription(unitId, description)
     }
 }

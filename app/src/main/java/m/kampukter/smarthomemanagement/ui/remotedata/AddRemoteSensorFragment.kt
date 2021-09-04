@@ -100,7 +100,6 @@ class AddRemoteSensorFragment : Fragment() {
                     icon = sensor.sensorType
                 )
                 viewModel.addNewSensor(unitInfo, sensorInfo)
-                viewModel.changeCandidateStatus(sensor.id, false)
                 activity?.supportFragmentManager?.popBackStack("MainFragment", 0)
                 //activity?.supportFragmentManager?.popBackStack("RemoteUnits", POP_BACK_STACK_INCLUSIVE)
 
