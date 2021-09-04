@@ -13,6 +13,33 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     val unitRemoteListLiveData: LiveData<List<UnitInfoRemote>> =
         sensorsRepository.unitRemoteListFlow.asLiveData()
 
+    val unitInfoApiLiveData: LiveData<ResultUnitsInfoApi> =
+        sensorsRepository.unitInfoApiFlow.asLiveData()
+
+    val sensorInfoListLiveData: LiveData<List<SensorInfo>> =
+        sensorsRepository.getSensorsInfo().asLiveData()
+
+    val sensorInfoApiLiveData: LiveData<Pair<ResultUnitsInfoApi, List<SensorInfo>>> =
+        MediatorLiveData<Pair<ResultUnitsInfoApi, List<SensorInfo>>>().apply {
+            var lastResultUnitsInfoApi: ResultUnitsInfoApi = ResultUnitsInfoApi.EmptyResponse
+            var lastSensorInfoList: List<SensorInfo> = emptyList()
+            fun update() {
+                postValue(Pair(lastResultUnitsInfoApi, lastSensorInfoList))
+            }
+            addSource(sensorInfoListLiveData) {
+                if (it != null) {
+                    lastSensorInfoList = it
+                    update()
+                }
+            }
+            addSource(unitInfoApiLiveData){
+                if (it != null){
+                    lastResultUnitsInfoApi = it
+                    update()
+                }
+            }
+        }
+
     private val searchIdUnitRemote = MutableLiveData<String>()
     fun setIdSensorRemoteForSearch(idUnit: String) {
         searchIdUnitRemote.postValue(idUnit)

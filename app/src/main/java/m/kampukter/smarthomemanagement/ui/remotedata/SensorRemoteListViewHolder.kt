@@ -5,7 +5,7 @@ import m.kampukter.smarthomemanagement.data.SensorInfoRemote
 import m.kampukter.smarthomemanagement.databinding.SensorRemoteItemBinding
 import m.kampukter.smarthomemanagement.ui.ClickEventDelegate
 
-class SensorRemoteListViewHolder (
+class SensorRemoteListViewHolder(
     private val sensorRemoteItemView: SensorRemoteItemBinding,
     private val clickUnitEventDelegate: ClickEventDelegate<SensorInfoRemote>
 ) :
@@ -15,9 +15,12 @@ class SensorRemoteListViewHolder (
         with(sensorRemoteItemView) {
             sensorRemoteNameTextView.text = result.name
             sensorRemoteDescriptionTextView.text = result.measure
-            sensorRemoteItemView.root.setOnClickListener {
-                clickUnitEventDelegate.onClick(result)
-            }
+            if (result.isCandidate) {
+                sensorRemoteItemView.root.setOnClickListener {
+                    clickUnitEventDelegate.onClick(result)
+                }
+                testTextView.text = "Candidate"
+            } else testTextView.text = "In view"
         }
 
     }

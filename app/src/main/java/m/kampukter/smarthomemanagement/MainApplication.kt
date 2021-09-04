@@ -99,7 +99,7 @@ class MainApplication : Application() {
             androidContext(this@MainApplication)
             modules(module)
         }
-        getUnitInfoApi()
+        //getUnitInfoApi()
 
     }
 

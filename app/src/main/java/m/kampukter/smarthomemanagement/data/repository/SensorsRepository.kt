@@ -103,13 +103,17 @@ class SensorsRepository(
             initListSensorInfo
         }
 
-    private fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllSensorsFlow()
+    fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllSensorsFlow()
 
     val unitStatusFlow: Flow<Pair<URL, WSConnectionStatus>?> =
         webSocketDto.getWSStatusFlow()
 
     val unitListFlow: Flow<List<UnitInfo>> = sensorInfoDao.getAllUnitsFlow()
     val unitRemoteListFlow: Flow<List<UnitInfoRemote>> = sensorRemoteDao.getAllUnitsFlow()
+
+    val unitInfoApiFlow: Flow<ResultUnitsInfoApi> = flow {
+        emit(getResultUnitInfoApi())
+    }
 
     fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> =
         sensorInfoDao.getSensorFlow(searchId)
@@ -181,7 +185,10 @@ class SensorsRepository(
                     }
                 }
                 if (!isSensorFound) {
-                    Log.d("blabla", "Сенсор удален из системы ->${sensorLocal.unitId} ${sensorLocal.unitSensorId}")
+                    Log.d(
+                        "blabla",
+                        "Сенсор удален из системы ->${sensorLocal.unitId} ${sensorLocal.unitSensorId}"
+                    )
                 }
             }
         }
@@ -199,6 +206,23 @@ class SensorsRepository(
         if (response?.code() != 200) return null
 
         return response.body()
+
+    }
+
+    private suspend fun getResultUnitInfoApi(): ResultUnitsInfoApi {
+        var response: Response<UnitInfoApi>? = null
+        try {
+            response = sensorApiInterface.getUnitInfoApi()
+        } catch (e: IOException) {
+            Log.e("blablabla", " Error in API $e")
+            ResultUnitsInfoApi.OtherError("Error $e")
+        }
+        if (response?.code() == 204) return ResultUnitsInfoApi.EmptyResponse
+        if (response?.code() != 200) return ResultUnitsInfoApi.OtherError("Error HTTP ${response?.code()}")
+
+        val body = response.body()
+        return if (body != null) ResultUnitsInfoApi.Success(body)
+        else ResultUnitsInfoApi.OtherError("Response is null")
 
     }
 
