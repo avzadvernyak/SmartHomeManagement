@@ -42,5 +42,7 @@
     <string name="new_record">Add Sensor</string>
     <string name="menu_delete">Delete</string>
 
+    <string name="sensor_measure">Информация в %1$s</string>
+
 
 </resources>
