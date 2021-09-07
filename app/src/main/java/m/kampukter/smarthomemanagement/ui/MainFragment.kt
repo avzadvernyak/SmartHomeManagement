@@ -62,7 +62,8 @@ class MainFragment : Fragment() {
                     activity?.supportFragmentManager?.commit {
                         replace(
                             android.R.id.content,
-                            SensorFragment.createInstance(item.id)
+                            //SensorFragment.createInstance(item.id)
+                            UnitInfoFragment.createInstance(item.id)
                         )
                         setReorderingAllowed(true)
                         addToBackStack("Sensors")
