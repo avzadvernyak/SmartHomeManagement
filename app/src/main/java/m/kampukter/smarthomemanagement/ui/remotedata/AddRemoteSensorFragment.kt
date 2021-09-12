@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.DeviceType
 import m.kampukter.smarthomemanagement.data.SensorInfo
 import m.kampukter.smarthomemanagement.data.UnitInfo
@@ -67,8 +68,9 @@ class AddRemoteSensorFragment : Fragment() {
                 DeviceType.Device -> {
                     binding?.sensorTypeTextView?.text = "Тип: Измеритель"
                     binding?.sensorMeasureTextView?.visibility = View.VISIBLE
-                    binding?.sensorMeasureTextView?.text =
-                        "Единица измерения ${sensor.sensorMeasure}"
+                    binding?.sensorMeasureTextView?.text = context?.getString(
+                        R.string.sensor_measure, sensor.sensorMeasure
+                    )
                 }
             }
 

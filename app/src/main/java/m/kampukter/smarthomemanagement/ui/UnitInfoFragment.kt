@@ -47,9 +47,16 @@ class UnitInfoFragment : Fragment() {
         binding?.unitInfoToolbar?.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
-        arguments?.getString("ARG_ID_UNIT")?.let {
-            viewModel.setIdUnitForSearch(it)
-            currentUnitId = it
+        arguments?.getString("ARG_ID_UNIT")?.let { id ->
+            viewModel.setIdSensorForSearch(id)
+            viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) {
+                if (it != null) {
+                    viewModel.setIdUnitForSearch(it.unitId)
+                    currentUnitId = it.unitId
+                }
+            }
+            /*viewModel.setIdUnitForSearch(it)
+            currentUnitId = it*/
 
         }
         viewModel.unitLiveData.observe(viewLifecycleOwner) {
@@ -134,6 +141,7 @@ class UnitInfoFragment : Fragment() {
             viewModel.connectByIdUnit(it)
         }
     }
+
     override fun onPause() {
         super.onPause()
         currentUnitId?.let {
