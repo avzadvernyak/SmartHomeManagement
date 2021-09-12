@@ -9,32 +9,19 @@ import java.net.URL
 
 class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewModel() {
 
+
+    private val unitApiId = MutableLiveData<String>()
+    fun setUnitApiId(unitId: String) {
+        unitApiId.postValue(unitId)
+    }
+
+    val sensorInfoApiListByUnitIdLiveData: LiveData<List<SensorInfoRemote>> =
+        Transformations.switchMap(unitApiId) { searchId ->
+            sensorsRepository.getSensorListByUnitId(searchId).asLiveData()
+        }
+
     val unitInfoApiLiveData: LiveData<ResultUnitsInfoApi> =
         sensorsRepository.unitInfoApiFlow.asLiveData()
-
-    private val sensorInfoListLiveData: LiveData<List<SensorInfo>> =
-        sensorsRepository.getSensorsInfo().asLiveData()
-
-    val sensorInfoApiLiveData: LiveData<Pair<ResultUnitsInfoApi, List<SensorInfo>>> =
-        MediatorLiveData<Pair<ResultUnitsInfoApi, List<SensorInfo>>>().apply {
-            var lastResultUnitsInfoApi: ResultUnitsInfoApi = ResultUnitsInfoApi.EmptyResponse
-            var lastSensorInfoList: List<SensorInfo> = emptyList()
-            fun update() {
-                postValue(Pair(lastResultUnitsInfoApi, lastSensorInfoList))
-            }
-            addSource(sensorInfoListLiveData) {
-                if (it != null) {
-                    lastSensorInfoList = it
-                    update()
-                }
-            }
-            addSource(unitInfoApiLiveData){
-                if (it != null){
-                    lastResultUnitsInfoApi = it
-                    update()
-                }
-            }
-        }
 
     private val selectedUnitRemote = MutableLiveData<UnitInfoRemote>()
     fun setSelectedUnitRemote(unit: UnitInfoRemote) {

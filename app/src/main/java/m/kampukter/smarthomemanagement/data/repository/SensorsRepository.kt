@@ -25,7 +25,8 @@ class SensorsRepository(
     }
 
     private val initListSensorInfoFlow: Flow<List<UnitView>> =
-        combine(getSensorsInfo(), apiSensorsDataFlow) { sensorInfo, apiSensorInfo ->
+        //combine(getSensorsInfo(), apiSensorsDataFlow) { sensorInfo, apiSensorInfo ->
+        combine(sensorsInfoDao, apiSensorsDataFlow) { sensorInfo, apiSensorInfo ->
             val sensorInfoList = mutableListOf<UnitView>()
             sensorInfo.forEach { sensor ->
 
@@ -69,7 +70,8 @@ class SensorsRepository(
         combine(
             initListSensorInfoFlow,
             unitDataFlow,
-            getSensorsInfo()
+            //getSensorsInfo()
+            sensorsInfoDao
         ) { initListSensorInfo, unitData, sensorInfoList ->
             // Данные от учтройств по паре id устройства/id сенсора сопоставляем с id сенсора внутри проекта
             // и в случае нахождения меняем значение
@@ -101,7 +103,9 @@ class SensorsRepository(
             initListSensorInfo
         }
 
-    fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllSensorsFlow()
+    //fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllSensorsFlow()
+    private val sensorsInfoDao: Flow<List<SensorInfo>>
+        get() = sensorInfoDao.getAllSensorsFlow()
 
     val unitStatusFlow: Flow<Pair<URL, WSConnectionStatus>?> =
         webSocketDto.getWSStatusFlow()
@@ -111,6 +115,26 @@ class SensorsRepository(
     val unitInfoApiFlow: Flow<ResultUnitsInfoApi> = flow {
         emit(getResultUnitInfoApi())
     }
+
+    fun getSensorListByUnitId(searchId: String): Flow<List<SensorInfoRemote>> =
+        //combine(unitInfoApiFlow, getSensorsInfo()) { unitInfoApi, sensors ->
+        combine(unitInfoApiFlow, sensorsInfoDao) { unitInfoApi, sensors ->
+            var sensorList = emptyList<SensorInfoRemote>()
+            if (unitInfoApi is ResultUnitsInfoApi.Success) {
+                unitInfoApi.infoApi.units.find { it.name == searchId }?.sensors?.map {
+                    SensorInfoRemote(
+                        id = UUID.randomUUID().toString(),
+                        unitId = searchId,
+                        unitSensorId = it.unitSensorId,
+                        name = it.name,
+                        measure = it.measure,
+                        deviceType = it.deviceType,
+                        isCandidate = sensors.find { sensor -> it.unitSensorId == sensor.unitSensorId && sensor.unitId == searchId } == null
+                    )
+                }?.let { sensorList = it }
+            }
+            sensorList
+        }
 
     fun getSearchSensorInfo(searchId: String): Flow<SensorInfo?> =
         sensorInfoDao.getSensorFlow(searchId)
@@ -122,7 +146,7 @@ class SensorsRepository(
         try {
             response = sensorApiInterface.getUnitInfoApi()
         } catch (e: IOException) {
-            Log.e("blablabla", " Error in API $e")
+            //Log.e("blablabla", " Error in API $e")
             ResultUnitsInfoApi.OtherError("Error $e")
         }
         if (response?.code() == 204) return ResultUnitsInfoApi.EmptyResponse
@@ -157,7 +181,7 @@ class SensorsRepository(
         try {
             response = sensorApiInterface.getInfoSensorPeriod(nameSensor, b_date, e_date)
         } catch (e: IOException) {
-            Log.e("blablabla", "API Unknown Error")
+            //Log.e("blablabla", "API Unknown Error")
             ResultSensorDataApi.OtherError("API Unknown Error")
         }
         if (response?.code() == 204) return ResultSensorDataApi.EmptyResponse
@@ -210,4 +234,6 @@ class SensorsRepository(
     suspend fun deleteSensorById(sensorId: String) {
         sensorInfoDao.deleteSensorById(sensorId)
     }
+
+
 }
