@@ -1,8 +1,9 @@
 package m.kampukter.smarthomemanagement.ui
 
 import android.os.Bundle
-import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -55,14 +56,12 @@ class MainFragment : Fragment() {
                         setReorderingAllowed(true)
                         addToBackStack("Sensors")
                     }
-
                 }
 
                 override fun onLongClick(item: UnitView) {
                     activity?.supportFragmentManager?.commit {
                         replace(
                             android.R.id.content,
-                            //SensorFragment.createInstance(item.id)
                             UnitInfoFragment.createInstance(item.id)
                         )
                         setReorderingAllowed(true)
@@ -83,7 +82,14 @@ class MainFragment : Fragment() {
                 }
 
                 override fun onLongClick(item: UnitView) {
-                    Log.d("blabla", "Long click ${item.id}")
+                    activity?.supportFragmentManager?.commit {
+                        replace(
+                            android.R.id.content,
+                            UnitInfoFragment.createInstance(item.id)
+                        )
+                        setReorderingAllowed(true)
+                        addToBackStack("Sensors")
+                    }
                 }
             }
 

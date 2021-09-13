@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.ResultUnitsInfoApi
 import m.kampukter.smarthomemanagement.data.UnitInfoRemote
 import m.kampukter.smarthomemanagement.databinding.UnitRemoteListFragmentBinding
@@ -42,8 +43,7 @@ class UnitRemoteListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         (activity as? AppCompatActivity)?.setSupportActionBar(binding?.unitRemoteListToolbar)
-        //(activity as AppCompatActivity).title = getString(R.string.title_units)
-        (activity as AppCompatActivity).title = "Test"
+        (activity as AppCompatActivity).title = getString(R.string.title_add_for_view)
         (activity as AppCompatActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
             setDisplayShowHomeEnabled(true)

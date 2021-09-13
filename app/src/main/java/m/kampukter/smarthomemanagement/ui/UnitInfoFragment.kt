@@ -55,9 +55,6 @@ class UnitInfoFragment : Fragment() {
                     currentUnitId = it.unitId
                 }
             }
-            /*viewModel.setIdUnitForSearch(it)
-            currentUnitId = it*/
-
         }
         viewModel.unitLiveData.observe(viewLifecycleOwner) {
             it?.let { unitInfo ->

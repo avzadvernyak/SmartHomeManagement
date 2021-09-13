@@ -2,10 +2,10 @@ package m.kampukter.smarthomemanagement.ui
 
 import android.os.Bundle
 import android.text.format.DateFormat
-import android.view.*
-import androidx.appcompat.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.ResultSensorDataApi
 import m.kampukter.smarthomemanagement.databinding.SensorAmountFragmentBinding
@@ -87,7 +87,7 @@ class SensorAmountFragment : Fragment() {
                             dateMin.toString()
                         )
                         val sumValue =
-                            resultSensorData.sensorValue.sumByDouble { it.value.toDouble() }
+                            resultSensorData.sensorValue.sumOf { it.value.toDouble() }
                         averageTextView.text = getString(
                             R.string.averageValuePeriod,
                             (sumValue / resultSensorData.sensorValue.size),

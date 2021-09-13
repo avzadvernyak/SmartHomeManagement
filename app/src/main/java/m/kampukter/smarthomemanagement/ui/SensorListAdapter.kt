@@ -41,7 +41,7 @@ class SensorListAdapter :
 
     override fun getItemViewType(position: Int): Int = when (sensorList[position]) {
         is SensorView -> TYPE_SENSOR
-        is RelayView -> TYPE_RELAY
+        else -> TYPE_RELAY
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

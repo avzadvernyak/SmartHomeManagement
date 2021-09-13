@@ -110,8 +110,6 @@ class SensorsRepository(
     val unitStatusFlow: Flow<Pair<URL, WSConnectionStatus>?> =
         webSocketDto.getWSStatusFlow()
 
-    val unitListFlow: Flow<List<UnitInfo>> = sensorInfoDao.getAllUnitsFlow()
-
     val unitInfoApiFlow: Flow<ResultUnitsInfoApi> = flow {
         emit(getResultUnitInfoApi())
     }
@@ -198,16 +196,16 @@ class SensorsRepository(
         }
 
     suspend fun sendCommand(relayId: String) {
-        webSocketDto.commandSend(sensorInfoDao.getSensorById(relayId))
+        sensorInfoDao.getSensorById(relayId)?.let { webSocketDto.commandSend(it) }
     }
 
     //Connect to WS Server
     suspend fun connectToUnit(sensorId: String) {
-        webSocketDto.connect(sensorInfoDao.getSensorById(sensorId).unitIp)
+        sensorInfoDao.getSensorById(sensorId)?.let { webSocketDto.connect(it.unitIp) }
     }
 
     suspend fun disconnectToUnit(sensorId: String) {
-        webSocketDto.disconnect(sensorInfoDao.getSensorById(sensorId).unitIp)
+        sensorInfoDao.getSensorById(sensorId)?.let { webSocketDto.disconnect(it.unitIp) }
     }
 
     suspend fun connectByIdUnit(unitId: String) {
@@ -232,6 +230,7 @@ class SensorsRepository(
     }
 
     suspend fun deleteSensorById(sensorId: String) {
+        sensorInfoDao.getSensorById(sensorId)?.let { webSocketDto.disconnect(it.unitIp) }
         sensorInfoDao.deleteSensorById(sensorId)
     }
 

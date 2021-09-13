@@ -13,6 +13,7 @@ import androidx.fragment.app.commit
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.DeviceType
 import m.kampukter.smarthomemanagement.data.SensorInfo
+import m.kampukter.smarthomemanagement.data.SensorType
 import m.kampukter.smarthomemanagement.data.UnitInfo
 import m.kampukter.smarthomemanagement.databinding.AddRemoteSensorFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
@@ -64,6 +65,8 @@ class AddRemoteSensorFragment : Fragment() {
                 DeviceType.RELAY -> {
                     binding?.sensorTypeTextView?.text = "Тип: Реле"
                     binding?.sensorMeasureTextView?.visibility = View.INVISIBLE
+                    binding?.changeSensorImageButton?.visibility = View.INVISIBLE
+                    viewModel.setSensorType(SensorType.SWITCH)
                 }
                 DeviceType.Device -> {
                     binding?.sensorTypeTextView?.text = "Тип: Измеритель"
@@ -71,6 +74,7 @@ class AddRemoteSensorFragment : Fragment() {
                     binding?.sensorMeasureTextView?.text = context?.getString(
                         R.string.sensor_measure, sensor.sensorMeasure
                     )
+                    binding?.changeSensorImageButton?.visibility = View.VISIBLE
                 }
             }
 

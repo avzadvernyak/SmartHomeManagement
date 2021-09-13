@@ -27,16 +27,13 @@ interface SensorInfoDao {
     fun getSensorFlow(searchId: String): Flow<SensorInfo>
 
     @Query("select sensor.unit_id as unitId,sensor.unitSensorId as unitSensorId,unit.url as unitIp from sensor JOIN unit ON unit.id = sensor.unit_id where sensor.id = :searchId ")
-    suspend fun getSensorById(searchId: String): SensorInfoWithIp
+    suspend fun getSensorById(searchId: String): SensorInfoWithIp?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllUnit(units: List<UnitInfo>)
 
     @Query("select * from unit where id == :id")
     suspend fun getUnitById( id: String): UnitInfo
-
-    @Query("select * from unit")
-    fun getAllUnitsFlow(): Flow<List<UnitInfo>>
 
     @Query("select * from unit where id = :searchId")
     fun getUnitFlow(searchId: String): Flow<UnitInfo>

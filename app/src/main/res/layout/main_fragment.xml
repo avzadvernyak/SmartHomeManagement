@@ -38,8 +38,8 @@
 
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:contentDescription="@null"
         android:id="@+id/addRemoteSensorExtendedFab"
+        android:contentDescription="@null"
         android:layout_gravity="bottom|end"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"

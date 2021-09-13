@@ -2,12 +2,11 @@ package m.kampukter.smarthomemanagement.ui
 
 import android.os.Bundle
 import android.text.format.DateFormat
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -158,11 +157,12 @@ class RelayInfoFragment : Fragment() {
                     relayId?.let { id -> viewModel.sendCommandToRelay(id) }
                     visibilityRelayState(RelayState.OFFLINE)
                 }
-                binding?.relayStateTextView?.text = "ONLINE"
+                binding?.relayStateTextView?.text = getString(R.string.relay_online)
+
             } else {
                 binding?.lightingOnImageBottom?.setOnClickListener(null)
                 binding?.lightingOffImageBottom?.setOnClickListener(null)
-                binding?.relayStateTextView?.text = "OFFLINE"
+                binding?.relayStateTextView?.text = getString(R.string.relay_offline)
             }
         }
 
@@ -211,6 +211,22 @@ class RelayInfoFragment : Fragment() {
                 binding?.relayProgressBar?.visibility = View.VISIBLE
             }
         }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.sensor_info_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.deleteSensorFromList) {
+            relayId?.let {
+                HideSensorDialogFragment.createInstance(it)
+                    .show(childFragmentManager, "RelayFragmentDialog")
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     companion object {

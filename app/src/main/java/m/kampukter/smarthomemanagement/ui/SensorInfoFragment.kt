@@ -169,8 +169,6 @@ class SensorInfoFragment : Fragment() {
                         resultSensorData.sensorValue.last().date * 1000L
                     )
 
-
-
                 val dateMax =
                     resultSensorData.sensorValue.maxByOrNull { it.value }?.date?.let { time ->
                         DateFormat.format("dd/MM/yy HH:mm", time * 1000L)
@@ -264,11 +262,10 @@ class SensorInfoFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.deleteSensorFromList) {
             sensorId?.let {
-                viewModel.deleteSensorById( it )
+                HideSensorDialogFragment.createInstance(it)
+                    .show(childFragmentManager, "SensorFragmentDialog")
             }
-            activity?.supportFragmentManager?.popBackStack()
         }
-
         return super.onOptionsItemSelected(item)
     }
 

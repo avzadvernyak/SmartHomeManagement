@@ -41,6 +41,7 @@ class WebSocketDeviceInteractionApi : DeviceInteractionApi {
         }
 
         override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+            Log.w("blabla", "onClosed from ${webSocket.getUrl()}")
             emitStatus(Pair(webSocket.getUrl(), WSConnectionStatus.Disconnected))
         }
 

@@ -121,38 +121,6 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     val sensorListLiveData: LiveData<List<UnitView>> =
         sensorsRepository.sensorListFlow.asLiveData()
 
-    val unitListLiveData: LiveData<List<UnitInfoView>> =
-        MediatorLiveData<List<UnitInfoView>>().apply {
-            var lastUnitListView = mutableListOf<UnitInfoView>()
-            var lastUnitStatus: Pair<URL, WSConnectionStatus>? = null
-            fun update() {
-                lastUnitStatus?.let { status ->
-                    lastUnitListView.find { URL(it.url) == status.first }
-                        ?.let { it.wsConnectionStatus = status.second }
-                }
-                postValue(lastUnitListView)
-            }
-            addSource(sensorsRepository.unitListFlow.asLiveData()) {
-                lastUnitListView = mutableListOf()
-                it.forEach { item ->
-                    lastUnitListView.add(
-                        UnitInfoView(
-                            item.id,
-                            item.name,
-                            item.url,
-                            item.description,
-                            null
-                        )
-                    )
-                }
-                update()
-            }
-            addSource(sensorsRepository.unitStatusFlow.asLiveData()) {
-                it?.let { lastUnitStatus = it }
-                update()
-            }
-        }
-
     private val searchIdUnit = MutableLiveData<String>()
     fun setIdUnitForSearch(idUnit: String) {
         searchIdUnit.postValue(idUnit)

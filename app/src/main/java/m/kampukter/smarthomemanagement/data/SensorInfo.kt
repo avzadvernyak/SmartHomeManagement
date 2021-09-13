@@ -8,7 +8,9 @@ import androidx.room.*
         entity = UnitInfo::class,
         parentColumns = arrayOf("id"),
         childColumns = arrayOf("unit_id"),
-    )])
+    )],
+    indices = [(Index(value = ["unit_id"], name = "idx_unit_id"))]
+    )
 data class SensorInfo(
     @PrimaryKey
     val id: String,

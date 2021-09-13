@@ -2,19 +2,10 @@
     <string name="app_name">Smart Home Management</string>
 
     <!-- Fragment Title -->
-    <string name="title_units">Устройства</string>
     <string name="title_unit">Устройство</string>
     <string name="title_main">Умный Дом</string>
-    <string name="title_history">История</string>
-
-    <string name="temperatureValue">°C</string>
-    <string name="pressureValue">mm Hg</string>
-    <string name="humidityValue">%%</string>
-    <string name="voltageValue">V</string>
-    <string name="amperageValue">mA</string>
 
     <string name="last_update">"на %1$s"</string>
-    <string name="menu_date_period_title">Date</string>
 
     <string name="noDataMessage">No data for %1$s - %2$s</string>
     <string name="dateInfoView">%1$s-%2$s </string>
@@ -24,9 +15,7 @@
     <string name="averageValue">Среднее %1$.2f%2$s по %3$d записям</string>
 
     <string name="formatDT">dd.MM.yyyy HH:mm</string>
-    <string name="formatDTYY">dd.MM.yy HH:mm</string>
 
-    <string name="interval_title">За </string>
     <string name="find_records">Найдено записей</string>
     <string name="max_value">Максимум</string>
     <string name="min_value">Минимум</string>
@@ -43,6 +32,18 @@
     <string name="menu_delete">Delete</string>
 
     <string name="sensor_measure">Информация в %1$s</string>
+    <string name="empty_list">Пустой список</string>
+    <string name="change_icon">Сменить</string>
+    <string name="icon_of_sensor">Иконка сенсора</string>
+    <string name="title_01">Входит в сос тав устройства</string>
+    <string name="sensor_text">Сенсор</string>
+    <string name="description">Описание</string>
+    <string name="info_save">Сохранить</string>
+    <string name="relay_online">ONLINE</string>
+    <string name="relay_offline">OFFLINE</string>
+    <string name="dialog_hide_title">Удалить из списка мониторинга?</string>
+    <string name="dialog_yes">Да</string>
+    <string name="title_add_for_view">Добавить в просмотр</string>
 
 
 </resources>

@@ -45,7 +45,10 @@ class RelayListViewHolder(
                     relayItemView.root.setOnClickListener(null)
                 }
             }
-
+            relayItemView.root.setOnLongClickListener {
+                clickEventDelegate.onLongClick(result)
+                true
+            }
         }
     }
 }

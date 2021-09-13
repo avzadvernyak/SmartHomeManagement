@@ -1,9 +1,5 @@
 package m.kampukter.smarthomemanagement.data
 
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
-import java.util.*
-
 
 data class UnitInfoApi(
     val updated: Long,
