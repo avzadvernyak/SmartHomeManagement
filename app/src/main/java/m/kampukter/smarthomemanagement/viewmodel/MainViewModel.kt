@@ -130,6 +130,24 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
         Transformations.switchMap(searchIdUnit) { searchId ->
             sensorsRepository.getSearchUnitInfo(searchId).asLiveData()
         }
+
+    private val editUnitNameMutableLiveData = MutableLiveData<String>()
+    fun editUnitName(name: String) {
+        editUnitNameMutableLiveData.postValue(name)
+    }
+
+    private val editUnitDescriptionMutableLiveData = MutableLiveData<String>()
+    fun editUnitDescription(description: String) {
+        editUnitDescriptionMutableLiveData.postValue(description)
+    }
+/*
+    fun editUnitUrl(unitId: String, url: String) {
+        viewModelScope.launch {
+            sensorsRepository.editUnitUrl(unitId, url)
+        }
+    }
+     */
+
     val unitLiveData: LiveData<UnitInfoView> =
         MediatorLiveData<UnitInfoView>().apply {
             var lastUnitView: UnitInfoView? = null
@@ -159,6 +177,24 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             addSource(sensorsRepository.unitStatusFlow.asLiveData()) {
                 it?.let { lastUnitStatus = it }
                 update()
+            }
+            addSource(editUnitNameMutableLiveData) { name ->
+                name?.let { unitName ->
+                    lastUnitView?.let { unit ->
+                        viewModelScope.launch {
+                            sensorsRepository.editUnitName(unit.id, unitName)
+                        }
+                    }
+                }
+            }
+            addSource(editUnitDescriptionMutableLiveData){ description ->
+                description?.let { unitDescription ->
+                    lastUnitView?.let { unit ->
+                        viewModelScope.launch {
+                            sensorsRepository.editUnitDescription(unit.id, unitDescription)
+                        }
+                    }
+                }
             }
         }
 
@@ -199,25 +235,6 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     fun connectByIdUnit(unitId: String) {
         viewModelScope.launch {
             sensorsRepository.connectByIdUnit(unitId)
-        }
-    }
-
-    fun disconnectByIdUnit(unitId: String) {
-        viewModelScope.launch {
-            sensorsRepository.connectByIdUnit(unitId)
-        }
-    }
-
-
-    fun editUnitDescription(unitId: String, description: String) {
-        viewModelScope.launch {
-            sensorsRepository.editUnitDescription(unitId, description)
-        }
-    }
-
-    fun editUnitName(unitId: String, name: String) {
-        viewModelScope.launch {
-            sensorsRepository.editUnitName(unitId, name)
         }
     }
 

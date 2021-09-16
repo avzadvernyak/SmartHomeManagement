@@ -44,6 +44,9 @@ interface SensorInfoDao {
     @Query("update unit set name = :name where id = :unitId")
     suspend fun editUnitName(unitId: String, name: String)
 
+    @Query("update unit set url = :url where id = :unitId")
+    suspend fun editUnitUrl(unitId: String, url: String)
+
     @Query("DELETE FROM sensor WHERE id = :id")
     suspend fun deleteSensorById(id: String)
 }

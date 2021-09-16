@@ -4,6 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.last
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dao.SensorInfoDao
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
@@ -138,6 +139,7 @@ class SensorsRepository(
         sensorInfoDao.getSensorFlow(searchId)
 
     fun getSearchUnitInfo(searchId: String): Flow<UnitInfo> = sensorInfoDao.getUnitFlow(searchId)
+        //flow { emit(sensorInfoDao.getUnitFlow(searchId).last()) }
 
     private suspend fun getResultUnitInfoApi(): ResultUnitsInfoApi {
         var response: Response<UnitInfoApi>? = null
@@ -151,6 +153,7 @@ class SensorsRepository(
         if (response?.code() != 200) return ResultUnitsInfoApi.OtherError("Error HTTP ${response?.code()}")
 
         val body = response.body()
+        Log.d("blablabla", " API $body")
         return if (body != null) ResultUnitsInfoApi.Success(body)
         else ResultUnitsInfoApi.OtherError("Response is null")
 
@@ -199,7 +202,7 @@ class SensorsRepository(
         sensorInfoDao.getSensorById(relayId)?.let { webSocketDto.commandSend(it) }
     }
 
-    //Connect to WS Server
+    //Connect to WS Server (sensor or relay Id)
     suspend fun connectToUnit(sensorId: String) {
         sensorInfoDao.getSensorById(sensorId)?.let { webSocketDto.connect(it.unitIp) }
     }
@@ -208,9 +211,11 @@ class SensorsRepository(
         sensorInfoDao.getSensorById(sensorId)?.let { webSocketDto.disconnect(it.unitIp) }
     }
 
+    //Connect to WS Server (unit Id)
     suspend fun connectByIdUnit(unitId: String) {
         webSocketDto.connect(sensorInfoDao.getUnitById(unitId).url)
     }
+
 
     suspend fun editUnitDescription(unitId: String, description: String) {
         sensorInfoDao.editUnitDescription(unitId, description)
@@ -220,6 +225,9 @@ class SensorsRepository(
         sensorInfoDao.editUnitName(unitId, name)
     }
 
+    suspend fun editUnitUrl(unitId: String, url: String) {
+        sensorInfoDao.editUnitUrl(unitId, url)
+    }
 
     suspend fun insertUnit(unit: UnitInfo) {
         sensorInfoDao.insertUnit(unit)

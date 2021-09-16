@@ -59,7 +59,7 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
+   <!-- <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/unitUrlTextInputLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -76,7 +76,7 @@
             android:layout_height="wrap_content"
             android:inputType="textUri" />
 
-    </com.google.android.material.textfield.TextInputLayout>
+    </com.google.android.material.textfield.TextInputLayout>-->
 
     <TextView
         android:id="@+id/unitStatusTextView"
@@ -85,7 +85,7 @@
         android:layout_marginHorizontal="8dp"
         android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/unitUrlTextInputLayout" />
+        app:layout_constraintTop_toBottomOf="@id/unitDescriptionTextInputLayout" />
 
     <Button
         android:id="@+id/unitConnectButton"

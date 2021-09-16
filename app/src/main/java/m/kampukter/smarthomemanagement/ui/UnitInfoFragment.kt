@@ -3,6 +3,7 @@ package m.kampukter.smarthomemanagement.ui
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,6 @@ class UnitInfoFragment : Fragment() {
 
     private var binding: UnitInfoFragmentBinding? = null
     private val viewModel by sharedViewModel<MainViewModel>()
-    private var currentUnitId: String? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -47,28 +47,25 @@ class UnitInfoFragment : Fragment() {
         binding?.unitInfoToolbar?.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
-        arguments?.getString("ARG_ID_UNIT")?.let { id ->
-            viewModel.setIdSensorForSearch(id)
+        arguments?.getString("ARG_ID_SENSOR")?.let { sensorId ->
+            viewModel.setIdSensorForSearch(sensorId)
             viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) {
-                if (it != null) {
+                if (it != null && it.id == sensorId) {
                     viewModel.setIdUnitForSearch(it.unitId)
-                    currentUnitId = it.unitId
                 }
             }
-        }
-        viewModel.unitLiveData.observe(viewLifecycleOwner) {
-            it?.let { unitInfo ->
-                if (currentUnitId == unitInfo.id) {
+            viewModel.unitLiveData.observe(viewLifecycleOwner) {
+                it?.let { unitInfo ->
                     binding?.unitIdTextView?.text = getString(R.string.unit_id_title, unitInfo.id)
 
-                    if (unitInfo.description != binding?.unitDescriptionTextInputEdit?.text.toString()) binding?.unitDescriptionTextInputEdit?.setText(
-                        unitInfo.description
-                    )
-                    if (unitInfo.name != binding?.unitNameTextInputEdit?.text.toString()) binding?.unitNameTextInputEdit?.setText(
-                        unitInfo.name
-                    )
+                    if (unitInfo.description != binding?.unitDescriptionTextInputEdit?.text.toString())
+                        binding?.unitDescriptionTextInputEdit?.setText(unitInfo.description)
+                    if (unitInfo.name != binding?.unitNameTextInputEdit?.text.toString())
+                        binding?.unitNameTextInputEdit?.setText(unitInfo.name)
+                    /*if (unitInfo.url != binding?.unitUrlTextInputEdit?.text.toString())
+                        binding?.unitUrlTextInputEdit?.setText(unitInfo.url)*/
 
-                    binding?.unitUrlTextInputEdit?.setText(unitInfo.url)
+                    //binding?.unitUrlTextInputEdit?.setText(unitInfo.url)
 
                     binding?.unitConnectButton?.visibility = View.INVISIBLE
                     val stringStatus = when (unitInfo.wsConnectionStatus) {
@@ -95,63 +92,77 @@ class UnitInfoFragment : Fragment() {
                 }
             }
         }
-        currentUnitId?.let { id ->
-            binding?.unitNameTextInputEdit?.addTextChangedListener(object : TextWatcher {
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                    viewModel.editUnitName(id, p0.toString())
-                }
+        binding?.unitNameTextInputEdit?.addTextChangedListener(object :
+            TextWatcher {
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                viewModel.editUnitName(p0.toString())
+            }
 
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                }
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
 
-                override fun afterTextChanged(p0: Editable?) {
-                }
-            })
-            binding?.unitDescriptionTextInputEdit?.addTextChangedListener(object : TextWatcher {
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                    viewModel.editUnitDescription(id, p0.toString())
-                }
+            override fun afterTextChanged(p0: Editable?) {
+            }
+        })
+        binding?.unitDescriptionTextInputEdit?.addTextChangedListener(object :
+            TextWatcher {
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                viewModel.editUnitDescription(p0.toString())
+            }
 
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                }
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
 
-                override fun afterTextChanged(p0: Editable?) {
-                }
-            })
-            binding?.unitNameTextInputEdit?.addTextChangedListener(object : TextWatcher {
-                override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                }
+            override fun afterTextChanged(p0: Editable?) {
+            }
+        })
+/*
+        binding?.unitUrlTextInputEdit?.addTextChangedListener(object : TextWatcher {
+            override fun onTextChanged(
+                p0: CharSequence?,
+                p1: Int,
+                p2: Int,
+                p3: Int
+            ) {
+                viewModel.editUnitUrl(it.unitId, p0.toString())
+            }
 
-                override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                }
+            override fun beforeTextChanged(
+                p0: CharSequence?,
+                p1: Int,
+                p2: Int,
+                p3: Int
+            ) {
+            }
 
-                override fun afterTextChanged(p0: Editable?) {
-                }
-            })
-        }
+            override fun afterTextChanged(p0: Editable?) {
+            }
+        })
+*/
+
     }
 
     override fun onResume() {
         super.onResume()
-
-        currentUnitId?.let {
-            viewModel.connectByIdUnit(it)
+        arguments?.getString("ARG_ID_SENSOR")?.let { id ->
+            id.let { viewModel.connectToUnit(it) }
         }
     }
 
     override fun onPause() {
         super.onPause()
-        currentUnitId?.let {
-            viewModel.disconnectByIdUnit(it)
+        arguments?.getString("ARG_ID_SENSOR")?.let { id ->
+            id.let { viewModel.connectToUnit(it) }
         }
     }
 
 
     companion object {
-        private const val ARG_ID_UNIT = "ARG_ID_UNIT"
+        private const val ARG_ID_SENSOR = "ARG_ID_SENSOR"
         fun createInstance(message: String) = UnitInfoFragment().apply {
             arguments = Bundle().apply {
-                putString(ARG_ID_UNIT, message)
+                putString(ARG_ID_SENSOR, message)
+
             }
         }
     }
