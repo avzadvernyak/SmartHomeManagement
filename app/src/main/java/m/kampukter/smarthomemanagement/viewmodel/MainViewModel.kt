@@ -20,8 +20,14 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             sensorsRepository.getSensorListByUnitId(searchId).asLiveData()
         }
 
-    val unitInfoApiLiveData: LiveData<ResultUnitsInfoApi> =
-        sensorsRepository.unitInfoApiFlow.asLiveData()
+    val unitInfoRemoteLiveData: LiveData<ResultUnitInfoRemote> =
+        sensorsRepository.unitInfoRemoteFlow.asLiveData()
+
+    fun getUnitInfoApi() {
+        viewModelScope.launch {
+            sensorsRepository.getUnitInfoApi()
+        }
+    }
 
     private val selectedUnitRemote = MutableLiveData<UnitInfoRemote>()
     fun setSelectedUnitRemote(unit: UnitInfoRemote) {
@@ -43,11 +49,6 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     private val sensorNameMutableLiveData = MutableLiveData<String>()
     fun setSensorName(name: String) {
         sensorNameMutableLiveData.postValue(name)
-    }
-
-    private val unitDescriptionMutableLiveData = MutableLiveData<String>()
-    fun setUnitDescription(description: String) {
-        unitDescriptionMutableLiveData.postValue(description)
     }
 
     private val sensorTypeMutableLiveData = MutableLiveData<SensorType>()
@@ -98,14 +99,6 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
                 if (sensorType != null) {
                     lastSensorType = sensorType
                     update()
-                }
-            }
-            addSource(unitDescriptionMutableLiveData) { unitDescription ->
-                if (lastUnitRemote != null) {
-                    val ref = lastUnitRemote?.copy(description = unitDescription)
-                    lastUnitRemote = ref
-                    update()
-
                 }
             }
             addSource(sensorNameMutableLiveData) { sensorName ->
@@ -187,7 +180,7 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
                     }
                 }
             }
-            addSource(editUnitDescriptionMutableLiveData){ description ->
+            addSource(editUnitDescriptionMutableLiveData) { description ->
                 description?.let { unitDescription ->
                     lastUnitView?.let { unit ->
                         viewModelScope.launch {

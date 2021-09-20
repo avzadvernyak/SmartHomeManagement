@@ -2,9 +2,9 @@ package m.kampukter.smarthomemanagement.data.repository
 
 import android.util.Log
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.last
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dao.SensorInfoDao
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
@@ -104,20 +104,14 @@ class SensorsRepository(
             initListSensorInfo
         }
 
-    //fun getSensorsInfo(): Flow<List<SensorInfo>> = sensorInfoDao.getAllSensorsFlow()
     private val sensorsInfoDao: Flow<List<SensorInfo>>
         get() = sensorInfoDao.getAllSensorsFlow()
 
     val unitStatusFlow: Flow<Pair<URL, WSConnectionStatus>?> =
         webSocketDto.getWSStatusFlow()
 
-    val unitInfoApiFlow: Flow<ResultUnitsInfoApi> = flow {
-        emit(getResultUnitInfoApi())
-    }
-
-    fun getSensorListByUnitId(searchId: String): Flow<List<SensorInfoRemote>> =
-        //combine(unitInfoApiFlow, getSensorsInfo()) { unitInfoApi, sensors ->
-        combine(unitInfoApiFlow, sensorsInfoDao) { unitInfoApi, sensors ->
+       fun getSensorListByUnitId(searchId: String): Flow<List<SensorInfoRemote>> =
+        combine(resultUnitInfoApiFlow, sensorsInfoDao) { unitInfoApi, sensors ->
             var sensorList = emptyList<SensorInfoRemote>()
             if (unitInfoApi is ResultUnitsInfoApi.Success) {
                 unitInfoApi.infoApi.units.find { it.name == searchId }?.sensors?.map {
@@ -139,21 +133,47 @@ class SensorsRepository(
         sensorInfoDao.getSensorFlow(searchId)
 
     fun getSearchUnitInfo(searchId: String): Flow<UnitInfo> = sensorInfoDao.getUnitFlow(searchId)
-        //flow { emit(sensorInfoDao.getUnitFlow(searchId).last()) }
 
+    private val resultUnitInfoApiFlow =
+        MutableStateFlow<ResultUnitsInfoApi>(ResultUnitsInfoApi.EmptyResponse)
+
+    suspend fun getUnitInfoApi() {
+        resultUnitInfoApiFlow.value = getResultUnitInfoApi()
+    }
+
+    val unitInfoRemoteFlow: Flow<ResultUnitInfoRemote> =
+        combine(resultUnitInfoApiFlow, sensorInfoDao.getAllUnitsFlow()) { resultApi, units ->
+            when (resultApi) {
+                is ResultUnitsInfoApi.Success -> {
+                    val unitList = resultApi.infoApi.units.map {
+                        UnitInfoRemote(
+                            id = it.name,
+                            name = units.find { unit -> it.name == unit.id }?.name ?: it.name,
+                            url = it.url,
+                            description = it.description
+                        )
+                    }
+                    ResultUnitInfoRemote.Success(unitList)
+                }
+                is ResultUnitsInfoApi.EmptyResponse -> {
+                    ResultUnitInfoRemote.EmptyResponse
+                }
+                is ResultUnitsInfoApi.OtherError -> {
+                    ResultUnitInfoRemote.OtherError(resultApi.tError)
+                }
+            }
+        }
     private suspend fun getResultUnitInfoApi(): ResultUnitsInfoApi {
         var response: Response<UnitInfoApi>? = null
         try {
             response = sensorApiInterface.getUnitInfoApi()
         } catch (e: IOException) {
-            //Log.e("blablabla", " Error in API $e")
             ResultUnitsInfoApi.OtherError("Error $e")
         }
         if (response?.code() == 204) return ResultUnitsInfoApi.EmptyResponse
         if (response?.code() != 200) return ResultUnitsInfoApi.OtherError("Error HTTP ${response?.code()}")
 
         val body = response.body()
-        Log.d("blablabla", " API $body")
         return if (body != null) ResultUnitsInfoApi.Success(body)
         else ResultUnitsInfoApi.OtherError("Response is null")
 
@@ -182,7 +202,6 @@ class SensorsRepository(
         try {
             response = sensorApiInterface.getInfoSensorPeriod(nameSensor, b_date, e_date)
         } catch (e: IOException) {
-            //Log.e("blablabla", "API Unknown Error")
             ResultSensorDataApi.OtherError("API Unknown Error")
         }
         if (response?.code() == 204) return ResultSensorDataApi.EmptyResponse

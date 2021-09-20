@@ -3,7 +3,6 @@ package m.kampukter.smarthomemanagement.ui
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -57,15 +56,10 @@ class UnitInfoFragment : Fragment() {
             viewModel.unitLiveData.observe(viewLifecycleOwner) {
                 it?.let { unitInfo ->
                     binding?.unitIdTextView?.text = getString(R.string.unit_id_title, unitInfo.id)
+                    binding?.unitDescriptionTextView?.text = unitInfo.description
 
-                    if (unitInfo.description != binding?.unitDescriptionTextInputEdit?.text.toString())
-                        binding?.unitDescriptionTextInputEdit?.setText(unitInfo.description)
                     if (unitInfo.name != binding?.unitNameTextInputEdit?.text.toString())
                         binding?.unitNameTextInputEdit?.setText(unitInfo.name)
-                    /*if (unitInfo.url != binding?.unitUrlTextInputEdit?.text.toString())
-                        binding?.unitUrlTextInputEdit?.setText(unitInfo.url)*/
-
-                    //binding?.unitUrlTextInputEdit?.setText(unitInfo.url)
 
                     binding?.unitConnectButton?.visibility = View.INVISIBLE
                     val stringStatus = when (unitInfo.wsConnectionStatus) {
@@ -104,18 +98,7 @@ class UnitInfoFragment : Fragment() {
             override fun afterTextChanged(p0: Editable?) {
             }
         })
-        binding?.unitDescriptionTextInputEdit?.addTextChangedListener(object :
-            TextWatcher {
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                viewModel.editUnitDescription(p0.toString())
-            }
 
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-            }
-        })
 /*
         binding?.unitUrlTextInputEdit?.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(

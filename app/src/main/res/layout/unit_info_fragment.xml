@@ -41,42 +41,13 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/unitDescriptionTextInputLayout"
-        android:layout_width="match_parent"
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="8dp"
-        android:layout_marginTop="4dp"
-        android:hint="@string/unit_Description"
-        android:inputType="none"
+        android:id="@+id/unitDescriptionTextView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/unitNameTextInputLayout">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/unitDescriptionTextInputEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-   <!-- <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/unitUrlTextInputLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="8dp"
-        android:layout_marginTop="4dp"
-        android:hint="@string/unit_url"
-        android:inputType="none"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/unitDescriptionTextInputLayout">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/unitUrlTextInputEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textUri" />
-
-    </com.google.android.material.textfield.TextInputLayout>-->
+        app:layout_constraintTop_toBottomOf="@+id/unitNameTextInputLayout"
+        />
 
     <TextView
         android:id="@+id/unitStatusTextView"
@@ -85,7 +56,7 @@
         android:layout_marginHorizontal="8dp"
         android:layout_marginTop="4dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/unitDescriptionTextInputLayout" />
+        app:layout_constraintTop_toBottomOf="@id/unitDescriptionTextView" />
 
     <Button
         android:id="@+id/unitConnectButton"

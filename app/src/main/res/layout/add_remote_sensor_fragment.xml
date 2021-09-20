@@ -91,24 +91,24 @@
             android:id="@+id/unitTitleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Входит в сос тав устройства"
+            android:text="Входит в состав устройства"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider1" />
 
         <TextView
-            android:id="@+id/unitNameTextView"
+            android:id="@+id/unitDescriptionTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/unitTitleTextView" />
+            app:layout_constraintTop_toBottomOf="@id/unitNameTextInputLayout" />
 
         <TextView
             android:id="@+id/unitUrlTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/unitDescriptionTextInputLayout" />
+            app:layout_constraintTop_toBottomOf="@id/unitDescriptionTextView" />
 
         <View
             android:id="@+id/divider1"
@@ -139,15 +139,15 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/unitDescriptionTextInputLayout"
+            android:id="@+id/unitNameTextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Description"
+            android:hint="Имя устройства"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/unitNameTextView">
+            app:layout_constraintTop_toBottomOf="@id/unitTitleTextView">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/unitDescriptionInputEditText"
+                android:id="@+id/unitNameInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 

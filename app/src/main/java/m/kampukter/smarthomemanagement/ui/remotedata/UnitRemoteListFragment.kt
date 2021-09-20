@@ -1,7 +1,6 @@
 package m.kampukter.smarthomemanagement.ui.remotedata
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +10,7 @@ import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.R
-import m.kampukter.smarthomemanagement.data.ResultUnitsInfoApi
+import m.kampukter.smarthomemanagement.data.ResultUnitInfoRemote
 import m.kampukter.smarthomemanagement.data.UnitInfoRemote
 import m.kampukter.smarthomemanagement.databinding.UnitRemoteListFragmentBinding
 import m.kampukter.smarthomemanagement.ui.ClickEventDelegate
@@ -76,7 +75,20 @@ class UnitRemoteListFragment : Fragment() {
                 adapter = unitRemoteListAdapter
             }
         }
-        viewModel.unitInfoApiLiveData.observe(viewLifecycleOwner) { resultUnitInfo ->
+        viewModel.getUnitInfoApi()
+        viewModel.unitInfoRemoteLiveData.observe(viewLifecycleOwner) { resultUnitInfo ->
+            when (resultUnitInfo) {
+                is ResultUnitInfoRemote.Success -> {
+                    unitRemoteListAdapter.setList(resultUnitInfo.infoApi)
+                }
+                is ResultUnitInfoRemote.EmptyResponse -> {
+
+                }
+                is ResultUnitInfoRemote.OtherError -> {
+                }
+            }
+        }
+        /*viewModel.unitInfoApiLiveData.observe(viewLifecycleOwner) { resultUnitInfo ->
             when (resultUnitInfo) {
                 is ResultUnitsInfoApi.Success -> {
                     val unitList = resultUnitInfo.infoApi.units.map {
@@ -96,7 +108,7 @@ class UnitRemoteListFragment : Fragment() {
                     Log.d("blabla", "UnitsInfoApi.OtherError")
                 }
             }
-        }
+        }*/
     }
 
     companion object {

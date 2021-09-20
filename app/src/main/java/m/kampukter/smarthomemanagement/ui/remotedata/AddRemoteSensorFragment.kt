@@ -52,8 +52,8 @@ class AddRemoteSensorFragment : Fragment() {
 
         viewModel.selectedSensorInfoLiveData.observe(viewLifecycleOwner) { sensor ->
 
-            if (sensor.unitDescription != binding?.unitDescriptionInputEditText?.text.toString()) {
-                binding?.unitDescriptionInputEditText?.setText(sensor.unitDescription)
+            if (sensor.unitName != binding?.unitNameInputEditText?.text.toString()) {
+                binding?.unitNameInputEditText?.setText(sensor.unitName)
             }
 
             if (sensor.sensorName != binding?.sensorNameInputEditText?.text.toString())
@@ -78,7 +78,7 @@ class AddRemoteSensorFragment : Fragment() {
                 }
             }
 
-            binding?.unitNameTextView?.text = sensor.unitName
+            binding?.unitDescriptionTextView?.text = sensor.unitDescription
             binding?.unitUrlTextView?.text = sensor.unitUrl
 
             context?.let { context ->
@@ -124,15 +124,6 @@ class AddRemoteSensorFragment : Fragment() {
         binding?.sensorNameInputEditText?.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
                 viewModel.setSensorName(p0.toString())
-            }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-            override fun afterTextChanged(p0: Editable?) {}
-        })
-
-        binding?.unitDescriptionInputEditText?.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                viewModel.setUnitDescription(p0.toString())
             }
 
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
