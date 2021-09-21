@@ -86,6 +86,7 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             addSource(selectedSensorRemote) {
                 if (it != null) {
                     lastSensorRemote = it
+                    lastSensorType = SensorType.DEFAULT
                     update()
                 }
             }

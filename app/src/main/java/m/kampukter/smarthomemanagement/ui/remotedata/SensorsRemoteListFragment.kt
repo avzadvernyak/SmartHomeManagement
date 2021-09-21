@@ -10,6 +10,7 @@ import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.data.SensorInfoRemote
+import m.kampukter.smarthomemanagement.data.SensorType
 import m.kampukter.smarthomemanagement.databinding.SensorRemoteListFragmentBinding
 import m.kampukter.smarthomemanagement.ui.ClickEventDelegate
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
@@ -56,6 +57,7 @@ class SensorsRemoteListFragment : Fragment() {
             clickSensorEventDelegate = object : ClickEventDelegate<SensorInfoRemote> {
                 override fun onClick(item: SensorInfoRemote) {
                     viewModel.setSelectedSensorRemote(item)
+
                     activity?.supportFragmentManager?.commit {
                         replace(
                             android.R.id.content,
