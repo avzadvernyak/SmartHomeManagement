@@ -1,10 +1,7 @@
 package m.kampukter.smarthomemanagement.data.repository
 
 import android.util.Log
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dao.SensorInfoDao
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
@@ -110,7 +107,7 @@ class SensorsRepository(
     val unitStatusFlow: Flow<Pair<URL, WSConnectionStatus>?> =
         webSocketDto.getWSStatusFlow()
 
-       fun getSensorListByUnitId(searchId: String): Flow<List<SensorInfoRemote>> =
+    fun getSensorListByUnitId(searchId: String): Flow<List<SensorInfoRemote>> =
         combine(resultUnitInfoApiFlow, sensorsInfoDao) { unitInfoApi, sensors ->
             var sensorList = emptyList<SensorInfoRemote>()
             if (unitInfoApi is ResultUnitsInfoApi.Success) {
@@ -141,8 +138,11 @@ class SensorsRepository(
         resultUnitInfoApiFlow.value = getResultUnitInfoApi()
     }
 
+    val unitsAllDao: Flow<List<UnitInfo>>
+        get() = sensorInfoDao.getAllUnitsFlow()
+
     val unitInfoRemoteFlow: Flow<ResultUnitInfoRemote> =
-        combine(resultUnitInfoApiFlow, sensorInfoDao.getAllUnitsFlow()) { resultApi, units ->
+        combine(resultUnitInfoApiFlow, unitsAllDao) { resultApi, units ->
             when (resultApi) {
                 is ResultUnitsInfoApi.Success -> {
                     val unitList = resultApi.infoApi.units.map {
@@ -163,6 +163,7 @@ class SensorsRepository(
                 }
             }
         }
+
     private suspend fun getResultUnitInfoApi(): ResultUnitsInfoApi {
         var response: Response<UnitInfoApi>? = null
         try {
@@ -261,5 +262,26 @@ class SensorsRepository(
         sensorInfoDao.deleteSensorById(sensorId)
     }
 
+    fun getSearchSensorList(search: Any?): Flow<List<UnitView>> =
+        sensorListFlow.combine(sensorsInfoDao) { list, sensorsInfo ->
+            when (search) {
+                is SensorType -> {
+                    list.filter {
+                        when (it) {
+                            is RelayView -> search == SensorType.SWITCH
+                            is SensorView -> search == it.icon
+                        }
+                    }
+                }
+                is UnitInfo -> {
+                    val sensorsInSearch =
+                        sensorsInfo.filter { it.unitId == search.id }.map { it.id }
+                    list.filter { it.id in sensorsInSearch }
+                }
+                else -> {
+                    emptyList()
+                }
+            }
+        }
 
 }

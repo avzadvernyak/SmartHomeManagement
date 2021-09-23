@@ -1,9 +1,8 @@
 package m.kampukter.smarthomemanagement.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
@@ -137,6 +136,26 @@ class MainFragment : Fragment() {
             sensorListAdapter.setList(sensors)
         }
 
+    }
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.sensor_list_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.searchSensors) {
+            activity?.supportFragmentManager?.commit {
+                replace(
+                    android.R.id.content,
+                    SearchSensorFragment.createInstance()
+                )
+                setReorderingAllowed(true)
+                addToBackStack("Sensors")
+            }
+
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     companion object {

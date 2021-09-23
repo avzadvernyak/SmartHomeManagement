@@ -115,6 +115,15 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     val sensorListLiveData: LiveData<List<UnitView>> =
         sensorsRepository.sensorListFlow.asLiveData()
 
+    private val searchSensor = MutableLiveData<Any>()
+    fun setSearchSensor(search: Any){
+        searchSensor.postValue(search)
+    }
+    val searchSensorListLiveData: LiveData<List<UnitView>> =
+        Transformations.switchMap(searchSensor) { search ->
+            sensorsRepository.getSearchSensorList(search).asLiveData()
+        }
+
     private val searchIdUnit = MutableLiveData<String>()
     fun setIdUnitForSearch(idUnit: String) {
         searchIdUnit.postValue(idUnit)
@@ -237,4 +246,6 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
             sensorsRepository.deleteSensorById(sensorId)
         }
     }
+
+    val unitsAllLiveData: LiveData<List<UnitInfo>> = sensorsRepository.unitsAllDao.asLiveData()
 }
