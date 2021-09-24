@@ -1,7 +1,6 @@
 package m.kampukter.smarthomemanagement.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -13,6 +12,7 @@ import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.databinding.MainFragmentBinding
 import m.kampukter.smarthomemanagement.ui.remotedata.UnitRemoteListFragment
+import m.kampukter.smarthomemanagement.ui.searchsensor.SearchSensorFragment
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 

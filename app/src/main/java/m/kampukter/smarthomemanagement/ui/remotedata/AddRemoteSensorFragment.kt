@@ -66,7 +66,7 @@ class AddRemoteSensorFragment : Fragment() {
                     binding?.sensorTypeTextView?.text = "Тип: Реле"
                     binding?.sensorMeasureTextView?.visibility = View.INVISIBLE
                     binding?.changeSensorImageButton?.visibility = View.INVISIBLE
-                    viewModel.setSensorType(SensorType.SWITCH)
+                    if (sensor.sensorType != SensorType.SWITCH) viewModel.setSensorType(SensorType.SWITCH)
                 }
                 DeviceType.Device -> {
                     binding?.sensorTypeTextView?.text = "Тип: Измеритель"
@@ -115,7 +115,7 @@ class AddRemoteSensorFragment : Fragment() {
             activity?.supportFragmentManager?.commit {
                 replace(
                     android.R.id.content,
-                    ChangeSensorImageFragment.createInstance()
+                    ChangeSensorTypeFragment.createInstance()
                 )
                 setReorderingAllowed(true)
                 addToBackStack("ChangeSensorImage")

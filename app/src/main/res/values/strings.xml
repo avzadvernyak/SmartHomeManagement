@@ -46,6 +46,7 @@
     <string name="title_add_for_view">Добавить в просмотр</string>
     <string name="find">Find</string>
     <string name="title_search">Поиск</string>
+    <string name="title_result_search">Найдено</string>
 
 
 </resources>

@@ -9,24 +9,24 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.data.SensorType
-import m.kampukter.smarthomemanagement.databinding.SensorImageListFragmentBinding
+import m.kampukter.smarthomemanagement.databinding.SensorTypesFragmentBinding
 import m.kampukter.smarthomemanagement.ui.ClickEventDelegate
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
-class ChangeSensorImageFragment : Fragment() {
+class ChangeSensorTypeFragment : Fragment() {
 
-    private var binding: SensorImageListFragmentBinding? = null
+    private var binding: SensorTypesFragmentBinding? = null
     private val viewModel by sharedViewModel<MainViewModel>()
 
-    private lateinit var sensorImageListAdapter: SensorImageListAdapter
+    private lateinit var sensorTypesAdapter: SensorTypesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = SensorImageListFragmentBinding.inflate(inflater, container, false)
+        binding = SensorTypesFragmentBinding.inflate(inflater, container, false)
         return binding?.root
     }
 
@@ -46,7 +46,7 @@ class ChangeSensorImageFragment : Fragment() {
         binding?.sensorImageListToolbar?.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
-        sensorImageListAdapter = SensorImageListAdapter().apply {
+        sensorTypesAdapter = SensorTypesAdapter().apply {
             clickImageEventDelegate = object : ClickEventDelegate<SensorType> {
                 override fun onClick(item: SensorType) {
                     viewModel.setSensorType(item)
@@ -64,12 +64,12 @@ class ChangeSensorImageFragment : Fragment() {
                     RecyclerView.VERTICAL,
                     false
                 )
-                adapter = sensorImageListAdapter
+                adapter = sensorTypesAdapter
             }
         }
     }
 
     companion object {
-        fun createInstance() = ChangeSensorImageFragment()
+        fun createInstance() = ChangeSensorTypeFragment()
     }
 }

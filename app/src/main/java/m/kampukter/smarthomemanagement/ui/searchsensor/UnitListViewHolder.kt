@@ -1,8 +1,9 @@
-package m.kampukter.smarthomemanagement.ui
+package m.kampukter.smarthomemanagement.ui.searchsensor
 
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.data.UnitInfo
 import m.kampukter.smarthomemanagement.databinding.UnitItemBinding
+import m.kampukter.smarthomemanagement.ui.ClickEventDelegate
 
 class UnitListViewHolder (
     private val unitItemView: UnitItemBinding,

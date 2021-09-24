@@ -1,4 +1,4 @@
-package m.kampukter.smarthomemanagement.ui
+package m.kampukter.smarthomemanagement.ui.searchsensor
 
 import android.os.Bundle
 import android.util.Log
@@ -7,12 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.SensorType
 import m.kampukter.smarthomemanagement.data.UnitInfo
 import m.kampukter.smarthomemanagement.databinding.SearchSensorFragmentBinding
+import m.kampukter.smarthomemanagement.ui.ClickEventDelegate
+import m.kampukter.smarthomemanagement.ui.RelayInfoFragment
+import m.kampukter.smarthomemanagement.ui.remotedata.SensorTypesAdapter
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -21,6 +25,7 @@ class SearchSensorFragment : Fragment() {
     private val viewModel by sharedViewModel<MainViewModel>()
     private var binding: SearchSensorFragmentBinding? = null
     private lateinit var unitListAdapter: UnitListAdapter
+    private lateinit var sensorTypesAdapter: SensorTypesAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +58,14 @@ class SearchSensorFragment : Fragment() {
             clickUnitEventDelegate = object : ClickEventDelegate<UnitInfo> {
                 override fun onClick(item: UnitInfo) {
                     viewModel.setSearchSensor(item)
+                    activity?.supportFragmentManager?.commit {
+                        replace(
+                            android.R.id.content,
+                            ResultSearchFragment.createInstance()
+                        )
+                        setReorderingAllowed(true)
+                        addToBackStack("SearchSensors")
+                    }
                 }
 
                 override fun onLongClick(item: UnitInfo) {
@@ -66,14 +79,36 @@ class SearchSensorFragment : Fragment() {
                 adapter = unitListAdapter
             }
         }
-        binding?.type1TypeTextView?.setOnClickListener {
-            viewModel.setSearchSensor(SensorType.THERMOMETER)
+        sensorTypesAdapter = SensorTypesAdapter().apply {
+            clickImageEventDelegate = object : ClickEventDelegate<SensorType> {
+                override fun onClick(item: SensorType) {
+                    viewModel.setSearchSensor( item )
+                    activity?.supportFragmentManager?.commit {
+                        replace(
+                            android.R.id.content,
+                            ResultSearchFragment.createInstance()
+                        )
+                        setReorderingAllowed(true)
+                        addToBackStack("SearchSensors")
+                    }
+                }
+
+                override fun onLongClick(item: SensorType) {
+                }
+            }
+        }
+        binding?.let {
+            with(it.semsorTypesRecyclerView) {
+                layoutManager = LinearLayoutManager(
+                    context,
+                    RecyclerView.VERTICAL,
+                    false
+                )
+                adapter = sensorTypesAdapter
+            }
         }
         viewModel.unitsAllLiveData.observe(viewLifecycleOwner) {
             unitListAdapter.setList(it)
-        }
-        viewModel.searchSensorListLiveData.observe(viewLifecycleOwner) {
-            Log.d("blabla"," Answer $it")
         }
     }
 

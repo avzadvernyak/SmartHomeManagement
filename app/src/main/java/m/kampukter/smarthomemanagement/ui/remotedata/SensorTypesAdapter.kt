@@ -4,10 +4,10 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.data.SensorType
-import m.kampukter.smarthomemanagement.databinding.SensorImageItemBinding
+import m.kampukter.smarthomemanagement.databinding.SensorTypeItemBinding
 import m.kampukter.smarthomemanagement.ui.ClickEventDelegate
 
-class SensorImageListAdapter  :
+class SensorTypesAdapter  :
     RecyclerView.Adapter<SensorImageListViewHolder>() {
 
     private var types = SensorType.values()
@@ -15,7 +15,7 @@ class SensorImageListAdapter  :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SensorImageListViewHolder =
         SensorImageListViewHolder(
-            SensorImageItemBinding.inflate(
+            SensorTypeItemBinding.inflate(
                 LayoutInflater
                     .from(parent.context), parent, false
             ),

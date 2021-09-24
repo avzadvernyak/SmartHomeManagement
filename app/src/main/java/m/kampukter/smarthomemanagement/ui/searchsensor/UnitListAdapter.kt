@@ -1,10 +1,11 @@
-package m.kampukter.smarthomemanagement.ui
+package m.kampukter.smarthomemanagement.ui.searchsensor
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.data.UnitInfo
 import m.kampukter.smarthomemanagement.databinding.UnitItemBinding
+import m.kampukter.smarthomemanagement.ui.ClickEventDelegate
 
 class UnitListAdapter :
     RecyclerView.Adapter<UnitListViewHolder>() {
