@@ -13,7 +13,7 @@ class MainActivity: AppCompatActivity() {
             supportFragmentManager.commit {
                 add(android.R.id.content, MainFragment.createInstance())
                 setReorderingAllowed(true)
-                addToBackStack("MainFragment")
+                //addToBackStack("MainFragment")
             }
         }
     }

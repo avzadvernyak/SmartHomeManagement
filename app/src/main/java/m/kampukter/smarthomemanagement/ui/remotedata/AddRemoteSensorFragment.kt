@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import androidx.fragment.app.commit
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.DeviceType
@@ -106,8 +107,8 @@ class AddRemoteSensorFragment : Fragment() {
                     icon = sensor.sensorType
                 )
                 viewModel.addNewSensor(unitInfo, sensorInfo)
-                activity?.supportFragmentManager?.popBackStack("MainFragment", 0)
-                //activity?.supportFragmentManager?.popBackStack("RemoteUnits", POP_BACK_STACK_INCLUSIVE)
+                //activity?.supportFragmentManager?.popBackStack("MainFragment", 0)
+                activity?.supportFragmentManager?.popBackStack("RemoteUnits", POP_BACK_STACK_INCLUSIVE)
 
             }
         }
