@@ -284,76 +284,139 @@ class SensorsRepository(
             }
         }
 
-    fun compareUnitInfoApi() {
+    private suspend fun compareUnitInfoApi(unitId: String): Flow<UnitApiView?> {
         // На входе две коллекции, одна полученная от Api(UnitInfoApi), вторая локальная (List<SensorInfo>)
+        getUnitInfoApi()
+        getResultUnitInfoApi().let {  }
+        /*mapLatest {
+            Log.d("blabla","resultUnitInfoApiFlow $it")
+        }*/
+        return combine(resultUnitInfoApiFlow, sensorsInfoDao) { unitsInfoApi, sensors ->
 
-        /*val updatedDataApi = getDataApi.updated
-        val unitsDataApi = getDataApi.units
-        Log.d(
-            "blabla",
-            "-> $unitsDataApi"
-        )
-        unitsDataApi.forEach { unit ->
-            val unitRemote = sensorRemoteDao.getUnitRemoteByName(unit.name)
-            if (unitRemote == null) Log.d(
-                "blabla",
-                "Появилось новое устройство -> ${unit.name}"
-            )
-            else {
-                if (unit.url != unitRemote.url) Log.d(
-                    "blabla",
-                    "Изменился URL у устройства -> ${unit.name}"
-                )
-            }
-            unit.sensors.forEach { sensor ->
-                val sensorRemote =
-                    sensorRemoteDao.getSensorRemoteByName(unit.name, sensor.unitSensorId)
-                if (sensorRemote == null) Log.d(
-                    "blabla",
-                    "Появилось новый сенсор -> ${unit.name}${sensor.unitSensorId} (${sensor.name})"
-                )
-                else {
-                    *//*Log.d("blabla","${unit.name}${sensor.unitSensorId} ${sensor.name}  ${sensorRemote.measure} ${sensor.measure}")
-                    Log.d("blabla","${sensorRemote.measure != sensor.measure}")*//*
-                    if (sensorRemote.measure != sensor.measure) Log.d(
-                        "blabla",
-                        "У сенсор изменилась размерность -> ${unit.name}${sensor.unitSensorId} (было ${sensorRemote.measure}стало ${sensor.measure})"
-                    )
-                    if (sensorRemote.deviceType != sensor.deviceType) Log.d(
-                        "blabla",
-                        "Тип сенсора изменился -> ${unit.name}${sensor.unitSensorId} (было ${sensorRemote.deviceType}стало ${sensor.deviceType})"
-                    )
-                }
-            }
-        }
+            var unitApiView: UnitApiView? = null
 
-        val allLocalUnit = sensorRemoteDao.getAllUnits()
-        allLocalUnit.forEach { localUnit ->
-            if (unitsDataApi.find { localUnit.id == it.name } == null) {
-                Log.d(
-                    "blabla", "Устройство удалено из системы -> ${localUnit.name}"
-                )
-            }
-        }
-        val allLocalSensor = sensorRemoteDao.getAllSensors()
-        allLocalSensor.forEach { sensorLocal ->
-            var isSensorFound = false
-            unitsDataApi.forEach { unitApi ->
-                if (sensorLocal.unitId == unitApi.name) {
-                    for (sensorApi in unitApi.sensors) {
-                        if (sensorApi.unitSensorId == sensorLocal.unitSensorId && unitApi.name == sensorLocal.unitId) {
-                            isSensorFound = true
-                            break
+            (unitsInfoApi as? ResultUnitsInfoApi.Success)?.infoApi?.units?.let { unitsApi ->
+                unitsApi.find { it.name == unitId }?.let { unit ->
+
+                    val sensorApiView = mutableListOf<SensorApiView>()
+
+                    val localSensors = sensors.filter { it.unitId == unitId }
+                    val remoteSensors = unit.sensors
+                    remoteSensors.forEach { sensor ->
+                        // OK, DELETED, NEW, CHANGE_MEASURE, CHANGE_TYPE
+                        val compareStatus = when {
+                            localSensors.find { it.unitSensorId == sensor.unitSensorId } == null -> {
+                                Log.d("blabla", "NEW")
+                                CompareStatus.NEW
+                            }
+                            localSensors.find { it.unitSensorId == sensor.unitSensorId }?.deviceType != sensor.deviceType -> {
+                                Log.d("blabla", "CHANGE_TYPE")
+                                CompareStatus.CHANGE_TYPE
+                            }
+                            localSensors.find { it.unitSensorId == sensor.unitSensorId }?.measure != sensor.measure -> {
+                                Log.d("blabla", "CHANGE_MEASURE")
+                                CompareStatus.CHANGE_MEASURE
+                            }
+                            else -> {
+                                Log.d("blabla", "OK")
+                                CompareStatus.OK
+                            }
+                        }
+                        sensorApiView += SensorApiView(
+                            compareStatus = compareStatus,
+                            unitSensorId = sensor.unitSensorId,
+                            name = sensor.name,
+                            measure = sensor.measure,
+                            deviceType = sensor.deviceType
+                        )
+                    }
+                    localSensors.forEach { sensor ->
+                        if (remoteSensors.find { it.unitSensorId == sensor.unitSensorId } == null) {
+                            Log.d("blabla", "DELETED")
+                            sensorApiView += SensorApiView(
+                                compareStatus = CompareStatus.DELETED,
+                                unitSensorId = sensor.unitSensorId,
+                                name = sensor.name,
+                                measure = sensor.measure ?: "",
+                                deviceType = sensor.deviceType
+                            )
                         }
                     }
+                    unitApiView = UnitApiView(
+                        sensors = sensorApiView,
+                        name = unit.name,
+                        url = unit.url,
+                        description = unit.description
+                    )
                 }
             }
-            if (!isSensorFound) {
-                Log.d(
-                    "blabla",
-                    "Сенсор удален из системы ->${sensorLocal.unitId} ${sensorLocal.unitSensorId}"
+            unitApiView
+        }
+    }
+
+    fun getUnitApiView(unitId: String): Flow<UnitApiView?> = flow {
+        compareUnitInfoApi(unitId)
+    }
+
+    fun compareUnitInfoApiFlow(unitId: String) = combine(resultUnitInfoApiFlow, sensorsInfoDao) { unitsInfoApi, sensors ->
+
+        var unitApiView: UnitApiView? = null
+
+        (unitsInfoApi as? ResultUnitsInfoApi.Success)?.infoApi?.units?.let { unitsApi ->
+            unitsApi.find { it.name == unitId }?.let { unit ->
+
+                val sensorApiView = mutableListOf<SensorApiView>()
+
+                val localSensors = sensors.filter { it.unitId == unitId }
+                val remoteSensors = unit.sensors
+                remoteSensors.forEach { sensor ->
+                    // OK, DELETED, NEW, CHANGE_MEASURE, CHANGE_TYPE
+                    val compareStatus = when {
+                        localSensors.find { it.unitSensorId == sensor.unitSensorId } == null -> {
+                            Log.d("blabla", "NEW")
+                            CompareStatus.NEW
+                        }
+                        localSensors.find { it.unitSensorId == sensor.unitSensorId }?.deviceType != sensor.deviceType -> {
+                            Log.d("blabla", "CHANGE_TYPE")
+                            CompareStatus.CHANGE_TYPE
+                        }
+                        localSensors.find { it.unitSensorId == sensor.unitSensorId }?.measure != sensor.measure -> {
+                            Log.d("blabla", "CHANGE_MEASURE")
+                            CompareStatus.CHANGE_MEASURE
+                        }
+                        else -> {
+                            Log.d("blabla", "OK")
+                            CompareStatus.OK
+                        }
+                    }
+                    sensorApiView += SensorApiView(
+                        compareStatus = compareStatus,
+                        unitSensorId = sensor.unitSensorId,
+                        name = sensor.name,
+                        measure = sensor.measure,
+                        deviceType = sensor.deviceType
+                    )
+                }
+                localSensors.forEach { sensor ->
+                    if (remoteSensors.find { it.unitSensorId == sensor.unitSensorId } == null) {
+                        Log.d("blabla", "DELETED")
+                        sensorApiView += SensorApiView(
+                            compareStatus = CompareStatus.DELETED,
+                            unitSensorId = sensor.unitSensorId,
+                            name = sensor.name,
+                            measure = sensor.measure ?: "",
+                            deviceType = sensor.deviceType
+                        )
+                    }
+                }
+                unitApiView = UnitApiView(
+                    sensors = sensorApiView,
+                    name = unit.name,
+                    url = unit.url,
+                    description = unit.description
                 )
             }
-        }*/
+        }
+        unitApiView
     }
 }

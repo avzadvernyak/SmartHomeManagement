@@ -129,6 +129,12 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
         searchIdUnit.postValue(idUnit)
     }
 
+    /*val unitApiViewLiveData: LiveData<UnitApiView?> = Transformations.switchMap(searchIdUnit) { searchId ->
+        sensorsRepository.getUnitApiView(searchId).asLiveData()
+    }*/
+    val unitApiViewLiveData: LiveData<UnitApiView?> = Transformations.switchMap(searchIdUnit) { searchId ->
+        sensorsRepository.compareUnitInfoApiFlow(searchId).asLiveData()
+    }
     private val unitInformationLiveData: LiveData<UnitInfo> =
         Transformations.switchMap(searchIdUnit) { searchId ->
             sensorsRepository.getSearchUnitInfo(searchId).asLiveData()

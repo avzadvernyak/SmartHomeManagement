@@ -3,6 +3,7 @@ package m.kampukter.smarthomemanagement.ui
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,6 +48,12 @@ class UnitInfoFragment : Fragment() {
             activity?.onBackPressed()
         }
         arguments?.getString("ARG_ID_SENSOR")?.let { sensorId ->
+
+            viewModel.getUnitInfoApi()
+            viewModel.unitApiViewLiveData.observe(viewLifecycleOwner) {
+                Log.d("blabla","unitApiView -> $it")
+            }
+
             viewModel.setIdSensorForSearch(sensorId)
             viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) {
                 if (it != null && it.id == sensorId) {

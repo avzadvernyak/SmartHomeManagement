@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +35,16 @@ class SensorDetailedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+
+        (activity as? AppCompatActivity)?.setSupportActionBar(binding?.sensorDetailedToolbar)
+        (activity as AppCompatActivity).supportActionBar?.apply {
+            setDisplayHomeAsUpEnabled(true)
+            setDisplayShowHomeEnabled(true)
+        }
+        binding?.sensorDetailedToolbar?.setNavigationOnClickListener {
+            activity?.onBackPressed()
+        }
 
         listSensorInfoAdapter = SensorDataHistoryAdapter()
         binding?.let {
