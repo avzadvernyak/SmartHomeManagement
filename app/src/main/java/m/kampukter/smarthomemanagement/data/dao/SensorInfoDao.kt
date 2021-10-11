@@ -41,9 +41,6 @@ interface SensorInfoDao {
     @Query("select * from unit where id = :searchId")
     fun getUnitFlow(searchId: String): Flow<UnitInfo>
 
-    @Query("update unit set description = :description where id = :unitId")
-    suspend fun editUnitDescription(unitId: String, description: String)
-
     @Query("update unit set name = :name where id = :unitId")
     suspend fun editUnitName(unitId: String, name: String)
 

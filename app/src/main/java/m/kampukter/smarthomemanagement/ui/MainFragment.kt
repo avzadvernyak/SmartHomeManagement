@@ -13,6 +13,7 @@ import m.kampukter.smarthomemanagement.data.UnitView
 import m.kampukter.smarthomemanagement.databinding.MainFragmentBinding
 import m.kampukter.smarthomemanagement.ui.remotedata.UnitRemoteListFragment
 import m.kampukter.smarthomemanagement.ui.searchsensor.SearchSensorFragment
+import m.kampukter.smarthomemanagement.ui.unitinfo.UnitInfoFragment
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 

@@ -132,7 +132,7 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     /*val unitApiViewLiveData: LiveData<UnitApiView?> = Transformations.switchMap(searchIdUnit) { searchId ->
         sensorsRepository.getUnitApiView(searchId).asLiveData()
     }*/
-    val unitApiViewLiveData: LiveData<UnitApiView?> = Transformations.switchMap(searchIdUnit) { searchId ->
+    val compareUnitApiViewLiveData: LiveData<ResultCompareUnitInfoApi> = Transformations.switchMap(searchIdUnit) { searchId ->
         sensorsRepository.compareUnitInfoApiFlow(searchId).asLiveData()
     }
     private val unitInformationLiveData: LiveData<UnitInfo> =
@@ -144,18 +144,6 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     fun editUnitName(name: String) {
         editUnitNameMutableLiveData.postValue(name)
     }
-
-    private val editUnitDescriptionMutableLiveData = MutableLiveData<String>()
-    fun editUnitDescription(description: String) {
-        editUnitDescriptionMutableLiveData.postValue(description)
-    }
-/*
-    fun editUnitUrl(unitId: String, url: String) {
-        viewModelScope.launch {
-            sensorsRepository.editUnitUrl(unitId, url)
-        }
-    }
-     */
 
     val unitLiveData: LiveData<UnitInfoView> =
         MediatorLiveData<UnitInfoView>().apply {
@@ -192,15 +180,6 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
                     lastUnitView?.let { unit ->
                         viewModelScope.launch {
                             sensorsRepository.editUnitName(unit.id, unitName)
-                        }
-                    }
-                }
-            }
-            addSource(editUnitDescriptionMutableLiveData) { description ->
-                description?.let { unitDescription ->
-                    lastUnitView?.let { unit ->
-                        viewModelScope.launch {
-                            sensorsRepository.editUnitDescription(unit.id, unitDescription)
                         }
                     }
                 }

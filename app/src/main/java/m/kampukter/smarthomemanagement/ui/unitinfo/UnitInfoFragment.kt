@@ -1,17 +1,18 @@
-package m.kampukter.smarthomemanagement.ui
+package m.kampukter.smarthomemanagement.ui.unitinfo
 
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.commit
 import m.kampukter.smarthomemanagement.R
 import m.kampukter.smarthomemanagement.data.dto.WSConnectionStatus
 import m.kampukter.smarthomemanagement.databinding.UnitInfoFragmentBinding
+import m.kampukter.smarthomemanagement.ui.RelayInfoFragment
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -49,15 +50,20 @@ class UnitInfoFragment : Fragment() {
         }
         arguments?.getString("ARG_ID_SENSOR")?.let { sensorId ->
 
-            viewModel.getUnitInfoApi()
-            viewModel.unitApiViewLiveData.observe(viewLifecycleOwner) {
-                Log.d("blabla","unitApiView -> $it")
-            }
-
             viewModel.setIdSensorForSearch(sensorId)
-            viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) {
-                if (it != null && it.id == sensorId) {
-                    viewModel.setIdUnitForSearch(it.unitId)
+            viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) { unit ->
+                if (unit != null && unit.id == sensorId) {
+                    viewModel.setIdUnitForSearch(unit.unitId)
+                    binding?.unitInfoApiButton?.setOnClickListener {
+                        activity?.supportFragmentManager?.commit {
+                            replace(
+                                android.R.id.content,
+                                UnitInfoApiFragment.createInstance(unit.unitId)
+                            )
+                            setReorderingAllowed(true)
+                            addToBackStack("Unit")
+                        }
+                    }
                 }
             }
             viewModel.unitLiveData.observe(viewLifecycleOwner) {
@@ -106,6 +112,7 @@ class UnitInfoFragment : Fragment() {
             }
         })
 
+
 /*
         binding?.unitUrlTextInputEdit?.addTextChangedListener(object : TextWatcher {
             override fun onTextChanged(
@@ -142,7 +149,7 @@ class UnitInfoFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         arguments?.getString("ARG_ID_SENSOR")?.let { id ->
-            id.let { viewModel.connectToUnit(it) }
+            id.let { viewModel.disconnectToUnit(it) }
         }
     }
 

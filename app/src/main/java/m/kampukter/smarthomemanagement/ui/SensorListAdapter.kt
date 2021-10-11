@@ -12,9 +12,7 @@ import m.kampukter.smarthomemanagement.databinding.SensorItemBinding
 private const val TYPE_SENSOR: Int = 1
 private const val TYPE_RELAY: Int = 2
 
-class SensorListAdapter :
-
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class SensorListAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     lateinit var clickSensorEventDelegate: ClickEventDelegate<UnitView>
     lateinit var clickRelayEventDelegate: ClickEventDelegate<UnitView>

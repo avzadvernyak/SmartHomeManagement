@@ -47,6 +47,7 @@
     <string name="find">Find</string>
     <string name="title_search">Поиск</string>
     <string name="title_result_search">Найдено</string>
+    <string name="unit_info_api">Информация с сервера</string>
 
 
 </resources>
