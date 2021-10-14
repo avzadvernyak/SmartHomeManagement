@@ -10,7 +10,6 @@ import androidx.fragment.app.commit
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import m.kampukter.smarthomemanagement.data.SensorInfoRemote
-import m.kampukter.smarthomemanagement.data.SensorType
 import m.kampukter.smarthomemanagement.databinding.SensorRemoteListFragmentBinding
 import m.kampukter.smarthomemanagement.ui.ClickEventDelegate
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
@@ -39,8 +38,6 @@ class SensorsRemoteListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var currentUnitId: String? = null
-
         (activity as? AppCompatActivity)?.setSupportActionBar(binding?.sensorRemoteListToolbar)
         (activity as AppCompatActivity).supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
@@ -51,7 +48,6 @@ class SensorsRemoteListFragment : Fragment() {
         }
         arguments?.getString("ARG_REMOTE_UNIT_ID")?.let {
             (activity as AppCompatActivity).title = "Sensors $it"
-            currentUnitId = it
         }
         sensorRemoteListAdapter = SensorRemoteListAdapter().apply {
             clickSensorEventDelegate = object : ClickEventDelegate<SensorInfoRemote> {
@@ -79,10 +75,9 @@ class SensorsRemoteListFragment : Fragment() {
                 adapter = sensorRemoteListAdapter
             }
         }
+
         //информация о сенсорах в составе заданного устройства
-        currentUnitId?.let { unitId ->
-            viewModel.setUnitApiId(unitId)
-        }
+        viewModel.getUnitInfoApi()
         viewModel.sensorInfoApiListByUnitIdLiveData.observe(viewLifecycleOwner) { list ->
             binding?.emptyListTextView?.visibility = if (list.isNotEmpty()) {
                 sensorRemoteListAdapter.setList(list)

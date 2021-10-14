@@ -10,15 +10,7 @@ import java.net.URL
 class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewModel() {
 
 
-    private val unitApiId = MutableLiveData<String>()
-    fun setUnitApiId(unitId: String) {
-        unitApiId.postValue(unitId)
-    }
 
-    val sensorInfoApiListByUnitIdLiveData: LiveData<List<SensorInfoRemote>> =
-        Transformations.switchMap(unitApiId) { searchId ->
-            sensorsRepository.getSensorListByUnitId(searchId).asLiveData()
-        }
 
     val unitInfoRemoteLiveData: LiveData<ResultUnitInfoRemote> =
         sensorsRepository.unitInfoRemoteFlow.asLiveData()
@@ -33,6 +25,11 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
     fun setSelectedUnitRemote(unit: UnitInfoRemote) {
         selectedUnitRemote.postValue(unit)
     }
+
+    val sensorInfoApiListByUnitIdLiveData: LiveData<List<SensorInfoRemote>> =
+        Transformations.switchMap(selectedUnitRemote) { unit ->
+            sensorsRepository.getSensorListByUnitId(unit.id).asLiveData()
+        }
 
     private val selectedSensorRemote = MutableLiveData<SensorInfoRemote>()
     fun setSelectedSensorRemote(sensor: SensorInfoRemote) {
@@ -129,9 +126,7 @@ class MainViewModel(private val sensorsRepository: SensorsRepository) : ViewMode
         searchIdUnit.postValue(idUnit)
     }
 
-    /*val unitApiViewLiveData: LiveData<UnitApiView?> = Transformations.switchMap(searchIdUnit) { searchId ->
-        sensorsRepository.getUnitApiView(searchId).asLiveData()
-    }*/
+
     val compareUnitApiViewLiveData: LiveData<ResultCompareUnitInfoApi> = Transformations.switchMap(searchIdUnit) { searchId ->
         sensorsRepository.compareUnitInfoApiFlow(searchId).asLiveData()
     }

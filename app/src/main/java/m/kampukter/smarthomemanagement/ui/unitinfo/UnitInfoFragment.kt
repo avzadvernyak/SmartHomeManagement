@@ -1,18 +1,15 @@
 package m.kampukter.smarthomemanagement.ui.unitinfo
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.commit
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.tabs.TabLayoutMediator
 import m.kampukter.smarthomemanagement.R
-import m.kampukter.smarthomemanagement.data.dto.WSConnectionStatus
 import m.kampukter.smarthomemanagement.databinding.UnitInfoFragmentBinding
-import m.kampukter.smarthomemanagement.ui.RelayInfoFragment
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
@@ -48,95 +45,39 @@ class UnitInfoFragment : Fragment() {
         binding?.unitInfoToolbar?.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
+        binding?.unitViewPager2?.adapter = object : FragmentStateAdapter(this) {
+
+            override fun getItemCount(): Int = 3
+
+            override fun createFragment(position: Int): Fragment {
+                return when (position) {
+                    0 -> UnitBasicInfoFragment()
+                    1 -> UnitApiInfoFragment()
+                    else -> UnitStatusFragment()
+                }
+            }
+
+        }
+        binding?.unitTabLayout?.let { tabLayout ->
+            binding?.unitViewPager2?.let { viewPager ->
+                TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                    tab.text = when (position) {
+                        0 -> "Общая"
+                        1 -> "На сервере"
+                        else -> "Состояние"
+                    }
+                }.attach()
+            }
+        }
         arguments?.getString("ARG_ID_SENSOR")?.let { sensorId ->
 
             viewModel.setIdSensorForSearch(sensorId)
             viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) { unit ->
                 if (unit != null && unit.id == sensorId) {
                     viewModel.setIdUnitForSearch(unit.unitId)
-                    binding?.unitInfoApiButton?.setOnClickListener {
-                        activity?.supportFragmentManager?.commit {
-                            replace(
-                                android.R.id.content,
-                                UnitInfoApiFragment.createInstance(unit.unitId)
-                            )
-                            setReorderingAllowed(true)
-                            addToBackStack("Unit")
-                        }
-                    }
-                }
-            }
-            viewModel.unitLiveData.observe(viewLifecycleOwner) {
-                it?.let { unitInfo ->
-                    binding?.unitIdTextView?.text = getString(R.string.unit_id_title, unitInfo.id)
-                    binding?.unitDescriptionTextView?.text = unitInfo.description
-
-                    if (unitInfo.name != binding?.unitNameTextInputEdit?.text.toString())
-                        binding?.unitNameTextInputEdit?.setText(unitInfo.name)
-
-                    binding?.unitConnectButton?.visibility = View.INVISIBLE
-                    val stringStatus = when (unitInfo.wsConnectionStatus) {
-                        is WSConnectionStatus.Connected -> "Устройство подключено"
-                        is WSConnectionStatus.Connecting -> "Установка связи с устройством"
-                        is WSConnectionStatus.Closing -> "Отключение устройства"
-                        is WSConnectionStatus.Failed -> {
-                            binding?.unitConnectButton?.visibility = View.VISIBLE
-                            "Ошибка подключения ${(unitInfo.wsConnectionStatus as WSConnectionStatus.Failed).reason}"
-                        }
-                        is WSConnectionStatus.Disconnected -> {
-                            binding?.unitConnectButton?.visibility = View.VISIBLE
-                            "Устройство отключено"
-                        }
-                        else -> {
-                            "Ожидаются данные..."
-                        }
-                    }
-                    binding?.unitStatusTextView?.text =
-                        getString(R.string.status_title, stringStatus)
-                    binding?.unitConnectButton?.setOnClickListener {
-                        viewModel.connectByIdUnit(unitInfo.id)
-                    }
                 }
             }
         }
-        binding?.unitNameTextInputEdit?.addTextChangedListener(object :
-            TextWatcher {
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                viewModel.editUnitName(p0.toString())
-            }
-
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-            }
-        })
-
-
-/*
-        binding?.unitUrlTextInputEdit?.addTextChangedListener(object : TextWatcher {
-            override fun onTextChanged(
-                p0: CharSequence?,
-                p1: Int,
-                p2: Int,
-                p3: Int
-            ) {
-                viewModel.editUnitUrl(it.unitId, p0.toString())
-            }
-
-            override fun beforeTextChanged(
-                p0: CharSequence?,
-                p1: Int,
-                p2: Int,
-                p3: Int
-            ) {
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-            }
-        })
-*/
-
     }
 
     override fun onResume() {

@@ -133,11 +133,9 @@ class SensorsRepository(
 
     private val resultUnitInfoApiFlow =
         MutableSharedFlow<ResultUnitsInfoApi>()
-        //MutableStateFlow<ResultUnitsInfoApi>(ResultUnitsInfoApi.EmptyResponse)
 
     suspend fun getUnitInfoApi() {
         resultUnitInfoApiFlow.emit( getResultUnitInfoApi() )
-        //resultUnitInfoApiFlow.value = getResultUnitInfoApi()
     }
 
     val unitsAllDao: Flow<List<UnitInfo>>
@@ -207,7 +205,7 @@ class SensorsRepository(
         } catch (e: IOException) {
             ResultSensorDataApi.OtherError("API Unknown Error")
         }
-        if (response?.code() == 204) return ResultSensorDataApi.EmptyResponse
+        if (response?.code() == 204) return ResultSensorDataApi.EmptyResponse(query.first)
         if (response?.code() != 200) return ResultSensorDataApi.OtherError("Error HTTP")
         val sensorDataList = response.body()
         return if (sensorDataList != null) ResultSensorDataApi.Success(sensorDataList)

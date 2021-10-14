@@ -45,6 +45,8 @@ class MainFragment : Fragment() {
         (activity as? AppCompatActivity)?.setSupportActionBar(binding?.mainFragmentToolbar)
         (activity as AppCompatActivity).title = getString(R.string.title_main)
 
+        binding?.mainFragmentProgressBar?.visibility = View.VISIBLE
+
         sensorListAdapter = SensorListAdapter().apply {
             clickSensorEventDelegate = object : ClickEventDelegate<UnitView> {
                 override fun onClick(item: UnitView) {
@@ -134,6 +136,7 @@ class MainFragment : Fragment() {
             }
         }
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
+            binding?.mainFragmentProgressBar?.visibility = View.INVISIBLE
             sensorListAdapter.setList(sensors)
         }
 

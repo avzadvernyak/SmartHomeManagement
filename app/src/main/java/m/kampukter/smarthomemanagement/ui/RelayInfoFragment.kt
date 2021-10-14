@@ -2,6 +2,7 @@ package m.kampukter.smarthomemanagement.ui
 
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.util.Pair
@@ -49,6 +50,8 @@ class RelayInfoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        var relayFullId: String? = null
+
         @Suppress("UNCHECKED_CAST")
         pickerRange =
             parentFragmentManager.findFragmentByTag("Picker") as? MaterialDatePicker<Pair<Long, Long>>
@@ -85,10 +88,16 @@ class RelayInfoFragment : Fragment() {
 
         visibilityRelayState(RelayState.OFFLINE)
         viewModel.sensorInformationLiveData.observe(viewLifecycleOwner) { relay ->
-            (activity as AppCompatActivity).title = relay?.name
-            relay?.unitId?.let { viewModel.setIdUnitForSearch(it) }
-            val relayFullId = "${relay?.unitId}${relay?.unitSensorId}"
-            viewModel.setQuestionSensorsData(Triple(relayFullId, strDateBegin, strDateEnd))
+
+            if (relay != null && relay.id == relayId) {
+
+                (activity as AppCompatActivity).title = relay.name
+                relay.unitId.let { viewModel.setIdUnitForSearch(it) }
+                relayFullId = "${relay.unitId}${relay.unitSensorId}"
+                relayFullId?.let {
+                    viewModel.setQuestionSensorsData(Triple(it, strDateBegin, strDateEnd))
+                }
+            }
         }
 
         viewModel.sensorListLiveData.observe(viewLifecycleOwner) { sensors ->
@@ -117,28 +126,34 @@ class RelayInfoFragment : Fragment() {
                 Date().time
             )
 
-            if (resultSensorData is ResultSensorDataApi.Success) {
-                val value = resultSensorData.sensorValue
-                listRelayStateAdapter.setList(value.sortedByDescending { it.date })
+            when (resultSensorData) {
+                is ResultSensorDataApi.Success -> {
+                    val value = resultSensorData.sensorValue.filter { it.unit == relayFullId }
+                    listRelayStateAdapter.setList(value.sortedByDescending { it.date })
 
-                begTime =
-                    DateFormat.format(
-                        getString(R.string.formatDT),
-                        resultSensorData.sensorValue.first().date * 1000L
-                    )
-                endTime =
-                    DateFormat.format(
-                        getString(R.string.formatDT),
-                        resultSensorData.sensorValue.last().date * 1000L
-                    )
-            } else if (resultSensorData is ResultSensorDataApi.EmptyResponse) {
-                listRelayStateAdapter.setList(emptyList())
-
-                Snackbar.make(
-                    view,
-                    getString(R.string.noDataMessage, strDateBegin, strDateEnd),
-                    Snackbar.LENGTH_LONG
-                ).show()
+                    begTime =
+                        DateFormat.format(
+                            getString(R.string.formatDT),
+                            resultSensorData.sensorValue.first().date * 1000L
+                        )
+                    endTime =
+                        DateFormat.format(
+                            getString(R.string.formatDT),
+                            resultSensorData.sensorValue.last().date * 1000L
+                        )
+                }
+                is ResultSensorDataApi.EmptyResponse -> {
+                    if (relayFullId == resultSensorData.sensorId) {
+                        listRelayStateAdapter.setList(emptyList())
+                        Snackbar.make(
+                            view,
+                            getString(R.string.noDataMessage, strDateBegin, strDateEnd),
+                            Snackbar.LENGTH_LONG
+                        ).show()
+                    }
+                }
+                is ResultSensorDataApi.OtherError ->
+                    Log.d("blabla", "API connection error (${resultSensorData.tError})")
             }
 
             binding?.intervalTextView?.text =

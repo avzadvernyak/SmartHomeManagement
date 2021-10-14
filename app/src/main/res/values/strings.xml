@@ -25,7 +25,7 @@
     <string name="unit_Description">Описание</string>
     <string name="unit_url">URL устройства</string>
     <string name="unit_connect">Тестовое подключение</string>
-    <string name="status_title">Состояние: %1$s</string>
+    <string name="status_title">Состояние связи: %1$s</string>
     <string name="unit_id_title">Код устройства: %1$s</string>
     <string name="last_value_title">На %1$s</string>
     <string name="new_record">Add Sensor</string>
@@ -48,6 +48,8 @@
     <string name="title_search">Поиск</string>
     <string name="title_result_search">Найдено</string>
     <string name="unit_info_api">Информация с сервера</string>
+    <string name="unit_description_title">Описание устройства</string>
+    <string name="unit_api_title">Состав устройства, и статус сенсоров в приложении</string>
 
 
 </resources>
