@@ -55,7 +55,8 @@
             android:contentDescription="@null"
             app:layout_constraintEnd_toStartOf="@id/changeSensorImageButton"
             app:layout_constraintStart_toEndOf="@id/imageSensorTextView"
-            app:layout_constraintTop_toBottomOf="@+id/sensorMeasureTextView" />
+            app:layout_constraintTop_toBottomOf="@+id/sensorMeasureTextView"
+            app:tint="?attr/colorOnPrimary" />
 
         <TextView
             android:id="@+id/sensorNameTextView"

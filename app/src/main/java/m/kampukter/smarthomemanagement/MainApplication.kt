@@ -3,7 +3,6 @@ package m.kampukter.smarthomemanagement
 import android.app.Application
 import androidx.room.Room
 import androidx.work.*
-import com.facebook.stetho.Stetho
 import kotlinx.coroutines.DelicateCoroutinesApi
 import m.kampukter.smarthomemanagement.data.*
 import m.kampukter.smarthomemanagement.data.dto.DeviceInteractionApi
@@ -42,8 +41,6 @@ class MainApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        Stetho.initializeWithDefaults(this)
-        
         NetworkLiveData.init(this)
 
         startKoin {

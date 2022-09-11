@@ -12,6 +12,7 @@ import m.kampukter.smarthomemanagement.databinding.SensorGraphFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.util.*
+import kotlin.math.abs
 
 class SensorGraphFragment : Fragment() {
 
@@ -56,9 +57,9 @@ class SensorGraphFragment : Fragment() {
                         }
                         series.resetData(graphValue)
                         value.map { it.value }.minOrNull()
-                            ?.let { viewport.setMinY((it - (it / 20)).toDouble()) }
+                            ?.let { viewport.setMinY((it - abs(it / 20)).toDouble()) }
                         value.map { it.value }.maxOrNull()
-                            ?.let { viewport.setMaxY((it + (it / 20)).toDouble()) }
+                            ?.let { viewport.setMaxY((it + abs(it / 20)).toDouble()) }
                         viewport.setMinX(value.first().date * 1000L.toDouble())
                         viewport.setMaxX(value.last().date * 1000L.toDouble())
                     }

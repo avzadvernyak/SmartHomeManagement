@@ -1,5 +1,6 @@
 package m.kampukter.smarthomemanagement.ui
 
+import android.annotation.SuppressLint
 import android.text.format.DateFormat
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -28,6 +29,7 @@ class SensorListViewHolder(
                 root.context.resources.getIdentifier(result.icon.uri, null, root.context.packageName)
             ResourcesCompat.getDrawable(root.context.resources, imageResource, null)?.let {
                 imageItemImageView.setImageDrawable(it)
+                //imageItemImageView.setColorFilter(root.context.resources.getColor(R.color.colorPrimaryText,null))
             }
 
             sensorItemView.root.setOnClickListener {

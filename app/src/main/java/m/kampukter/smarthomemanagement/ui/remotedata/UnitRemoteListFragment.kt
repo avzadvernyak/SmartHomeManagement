@@ -1,6 +1,7 @@
 package m.kampukter.smarthomemanagement.ui.remotedata
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -82,7 +83,6 @@ class UnitRemoteListFragment : Fragment() {
                     unitRemoteListAdapter.setList(resultUnitInfo.infoApi)
                 }
                 is ResultUnitInfoRemote.EmptyResponse -> {
-
                 }
                 is ResultUnitInfoRemote.OtherError -> {
                 }

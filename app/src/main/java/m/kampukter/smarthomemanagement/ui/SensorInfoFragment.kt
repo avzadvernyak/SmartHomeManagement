@@ -21,6 +21,7 @@ import m.kampukter.smarthomemanagement.databinding.SensorInfoFragmentBinding
 import m.kampukter.smarthomemanagement.viewmodel.MainViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.util.*
+import kotlin.math.abs
 
 
 class SensorInfoFragment : Fragment() {
@@ -148,9 +149,9 @@ class SensorInfoFragment : Fragment() {
                         binding?.let { _binding ->
                             with(_binding.previewGraphView) {
                                 value.map { it.value }.minOrNull()
-                                    ?.let { viewport.setMinY((it - (it / 20)).toDouble()) }
+                                    ?.let { viewport.setMinY((it - abs(it / 20)).toDouble()) }
                                 value.map { it.value }.maxOrNull()
-                                    ?.let { viewport.setMaxY((it + (it / 20)).toDouble()) }
+                                    ?.let { viewport.setMaxY((it + abs(it / 20)).toDouble()) }
                                 viewport.setMinX(value.first().date * 1000L.toDouble())
                                 viewport.setMaxX(value.last().date * 1000L.toDouble())
 

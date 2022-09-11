@@ -15,7 +15,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:contentDescription="@null" />
+        android:contentDescription="@null"
+        app:tint="?attr/colorOnPrimary" />
 
     <TextView
         android:id="@+id/sensorNameTextView"
